@@ -9,6 +9,7 @@ import (
 )
 
 type Product struct {
+	Title string `json:"title"`
 }
 
 func GetProduct(c *gin.Context) {
@@ -32,4 +33,21 @@ func GetProduct(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, product)
+}
+
+func SaveProduct(c *gin.Context) {
+	var json Product
+	if err := c.ShouldBindJSON(&json); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	product := repository.Product{Title: json.Title}
+
+	productRepository := repository.ProductRepository{Db: repository.Gorm}
+	productRepository.SaveProduct(&product)
+
+	c.JSON(http.StatusOK, "OK")
 }
