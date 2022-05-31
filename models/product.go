@@ -9,4 +9,5 @@ type Product interface {
 type ProductRepository interface {
 	GetProductById(id uint) Product
 	SaveProduct(product Product) Product
+	DeleteProductById(id uint)
 }

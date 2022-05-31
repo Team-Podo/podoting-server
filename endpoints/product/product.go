@@ -1,8 +1,8 @@
 package product
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/kwanok/podonine/models"
 	"github.com/kwanok/podonine/repository"
 	"net/http"
 	"strconv"
@@ -12,9 +12,12 @@ type Product struct {
 	Title string `json:"title"`
 }
 
+type Repository struct {
+	productRepository models.ProductRepository
+}
+
 func GetProduct(c *gin.Context) {
 	id := c.Param("id")
-	fmt.Println(id)
 
 	intId, err := strconv.Atoi(id)
 	if err != nil {
@@ -45,9 +48,22 @@ func SaveProduct(c *gin.Context) {
 	}
 
 	product := repository.Product{Title: json.Title}
+	productRepository := repository.ProductRepository{Db: repository.Gorm}
+	result := productRepository.SaveProduct(&product)
+
+	c.JSON(http.StatusOK, result)
+}
+
+func DeleteProduct(c *gin.Context) {
+	id := c.Param("id")
+
+	intId, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, "id should be Integer")
+		c.Abort()
+		return
+	}
 
 	productRepository := repository.ProductRepository{Db: repository.Gorm}
-	productRepository.SaveProduct(&product)
-
-	c.JSON(http.StatusOK, "OK")
+	productRepository.DeleteProductById(uint(intId))
 }

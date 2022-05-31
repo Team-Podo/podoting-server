@@ -50,3 +50,9 @@ func (repo *ProductRepository) SaveProduct(product models.Product) models.Produc
 
 	return &_product
 }
+
+func (repo *ProductRepository) DeleteProductById(id uint) {
+	var product Product
+	product.ID = id
+	repo.Db.Delete(&product)
+}
