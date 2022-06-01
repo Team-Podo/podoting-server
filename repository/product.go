@@ -8,7 +8,7 @@ import (
 type Product struct {
 	gorm.Model
 	Title string
-	Seats []Seat
+	Seats []Seat `gorm:"foreignkey:ProductId"`
 }
 
 func (product *Product) GetId() uint {
@@ -31,7 +31,7 @@ type ProductRepository struct {
 func (repo *ProductRepository) GetProductById(id uint) models.Product {
 	var product Product
 	product.ID = id
-	result := repo.Db.First(&product)
+	result := repo.Db.Preload("Seats").First(&product)
 	if result.Error != nil {
 		return nil
 	}
