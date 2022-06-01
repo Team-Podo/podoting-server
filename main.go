@@ -14,12 +14,22 @@ func main() {
 		panic("failed to connect gorm")
 	}
 
+	err = db.AutoMigrate(&repository.Place{})
+	if err != nil {
+		return
+	}
+
 	err = db.AutoMigrate(&repository.Product{})
 	if err != nil {
 		return
 	}
 
 	err = db.AutoMigrate(&repository.Seat{})
+	if err != nil {
+		return
+	}
+
+	err = db.AutoMigrate(&repository.Area{})
 	if err != nil {
 		return
 	}

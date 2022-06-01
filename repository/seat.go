@@ -6,8 +6,9 @@ import (
 )
 
 type Seat struct {
-	gorm.Model
-	ProductId uint
+	Model
+	AreaId uint `json:"-"`
+	Code   string
 }
 
 type SeatRepository struct {
@@ -18,9 +19,9 @@ func (s *Seat) GetId() uint {
 	return s.ID
 }
 
-func (repo *SeatRepository) GetSeatsByProductId(productId uint) []models.Seat {
+func (repo *SeatRepository) GetSeatsByAreaId(areaId uint) []models.Seat {
 	var _seats []Seat
-	repo.Db.Model(Seat{ProductId: productId}).Find(&_seats)
+	repo.Db.Model(Seat{AreaId: areaId}).Find(&_seats)
 
 	var seats []models.Seat
 

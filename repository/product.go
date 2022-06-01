@@ -1,14 +1,16 @@
 package repository
 
 import (
+	"fmt"
 	"github.com/kwanok/podonine/models"
 	"gorm.io/gorm"
 )
 
 type Product struct {
-	gorm.Model
-	Title string
-	Seats []Seat `gorm:"foreignkey:ProductId"`
+	Model
+	Title   string
+	Place   Place `gorm:"foreignkey:PlaceId"`
+	PlaceId uint  `json:"-"`
 }
 
 func (product *Product) GetId() uint {
@@ -19,11 +21,6 @@ func (product *Product) GetTitle() string {
 	return product.Title
 }
 
-func (product *Product) GetSeats() []models.Seat {
-	seatRepository := SeatRepository{Db: Gorm}
-	return seatRepository.GetSeatsByProductId(product.ID)
-}
-
 type ProductRepository struct {
 	Db *gorm.DB
 }
@@ -31,8 +28,10 @@ type ProductRepository struct {
 func (repo *ProductRepository) GetProductById(id uint) models.Product {
 	var product Product
 	product.ID = id
-	result := repo.Db.Preload("Seats").First(&product)
+	result := repo.Db.Preload("Place.Areas.Seats").First(&product)
+
 	if result.Error != nil {
+		fmt.Println(result.Error.Error())
 		return nil
 	}
 

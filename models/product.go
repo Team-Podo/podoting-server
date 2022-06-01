@@ -3,7 +3,6 @@ package models
 type Product interface {
 	GetId() uint
 	GetTitle() string
-	GetSeats() []Seat
 }
 
 type ProductRepository interface {
