@@ -1,7 +1,8 @@
-package models
+package endpoints
 
 import (
 	"github.com/go-playground/assert/v2"
+	"github.com/kwanok/podonine/models"
 	"github.com/kwanok/podonine/repository"
 	"github.com/stretchr/testify/suite"
 	"testing"
@@ -9,8 +10,8 @@ import (
 
 type ProductTestSuite struct {
 	suite.Suite
-	product           Product
-	productRepository ProductRepository
+	product           models.Product
+	productRepository models.ProductRepository
 }
 
 func (suite *ProductTestSuite) SetupTest() {

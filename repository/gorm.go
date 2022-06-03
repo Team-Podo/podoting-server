@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/kwanok/podonine/utils"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"time"
@@ -16,7 +17,7 @@ type Model struct {
 }
 
 func Init() {
-	db, err := gorm.Open(sqlite.Open("sqlite/test.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open(utils.RootPath()+"sqlite/test.db"), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect gorm")
 	}
