@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"github.com/joho/godotenv"
+	"log"
 	"path/filepath"
 	"runtime"
 )
@@ -12,4 +14,12 @@ var (
 
 func RootPath() string {
 	return basePath[:len(basePath)-5]
+}
+
+func SetEnv() {
+	err := godotenv.Load(".env")
+
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 }

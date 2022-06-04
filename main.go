@@ -1,48 +1,28 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/kwanok/podonine/database/migration"
 	"github.com/kwanok/podonine/repository"
 	"github.com/kwanok/podonine/routes"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
+	"github.com/kwanok/podonine/utils"
+	"os"
 )
 
 func main() {
-	db, err := gorm.Open(sqlite.Open("sqlite/test.db"), &gorm.Config{})
-	if err != nil {
-		panic("failed to connect gorm")
-	}
-
-	err = db.AutoMigrate(&repository.Place{})
-	if err != nil {
-		return
-	}
-
-	err = db.AutoMigrate(&repository.Product{})
-	if err != nil {
-		return
-	}
-
-	err = db.AutoMigrate(&repository.Seat{})
-	if err != nil {
-		return
-	}
-
-	err = db.AutoMigrate(&repository.Area{})
-	if err != nil {
-		return
-	}
+	utils.SetEnv()
 
 	repository.Init()
+	migration.Init()
 
 	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
 	routes.Routes(r)
 
-	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	fmt.Printf("Podoting running on %s mode \n", os.Getenv("APP_ENV"))
+
+	err := r.Run()
+	if err != nil {
+		return
+	} // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
