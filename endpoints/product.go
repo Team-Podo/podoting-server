@@ -12,8 +12,16 @@ type Product struct {
 	Title string `json:"title"`
 }
 
+var repositories Repository
+
 type Repository struct {
-	productRepository models.ProductRepository
+	product models.ProductRepository
+}
+
+func init() {
+	repositories = Repository{
+		product: &repository.ProductRepository{Db: repository.Gorm},
+	}
 }
 
 func GetProduct(c *gin.Context) {
@@ -22,16 +30,13 @@ func GetProduct(c *gin.Context) {
 	intId, err := strconv.Atoi(id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, "id should be Integer")
-		c.Abort()
 		return
 	}
 
-	productRepository := repository.ProductRepository{Db: repository.Gorm}
-	product := productRepository.GetProductById(uint(intId))
+	product := repositories.product.GetProductById(uint(intId))
 
 	if product == nil {
 		c.JSON(http.StatusNotFound, "Not Found")
-		c.Abort()
 		return
 	}
 
@@ -47,9 +52,11 @@ func SaveProduct(c *gin.Context) {
 		return
 	}
 
-	product := repository.Product{Title: json.Title}
-	productRepository := repository.ProductRepository{Db: repository.Gorm}
-	result := productRepository.SaveProduct(&product)
+	product := repository.Product{
+		Title: json.Title,
+	}
+
+	result := repositories.product.SaveProduct(&product)
 
 	c.JSON(http.StatusOK, result)
 }
@@ -60,10 +67,8 @@ func DeleteProduct(c *gin.Context) {
 	intId, err := strconv.Atoi(id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, "id should be Integer")
-		c.Abort()
 		return
 	}
 
-	productRepository := repository.ProductRepository{Db: repository.Gorm}
-	productRepository.DeleteProductById(uint(intId))
+	repositories.product.DeleteProductById(uint(intId))
 }
