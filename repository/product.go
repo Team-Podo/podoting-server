@@ -25,6 +25,19 @@ type ProductRepository struct {
 	Db *gorm.DB
 }
 
+func (repo *ProductRepository) GetProducts() []models.Product {
+	var _products []Product
+	repo.Db.Model(Product{}).Find(&_products)
+
+	var products []models.Product
+
+	for _, product := range _products {
+		products = append(products, &product)
+	}
+
+	return products
+}
+
 func (repo *ProductRepository) GetProductById(id uint) models.Product {
 	var product Product
 	product.ID = id

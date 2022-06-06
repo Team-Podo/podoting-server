@@ -12,9 +12,13 @@ type ProductTestSuite struct {
 }
 
 func (suite *ProductTestSuite) SetupTest() {
-	Init()
-
 	suite.productRepository = &ProductRepository{Db: Gorm}
+}
+
+func (suite *ProductTestSuite) TestGetProducts() {
+	products := suite.productRepository.GetProducts()
+
+	assert.NotNil(suite.T(), products)
 }
 
 func (suite *ProductTestSuite) TestGetProductById() {

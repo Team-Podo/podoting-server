@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/kwanok/podonine/database/migration"
-	"github.com/kwanok/podonine/repository"
 	"github.com/kwanok/podonine/routes"
 	"github.com/kwanok/podonine/utils"
 	"os"
@@ -13,7 +12,6 @@ import (
 func main() {
 	utils.SetEnv()
 
-	repository.Init()
 	migration.Init()
 
 	r := gin.Default()

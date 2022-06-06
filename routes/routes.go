@@ -3,9 +3,20 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/kwanok/podonine/endpoints"
+	"github.com/kwanok/podonine/endpoints/admin/product"
 )
 
 func Routes(r *gin.Engine) {
+	admin := r.Group("/admin")
+	{
+		products := admin.Group("/products")
+		{
+			products.GET("/", product.Get)
+			products.GET("/:id", product.Find)
+			products.POST("/", product.Save)
+		}
+	}
+
 	products := r.Group("/products")
 	{
 		products.GET("/:id", endpoints.GetProduct)
