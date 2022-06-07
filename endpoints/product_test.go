@@ -15,8 +15,6 @@ type ProductTestSuite struct {
 }
 
 func (suite *ProductTestSuite) SetupTest() {
-	repository.Init()
-
 	suite.product = &repository.Product{
 		Title: "Test1",
 		Place: repository.Place{},
