@@ -54,7 +54,7 @@ func Find(c *gin.Context) {
 	c.JSON(http.StatusOK, product)
 }
 
-func Save(c *gin.Context) {
+func Create(c *gin.Context) {
 	var json Product
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{

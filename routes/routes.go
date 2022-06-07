@@ -14,14 +14,14 @@ func Routes(r *gin.Engine) {
 		{
 			products.GET("/", product.Get)
 			products.GET("/:id", product.Find)
-			products.POST("/", product.Save)
+			products.POST("/", product.Create)
 		}
 
 		places := admin.Group("/places")
 		{
 			places.GET("/", place.Get)
 			places.GET("/:id", place.Find)
-			places.POST("/", place.Save)
+			places.POST("/", place.Create)
 		}
 	}
 
