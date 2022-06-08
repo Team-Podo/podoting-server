@@ -37,7 +37,20 @@ type AreaRepository struct {
 	Db *gorm.DB
 }
 
-func (repo *AreaRepository) GetAreaById(id uint) models.Area {
+func (repo *AreaRepository) Get() []models.Area {
+	var _areas []Area
+	repo.Db.Model(Area{}).Find(&_areas)
+
+	var areas []models.Area
+
+	for _, area := range _areas {
+		areas = append(areas, &area)
+	}
+
+	return areas
+}
+
+func (repo *AreaRepository) Find(id uint) models.Area {
 	var area Area
 	result := repo.Db.First(&area, id)
 	if result.Error != nil {
@@ -47,17 +60,11 @@ func (repo *AreaRepository) GetAreaById(id uint) models.Area {
 	return &area
 }
 
-func (repo *AreaRepository) SaveArea(area models.Area) models.Area {
+func (repo *AreaRepository) Save(area models.Area) models.Area {
 	result := repo.Db.Create(area)
 	if result.Error != nil {
 		return nil
 	}
 
 	return area
-}
-
-func (repo *AreaRepository) DeleteAreaById(id uint) {
-	var area Area
-	area.ID = id
-	repo.Db.Delete(&area)
 }

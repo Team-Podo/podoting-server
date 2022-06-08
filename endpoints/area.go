@@ -18,7 +18,7 @@ func GetArea(c *gin.Context) {
 	}
 
 	areaRepository := repository.AreaRepository{Db: repository.Gorm}
-	area := areaRepository.GetAreaById(uint(intId))
+	area := areaRepository.Find(uint(intId))
 
 	if area == nil {
 		c.JSON(http.StatusNotFound, "Not Found")

@@ -7,7 +7,7 @@ type Area interface {
 }
 
 type AreaRepository interface {
-	GetAreaById(id uint) Area
-	SaveArea(area Area) Area
-	DeleteAreaById(id uint)
+	Get() []Area
+	Find(id uint) Area
+	Save(area Area) Area
 }

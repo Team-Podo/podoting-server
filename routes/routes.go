@@ -3,6 +3,7 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/kwanok/podonine/endpoints"
+	"github.com/kwanok/podonine/endpoints/admin/area"
 	"github.com/kwanok/podonine/endpoints/admin/place"
 	"github.com/kwanok/podonine/endpoints/admin/product"
 )
@@ -22,6 +23,13 @@ func Routes(r *gin.Engine) {
 			places.GET("/", place.Get)
 			places.GET("/:id", place.Find)
 			places.POST("/", place.Create)
+		}
+
+		areas := admin.Group("/areas")
+		{
+			areas.GET("/", area.Get)
+			areas.GET("/:id", area.Find)
+			areas.POST("/", area.Create)
 		}
 	}
 
