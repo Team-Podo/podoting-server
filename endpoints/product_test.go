@@ -15,9 +15,17 @@ type ProductTestSuite struct {
 }
 
 func (suite *ProductTestSuite) SetupTest() {
+	var content = []*repository.ProductContent{
+		{},
+		{},
+	}
+
 	suite.product = &repository.Product{
 		Title: "Test1",
-		Place: repository.Place{},
+		Place: &repository.Place{
+			Title: "아트센터",
+		},
+		Content: content,
 	}
 
 	suite.productRepository = &repository.ProductRepository{Db: repository.Gorm}

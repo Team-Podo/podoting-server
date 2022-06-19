@@ -15,8 +15,8 @@ func (suite *ProductTestSuite) SetupTest() {
 	suite.productRepository = &ProductRepository{Db: Gorm}
 }
 
-func (suite *ProductTestSuite) TestGetProducts() {
-	products := suite.productRepository.GetProducts()
+func (suite *ProductTestSuite) TestGet() {
+	products := suite.productRepository.Get()
 
 	assert.NotNil(suite.T(), products)
 }

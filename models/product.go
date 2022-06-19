@@ -6,7 +6,7 @@ type Product interface {
 }
 
 type ProductRepository interface {
-	GetProducts() []Product
+	Get() []Product
 	GetProductById(id uint) Product
 	SaveProduct(product Product) Product
 	DeleteProductById(id uint)

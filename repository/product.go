@@ -9,8 +9,9 @@ import (
 type Product struct {
 	Model
 	Title   string
-	Place   Place `gorm:"foreignkey:PlaceId"`
-	PlaceId uint  `json:"-"`
+	Place   *Place `gorm:"foreignkey:PlaceId"`
+	PlaceId uint   `json:"-"`
+	Content []*ProductContent
 }
 
 func (product *Product) GetId() uint {
@@ -25,7 +26,7 @@ type ProductRepository struct {
 	Db *gorm.DB
 }
 
-func (repo *ProductRepository) GetProducts() []models.Product {
+func (repo *ProductRepository) Get() []models.Product {
 	var _products []Product
 	repo.Db.Model(Product{}).Find(&_products)
 

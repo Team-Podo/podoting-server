@@ -25,7 +25,7 @@ func init() {
 }
 
 func Get(c *gin.Context) {
-	products := repositories.product.GetProducts()
+	products := repositories.product.Get()
 
 	if products == nil {
 		c.JSON(http.StatusNotFound, "Not Found")
