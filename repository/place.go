@@ -8,9 +8,8 @@ import (
 
 type Place struct {
 	Model
-	Title    string
-	Products *[]Product `gorm:"foreignkey:PlaceId"`
-	Areas    *[]Area    `gorm:"foreignkey:PlaceId"`
+	Title string
+	Areas *[]Area `gorm:"foreignkey:PlaceId"`
 }
 
 func (place *Place) GetId() uint {

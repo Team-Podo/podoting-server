@@ -22,6 +22,10 @@ func (product *Product) GetTitle() string {
 	return product.Title
 }
 
+func (product *Product) GetPlace() models.Place {
+	return product.Place
+}
+
 type ProductRepository struct {
 	Db *gorm.DB
 }

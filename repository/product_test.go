@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"testing"
@@ -17,12 +18,18 @@ func (suite *ProductTestSuite) SetupTest() {
 
 func (suite *ProductTestSuite) TestGet() {
 	products := suite.productRepository.Get()
+	for _, product := range products {
+		fmt.Println(product.GetTitle())
+	}
 
 	assert.NotNil(suite.T(), products)
 }
 
 func (suite *ProductTestSuite) TestGetProductById() {
 	product := suite.productRepository.GetProductById(1)
+	fmt.Println(product.GetId())
+	fmt.Println(product.GetTitle())
+	fmt.Println(product.GetPlace())
 
 	assert.Equal(suite.T(), uint(1), product.GetId())
 }

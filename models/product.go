@@ -3,6 +3,7 @@ package models
 type Product interface {
 	GetId() uint
 	GetTitle() string
+	GetPlace() Place
 }
 
 type ProductRepository interface {
