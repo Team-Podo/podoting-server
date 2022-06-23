@@ -19,7 +19,7 @@ func (suite *ProductTestSuite) SetupTest() {
 func (suite *ProductTestSuite) TestGet() {
 	products := suite.productRepository.Get()
 	for _, product := range products {
-		fmt.Println(product.GetTitle())
+		fmt.Println(product)
 	}
 
 	assert.NotNil(suite.T(), products)

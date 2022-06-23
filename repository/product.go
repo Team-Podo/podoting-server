@@ -31,13 +31,12 @@ type ProductRepository struct {
 }
 
 func (repo *ProductRepository) Get() []models.Product {
-	var _products []Product
-	repo.Db.Model(Product{}).Find(&_products)
+	var _products []*Product
+	repo.Db.Find(&_products)
 
-	var products []models.Product
-
-	for _, product := range _products {
-		products = append(products, &product)
+	var products = make([]models.Product, len(_products))
+	for i, _product := range _products {
+		products[i] = _product
 	}
 
 	return products
