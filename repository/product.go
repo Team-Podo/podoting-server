@@ -67,6 +67,17 @@ func (repo *ProductRepository) SaveProduct(product models.Product) models.Produc
 	return &_product
 }
 
+func (repo *ProductRepository) Update(product models.Product) models.Product {
+	var _product Product
+	_product.ID = product.GetId()
+	repo.Db.First(&_product)
+
+	_product.Title = product.GetTitle()
+	repo.Db.Save(&_product)
+
+	return product
+}
+
 func (repo *ProductRepository) DeleteProductById(id uint) {
 	var product Product
 	product.ID = id

@@ -10,5 +10,6 @@ type ProductRepository interface {
 	Get() []Product
 	GetProductById(id uint) Product
 	SaveProduct(product Product) Product
+	Update(product Product) Product
 	DeleteProductById(id uint)
 }

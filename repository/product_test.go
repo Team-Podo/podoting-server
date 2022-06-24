@@ -10,10 +10,12 @@ import (
 type ProductTestSuite struct {
 	suite.Suite
 	productRepository *ProductRepository
+	product           Product
 }
 
 func (suite *ProductTestSuite) SetupTest() {
 	suite.productRepository = &ProductRepository{Db: Gorm}
+	suite.product = Product{Title: "수정 전"}
 }
 
 func (suite *ProductTestSuite) TestGet() {
@@ -42,6 +44,20 @@ func (suite *ProductTestSuite) TestSaveProduct() {
 	_product := suite.productRepository.GetProductById(product.GetId())
 
 	assert.Equal(suite.T(), "테스트 상품", _product.GetTitle())
+}
+
+func (suite *ProductTestSuite) TestUpdateProduct() {
+	product := suite.productRepository.SaveProduct(&suite.product)
+	assert.Equal(suite.T(), "수정 전", product.GetTitle())
+	fmt.Println(product)
+
+	var _product Product
+	_product.ID = product.GetId()
+	_product.Title = "수정 후"
+
+	product = suite.productRepository.Update(&_product)
+	assert.Equal(suite.T(), "수정 후", product.GetTitle())
+	fmt.Println(product)
 }
 
 func (suite *ProductTestSuite) TestDeleteProductById() {
