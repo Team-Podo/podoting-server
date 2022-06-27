@@ -2,6 +2,7 @@ package endpoints
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/kwanok/podonine/database"
 	"github.com/kwanok/podonine/repository"
 	"net/http"
 	"strconv"
@@ -17,7 +18,7 @@ func GetArea(c *gin.Context) {
 		return
 	}
 
-	areaRepository := repository.AreaRepository{Db: repository.Gorm}
+	areaRepository := repository.AreaRepository{Db: database.Gorm}
 	area := areaRepository.Find(uint(intId))
 
 	if area == nil {

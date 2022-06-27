@@ -2,6 +2,7 @@ package place
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/kwanok/podonine/database"
 	"github.com/kwanok/podonine/models"
 	"github.com/kwanok/podonine/repository"
 	"net/http"
@@ -20,7 +21,7 @@ type Repository struct {
 
 func init() {
 	repositories = Repository{
-		place: &repository.PlaceRepository{Db: repository.Gorm},
+		place: &repository.PlaceRepository{Db: database.Gorm},
 	}
 }
 

@@ -2,6 +2,7 @@ package endpoints
 
 import (
 	"github.com/go-playground/assert/v2"
+	"github.com/kwanok/podonine/database"
 	"github.com/kwanok/podonine/models"
 	"github.com/kwanok/podonine/repository"
 	"github.com/stretchr/testify/suite"
@@ -28,7 +29,7 @@ func (suite *ProductTestSuite) SetupTest() {
 		Content: content,
 	}
 
-	suite.productRepository = &repository.ProductRepository{Db: repository.Gorm}
+	suite.productRepository = &repository.ProductRepository{Db: database.Gorm}
 }
 
 func (suite *ProductTestSuite) TestSaveProduct() {

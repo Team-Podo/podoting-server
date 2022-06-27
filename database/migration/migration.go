@@ -1,11 +1,12 @@
 package migration
 
 import (
+	"github.com/kwanok/podonine/database"
 	"github.com/kwanok/podonine/repository"
 )
 
 func Init() {
-	db := repository.Gorm
+	db := database.Gorm
 
 	err := db.AutoMigrate(&repository.Place{})
 	if err != nil {

@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/kwanok/podonine/database"
 	"github.com/kwanok/podonine/models"
 	"gorm.io/gorm"
 )
@@ -22,7 +23,7 @@ func (area *Area) GetTitle() string {
 
 func (area *Area) GetSeats() []models.Seat {
 	var _seats []Seat
-	Gorm.Model(Seat{AreaId: area.GetId()}).Find(&_seats)
+	database.Gorm.Model(Seat{AreaId: area.GetId()}).Find(&_seats)
 
 	var seats []models.Seat
 

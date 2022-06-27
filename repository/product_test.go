@@ -2,6 +2,7 @@ package repository
 
 import (
 	"fmt"
+	"github.com/kwanok/podonine/database"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"testing"
@@ -14,7 +15,7 @@ type ProductTestSuite struct {
 }
 
 func (suite *ProductTestSuite) SetupTest() {
-	suite.productRepository = &ProductRepository{Db: Gorm}
+	suite.productRepository = &ProductRepository{Db: database.Gorm}
 	suite.product = Product{Title: "수정 전"}
 }
 
