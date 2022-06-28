@@ -45,7 +45,7 @@ func Find(c *gin.Context) {
 		return
 	}
 
-	product := repositories.product.GetProductById(uint(intId))
+	product := repositories.product.Find(uint(intId))
 
 	if product == nil {
 		c.JSON(http.StatusNotFound, "Not Found")
@@ -68,7 +68,7 @@ func Create(c *gin.Context) {
 		Title: json.Title,
 	}
 
-	result := repositories.product.SaveProduct(&product)
+	result := repositories.product.Save(&product)
 
 	c.JSON(http.StatusOK, result)
 }

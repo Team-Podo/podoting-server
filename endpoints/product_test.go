@@ -33,7 +33,7 @@ func (suite *ProductTestSuite) SetupTest() {
 }
 
 func (suite *ProductTestSuite) TestSaveProduct() {
-	product := suite.productRepository.SaveProduct(suite.product)
+	product := suite.productRepository.Save(suite.product)
 
 	assert.Equal(suite.T(), product.GetTitle(), suite.product.GetTitle())
 }

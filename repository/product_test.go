@@ -29,7 +29,7 @@ func (suite *ProductTestSuite) TestGet() {
 }
 
 func (suite *ProductTestSuite) TestGetProductById() {
-	product := suite.productRepository.GetProductById(1)
+	product := suite.productRepository.Find(1)
 	fmt.Println(product.GetId())
 	fmt.Println(product.GetTitle())
 	fmt.Println(product.GetPlace())
@@ -38,17 +38,17 @@ func (suite *ProductTestSuite) TestGetProductById() {
 }
 
 func (suite *ProductTestSuite) TestSaveProduct() {
-	product := suite.productRepository.SaveProduct(&Product{
+	product := suite.productRepository.Save(&Product{
 		Title: "테스트 상품",
 	})
 
-	_product := suite.productRepository.GetProductById(product.GetId())
+	_product := suite.productRepository.Find(product.GetId())
 
 	assert.Equal(suite.T(), "테스트 상품", _product.GetTitle())
 }
 
 func (suite *ProductTestSuite) TestUpdateProduct() {
-	product := suite.productRepository.SaveProduct(&suite.product)
+	product := suite.productRepository.Save(&suite.product)
 	assert.Equal(suite.T(), "수정 전", product.GetTitle())
 	fmt.Println(product)
 
@@ -62,13 +62,13 @@ func (suite *ProductTestSuite) TestUpdateProduct() {
 }
 
 func (suite *ProductTestSuite) TestDeleteProductById() {
-	product := suite.productRepository.SaveProduct(&Product{
+	product := suite.productRepository.Save(&Product{
 		Title: "테스트 삭제 상품",
 	})
 
-	suite.productRepository.DeleteProductById(product.GetId())
+	suite.productRepository.Delete(product.GetId())
 
-	_product := suite.productRepository.GetProductById(product.GetId())
+	_product := suite.productRepository.Find(product.GetId())
 
 	assert.Equal(suite.T(), nil, _product)
 }

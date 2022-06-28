@@ -8,8 +8,8 @@ type Product interface {
 
 type ProductRepository interface {
 	Get() []Product
-	GetProductById(id uint) Product
-	SaveProduct(product Product) Product
+	Find(id uint) Product
+	Save(product Product) Product
 	Update(product Product) Product
-	DeleteProductById(id uint)
+	Delete(id uint)
 }

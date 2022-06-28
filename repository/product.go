@@ -42,7 +42,7 @@ func (repo *ProductRepository) Get() []models.Product {
 	return products
 }
 
-func (repo *ProductRepository) GetProductById(id uint) models.Product {
+func (repo *ProductRepository) Find(id uint) models.Product {
 	var product Product
 	product.ID = id
 	result := repo.Db.Preload("Place.Areas.Seats").First(&product)
@@ -55,7 +55,7 @@ func (repo *ProductRepository) GetProductById(id uint) models.Product {
 	return &product
 }
 
-func (repo *ProductRepository) SaveProduct(product models.Product) models.Product {
+func (repo *ProductRepository) Save(product models.Product) models.Product {
 	var _product Product
 	_product.Title = product.GetTitle()
 
@@ -78,7 +78,7 @@ func (repo *ProductRepository) Update(product models.Product) models.Product {
 	return product
 }
 
-func (repo *ProductRepository) DeleteProductById(id uint) {
+func (repo *ProductRepository) Delete(id uint) {
 	var product Product
 	product.ID = id
 	repo.Db.Delete(&product)
