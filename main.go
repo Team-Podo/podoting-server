@@ -9,9 +9,11 @@ import (
 	"os"
 )
 
-func main() {
+func init() {
 	utils.SetEnv()
+}
 
+func main() {
 	migration.Init()
 
 	r := gin.Default()
