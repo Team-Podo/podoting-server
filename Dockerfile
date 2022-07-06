@@ -19,7 +19,7 @@ WORKDIR /app
 
 COPY --from=build /app/main .
 
-EXPOSE 80
+EXPOSE 8080
 
 # 컨테이너가 시작할 때 파일 실행
 CMD ["/app/main"]
