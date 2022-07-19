@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/kwanok/podonine/endpoints"
 	"github.com/kwanok/podonine/endpoints/admin/area"
+	"github.com/kwanok/podonine/endpoints/admin/performance"
 	"github.com/kwanok/podonine/endpoints/admin/place"
 	"github.com/kwanok/podonine/endpoints/admin/product"
 )
@@ -30,6 +31,15 @@ func Routes(r *gin.Engine) {
 			areas.GET("/", area.Get)
 			areas.GET("/:id", area.Find)
 			areas.POST("/", area.Create)
+		}
+
+		performances := admin.Group("/performances")
+		{
+			performances.GET("/", performance.Get)
+			performances.GET("/:id", performance.Find)
+			performances.POST("/", performance.Create)
+			performances.PUT("/:id", performance.Update)
+			performances.DELETE("/", performance.Delete)
 		}
 	}
 
