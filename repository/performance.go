@@ -93,6 +93,10 @@ func (p *PerformanceRepository) Update(m models.Performance) models.Performance 
 
 	tx := p.Db.First(&performance)
 
+	if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+		return nil
+	}
+
 	performance.Title = m.GetTitle()
 	performance.StartDate = m.GetStartDate()
 	performance.EndDate = m.GetEndDate()
