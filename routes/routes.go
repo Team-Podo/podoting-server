@@ -7,9 +7,16 @@ import (
 	"github.com/kwanok/podonine/endpoints/admin/performance"
 	"github.com/kwanok/podonine/endpoints/admin/place"
 	"github.com/kwanok/podonine/endpoints/admin/product"
+	"net/http"
 )
 
 func Routes(r *gin.Engine) {
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "pong",
+		})
+	})
+
 	admin := r.Group("/admin")
 	{
 		products := admin.Group("/products")
