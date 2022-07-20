@@ -18,8 +18,9 @@ RUN apk --update add ca-certificates
 WORKDIR /app
 
 COPY --from=build /app/main .
+COPY --from=build /app/.env .
 
-EXPOSE 8080
+EXPOSE 80
 
 # 컨테이너가 시작할 때 파일 실행
 CMD ["/app/main"]
