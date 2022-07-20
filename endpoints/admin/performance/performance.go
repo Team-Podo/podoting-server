@@ -14,9 +14,9 @@ var repositories Repository
 
 type Performance struct {
 	Id        uint
-	Title     string `json:"title"`
-	StartDate string `json:"start_date"`
-	EndDate   string `json:"end_date"`
+	Title     string `json:"Title"`
+	StartDate string `json:"StartDate"`
+	EndDate   string `json:"EndDate"`
 }
 
 func (p *Performance) GetId() uint {
