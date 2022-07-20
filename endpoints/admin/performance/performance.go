@@ -117,7 +117,7 @@ func Update(c *gin.Context) {
 
 	performance := repositories.performance.Update(&json)
 	if performance == nil {
-		c.JSON(http.StatusInternalServerError, "Internal Server Error")
+		c.JSON(http.StatusNotFound, "Not Found")
 		return
 	}
 
