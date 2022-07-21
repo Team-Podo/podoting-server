@@ -4,11 +4,15 @@ import (
 	"errors"
 	"github.com/kwanok/podonine/models"
 	"gorm.io/gorm"
+	"gorm.io/gorm/utils"
 	"log"
+	"strconv"
 )
 
 type Performance struct {
 	Model
+	Product   *Product `gorm:"foreignkey:ProductID"`
+	ProductID uint     `json:"-"`
 	Title     string
 	StartDate string
 	EndDate   string
@@ -16,6 +20,10 @@ type Performance struct {
 
 func (p *Performance) GetId() uint {
 	return p.ID
+}
+
+func (p *Performance) GetProduct() models.Product {
+	return p.Product
 }
 
 func (p *Performance) GetTitle() string {
@@ -34,8 +42,24 @@ type PerformanceRepository struct {
 	Db *gorm.DB
 }
 
-func (p *PerformanceRepository) Get() []models.Performance {
+func (p *PerformanceRepository) Get(query map[string]any) []models.Performance {
 	var performances []*Performance
+	db := p.Db
+
+	if query["reversed"] == true {
+		db = db.Order("id desc")
+	}
+
+	if query["limit"] != nil {
+		limit, _ := strconv.Atoi(utils.ToString(query["limit"]))
+		db = db.Limit(limit)
+	}
+
+	if query["offset"] != nil {
+		offset, _ := strconv.Atoi(utils.ToString(query["offset"]))
+		db = db.Offset(offset)
+	}
+
 	err := p.Db.Find(&performances).Error
 
 	if err != nil {
@@ -57,7 +81,7 @@ func (p *PerformanceRepository) Get() []models.Performance {
 
 func (p *PerformanceRepository) Find(id uint) models.Performance {
 	performance := Performance{}
-	err := p.Db.First(&performance, id).Error
+	err := p.Db.Preload("Product").First(&performance, id).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil
@@ -73,6 +97,7 @@ func (p *PerformanceRepository) Find(id uint) models.Performance {
 
 func (p *PerformanceRepository) Save(m models.Performance) models.Performance {
 	performance := Performance{
+		ProductID: m.GetProduct().GetId(),
 		Title:     m.GetTitle(),
 		StartDate: m.GetStartDate(),
 		EndDate:   m.GetEndDate(),
@@ -88,22 +113,20 @@ func (p *PerformanceRepository) Save(m models.Performance) models.Performance {
 }
 
 func (p *PerformanceRepository) Update(m models.Performance) models.Performance {
-	performance := Performance{}
-	performance.ID = m.GetId()
+	err := p.Db.First(&Performance{}, m.GetId()).Error
 
-	tx := p.Db.First(&performance)
-
-	if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil
 	}
 
-	performance.Title = m.GetTitle()
-	performance.StartDate = m.GetStartDate()
-	performance.EndDate = m.GetEndDate()
+	p.Db.Model(&Performance{Model: Model{ID: m.GetId()}}).Updates(Performance{
+		ProductID: m.GetProduct().GetId(),
+		Title:     m.GetTitle(),
+		StartDate: m.GetStartDate(),
+		EndDate:   m.GetEndDate(),
+	})
 
-	tx.Save(&performance)
-
-	return &performance
+	return m
 }
 
 func (p *PerformanceRepository) Delete(id uint) {
