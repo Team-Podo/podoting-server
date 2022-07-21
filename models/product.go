@@ -7,7 +7,7 @@ type Product interface {
 }
 
 type ProductRepository interface {
-	Get() []Product
+	Get(query map[string]any) []Product
 	Find(id uint) Product
 	Save(product Product) Product
 	Update(product Product) Product

@@ -10,7 +10,20 @@ import (
 )
 
 type Product struct {
+	ID    uint
 	Title string `json:"title"`
+}
+
+func (p *Product) GetId() uint {
+	return p.ID
+}
+
+func (p *Product) GetTitle() string {
+	return p.Title
+}
+
+func (p *Product) GetPlace() models.Place {
+	return nil
 }
 
 var repositories Repository
@@ -26,9 +39,38 @@ func init() {
 }
 
 func Get(c *gin.Context) {
-	products := repositories.product.Get()
+	limitQuery := c.Query("limit")
+	offsetQuery := c.Query("offset")
+	reversedQuery := c.Query("reversed")
 
-	if products == nil {
+	var limit int
+	var offset int
+	var reversed = false
+	var err error
+
+	if limitQuery != "" {
+		limit, err = strconv.Atoi(limitQuery)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, "limit should be Integer")
+			return
+		}
+	}
+
+	if offsetQuery != "" {
+		offset, err = strconv.Atoi(offsetQuery)
+	}
+
+	if reversedQuery != "" {
+		reversed = true
+	}
+
+	products := repositories.product.Get(map[string]any{
+		"limit":    limit,
+		"offset":   offset,
+		"reversed": reversed,
+	})
+
+	if len(products) == 0 {
 		c.JSON(http.StatusNotFound, "Not Found")
 		return
 	}

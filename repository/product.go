@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/kwanok/podonine/models"
 	"gorm.io/gorm"
+	"gorm.io/gorm/utils"
+	"strconv"
 )
 
 type Product struct {
@@ -30,9 +32,26 @@ type ProductRepository struct {
 	Db *gorm.DB
 }
 
-func (repo *ProductRepository) Get() []models.Product {
+func (repo *ProductRepository) Get(query map[string]any) []models.Product {
 	var _products []*Product
-	repo.Db.Find(&_products)
+
+	db := repo.Db
+
+	if query["reversed"] == true {
+		db = db.Order("id desc")
+	}
+
+	if query["limit"] != nil {
+		limit, _ := strconv.Atoi(utils.ToString(query["limit"]))
+		db = db.Limit(limit)
+	}
+
+	if query["offset"] != nil {
+		offset, _ := strconv.Atoi(utils.ToString(query["offset"]))
+		db = db.Offset(offset)
+	}
+
+	db.Find(&_products)
 
 	var products = make([]models.Product, len(_products))
 	for i, _product := range _products {
