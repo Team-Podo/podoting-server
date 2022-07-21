@@ -58,6 +58,7 @@ func Get(c *gin.Context) {
 
 	if offsetQuery != "" {
 		offset, err = strconv.Atoi(offsetQuery)
+		c.JSON(http.StatusBadRequest, "offset should be Integer")
 	}
 
 	if reversedQuery != "" {
