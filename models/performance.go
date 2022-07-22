@@ -6,6 +6,8 @@ type Performance interface {
 	GetStartDate() string
 	GetEndDate() string
 	GetProduct() Product
+	GetCreatedAt() string
+	GetUpdatedAt() string
 }
 
 type PerformanceRepository interface {
@@ -14,4 +16,5 @@ type PerformanceRepository interface {
 	Save(performance Performance) Performance
 	Update(performance Performance) Performance
 	Delete(id uint)
+	GetTotal(query map[string]any) int64
 }

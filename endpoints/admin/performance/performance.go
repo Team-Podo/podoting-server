@@ -6,13 +6,14 @@ import (
 	"github.com/kwanok/podonine/endpoints/admin/product"
 	"github.com/kwanok/podonine/models"
 	"github.com/kwanok/podonine/repository"
+	"github.com/kwanok/podonine/utils"
 	"net/http"
 	"strconv"
 )
 
 var repositories Repository
 
-type Request struct {
+type request struct {
 	ProductID uint   `json:"ProductID"`
 	Title     string `json:"Title"`
 	StartDate string `json:"StartDate"`
@@ -25,6 +26,14 @@ type Performance struct {
 	Title     string
 	StartDate string
 	EndDate   string
+}
+
+func (p *Performance) GetCreatedAt() string {
+	return ""
+}
+
+func (p *Performance) GetUpdatedAt() string {
+	return ""
 }
 
 func (p *Performance) GetId() uint {
@@ -89,15 +98,17 @@ func Get(c *gin.Context) {
 		reversed = true
 	}
 
+	query := map[string]any{
+		"limit":    limit,
+		"offset":   offset,
+		"reversed": reversed,
+	}
+
 	// ------ 쿼리스트링 검증 End ------
 
 	// ------ 퍼포먼스 가져오기 Start ------
 
-	performances := repositories.performance.Get(map[string]any{
-		"limit":    limit,
-		"offset":   offset,
-		"reversed": reversed,
-	})
+	performances := repositories.performance.Get(query)
 
 	if performances == nil {
 		c.JSON(http.StatusNotFound, "Not Found")
@@ -106,7 +117,27 @@ func Get(c *gin.Context) {
 
 	// ------ 퍼포먼스 가져오기 End ------
 
-	c.JSON(http.StatusOK, performances)
+	// ------ 응답 폼 만들기 Start ------
+
+	var performanceResponses []utils.MapSlice
+
+	for _, performance := range performances {
+		performanceResponses = append(performanceResponses, utils.MapSlice{
+			utils.MapItem{Key: "id", Value: performance.GetId()},
+			utils.MapItem{Key: "title", Value: performance.GetTitle()},
+			utils.MapItem{Key: "startDate", Value: performance.GetStartDate()},
+			utils.MapItem{Key: "endDate", Value: performance.GetEndDate()},
+			utils.MapItem{Key: "createdAt", Value: performance.GetCreatedAt()},
+			utils.MapItem{Key: "updatedAt", Value: performance.GetUpdatedAt()},
+		})
+	}
+
+	// ------ 응답 폼 만들기 End ------
+
+	c.JSON(http.StatusOK, gin.H{
+		"performances": performanceResponses,
+		"total":        repositories.performance.GetTotal(query),
+	})
 }
 
 func Find(c *gin.Context) {
@@ -129,7 +160,7 @@ func Find(c *gin.Context) {
 }
 
 func Create(c *gin.Context) {
-	var json Request
+	var json request
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -153,7 +184,7 @@ func Create(c *gin.Context) {
 }
 
 func Update(c *gin.Context) {
-	var json Request
+	var json request
 
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{

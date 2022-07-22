@@ -7,15 +7,19 @@ import (
 	"gorm.io/gorm/utils"
 	"log"
 	"strconv"
+	"time"
 )
 
 type Performance struct {
-	Model
-	Product   *Product `gorm:"foreignkey:ProductID"`
-	ProductID uint     `json:"-"`
-	Title     string
-	StartDate string
-	EndDate   string
+	ID        uint            `json:"id" gorm:"primarykey"`
+	ProductID uint            `json:"-"`
+	Product   *Product        `json:"product" gorm:"foreignkey:ProductID"`
+	Title     string          `json:"title"`
+	StartDate string          `json:"startDate"`
+	EndDate   string          `json:"endDate"`
+	CreatedAt time.Time       `json:"createdAt"`
+	UpdatedAt time.Time       `json:"updatedAt"`
+	DeletedAt *gorm.DeletedAt `json:"-" gorm:"index"`
 }
 
 func (p *Performance) GetId() uint {
@@ -36,6 +40,14 @@ func (p *Performance) GetStartDate() string {
 
 func (p *Performance) GetEndDate() string {
 	return p.EndDate
+}
+
+func (p *Performance) GetCreatedAt() string {
+	return p.CreatedAt.Format("2006-01-02 15:04:05")
+}
+
+func (p *Performance) GetUpdatedAt() string {
+	return p.UpdatedAt.Format("2006-01-02 15:04:05")
 }
 
 type PerformanceRepository struct {
@@ -60,7 +72,7 @@ func (p *PerformanceRepository) Get(query map[string]any) []models.Performance {
 		db = db.Offset(offset)
 	}
 
-	err := p.Db.Find(&performances).Error
+	err := db.Find(&performances).Error
 
 	if err != nil {
 		log.Fatal(err.Error())
@@ -72,6 +84,7 @@ func (p *PerformanceRepository) Get(query map[string]any) []models.Performance {
 	}
 
 	var m = make([]models.Performance, len(performances))
+
 	for i, performance := range performances {
 		m[i] = performance
 	}
@@ -119,7 +132,7 @@ func (p *PerformanceRepository) Update(m models.Performance) models.Performance 
 		return nil
 	}
 
-	p.Db.Model(&Performance{Model: Model{ID: m.GetId()}}).Updates(Performance{
+	p.Db.Model(&Performance{ID: m.GetId()}).Updates(Performance{
 		ProductID: m.GetProduct().GetId(),
 		Title:     m.GetTitle(),
 		StartDate: m.GetStartDate(),
@@ -134,4 +147,28 @@ func (p *PerformanceRepository) Delete(id uint) {
 	performance.ID = id
 
 	p.Db.Delete(&performance)
+}
+
+func (p *PerformanceRepository) GetTotal(query map[string]any) int64 {
+
+	db := p.Db
+
+	if query["reversed"] == true {
+		db = db.Order("id desc")
+	}
+
+	if query["limit"] != nil {
+		limit, _ := strconv.Atoi(utils.ToString(query["limit"]))
+		db = db.Limit(limit)
+	}
+
+	if query["offset"] != nil {
+		offset, _ := strconv.Atoi(utils.ToString(query["offset"]))
+		db = db.Offset(offset)
+	}
+
+	var count int64
+	db.Model(&Performance{}).Count(&count)
+
+	return count
 }
