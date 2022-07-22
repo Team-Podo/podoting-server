@@ -26,6 +26,14 @@ func (p *Product) GetPlace() models.Place {
 	return nil
 }
 
+func (p *Product) IsNil() bool {
+	if p == nil {
+		return true
+	}
+
+	return false
+}
+
 var repositories Repository
 
 type Repository struct {
@@ -79,7 +87,9 @@ func Get(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, products)
+	c.JSON(http.StatusOK, map[string]any{
+		"products": products,
+	})
 }
 
 func Find(c *gin.Context) {

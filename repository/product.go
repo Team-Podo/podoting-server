@@ -28,6 +28,14 @@ func (product *Product) GetPlace() models.Place {
 	return product.Place
 }
 
+func (product *Product) IsNil() bool {
+	if product == nil {
+		return true
+	}
+
+	return false
+}
+
 type ProductRepository struct {
 	Db *gorm.DB
 }

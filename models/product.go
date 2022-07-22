@@ -4,6 +4,7 @@ type Product interface {
 	GetId() uint
 	GetTitle() string
 	GetPlace() Place
+	IsNil() bool
 }
 
 type ProductRepository interface {
