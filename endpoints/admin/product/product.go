@@ -34,6 +34,14 @@ func (p *Product) IsNil() bool {
 	return false
 }
 
+func (p *Product) IsNotNil() bool {
+	if p == nil {
+		return false
+	}
+
+	return true
+}
+
 var repositories Repository
 
 type Repository struct {

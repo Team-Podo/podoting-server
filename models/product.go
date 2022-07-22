@@ -5,6 +5,7 @@ type Product interface {
 	GetTitle() string
 	GetPlace() Place
 	IsNil() bool
+	IsNotNil() bool
 }
 
 type ProductRepository interface {

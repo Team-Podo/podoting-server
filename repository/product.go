@@ -36,6 +36,14 @@ func (product *Product) IsNil() bool {
 	return false
 }
 
+func (product *Product) IsNotNil() bool {
+	if product == nil {
+		return false
+	}
+
+	return true
+}
+
 type ProductRepository struct {
 	Db *gorm.DB
 }
