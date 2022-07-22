@@ -28,6 +28,14 @@ func (product *Product) GetPlace() models.Place {
 	return product.Place
 }
 
+func (product *Product) GetCreatedAt() string {
+	return product.CreatedAt.Format("2006-01-02 15:04:05")
+}
+
+func (product *Product) GetUpdatedAt() string {
+	return product.UpdatedAt.Format("2006-01-02 15:04:05")
+}
+
 func (product *Product) IsNil() bool {
 	if product == nil {
 		return true

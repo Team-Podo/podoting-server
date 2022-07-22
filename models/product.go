@@ -6,6 +6,8 @@ type Product interface {
 	GetPlace() Place
 	IsNil() bool
 	IsNotNil() bool
+	GetCreatedAt() string
+	GetUpdatedAt() string
 }
 
 type ProductRepository interface {

@@ -5,6 +5,7 @@ import (
 	"github.com/kwanok/podonine/database"
 	"github.com/kwanok/podonine/models"
 	"github.com/kwanok/podonine/repository"
+	"github.com/kwanok/podonine/utils"
 	"net/http"
 	"strconv"
 )
@@ -24,6 +25,14 @@ func (p *Product) GetTitle() string {
 
 func (p *Product) GetPlace() models.Place {
 	return nil
+}
+
+func (p *Product) GetCreatedAt() string {
+	return ""
+}
+
+func (p *Product) GetUpdatedAt() string {
+	return ""
 }
 
 func (p *Product) IsNil() bool {
@@ -55,6 +64,8 @@ func init() {
 }
 
 func Get(c *gin.Context) {
+	// ------ 쿼리스트링 검증 Start ------
+
 	limitQuery := c.Query("limit")
 	offsetQuery := c.Query("offset")
 	reversedQuery := c.Query("reversed")
@@ -84,16 +95,39 @@ func Get(c *gin.Context) {
 		reversed = true
 	}
 
-	products := repositories.product.Get(map[string]any{
+	query := map[string]any{
 		"limit":    limit,
 		"offset":   offset,
 		"reversed": reversed,
-	})
+	}
+
+	// ------ 쿼리스트링 검증 End ------
+
+	// ------ 상품 가져오기 Start ------
+
+	products := repositories.product.Get(query)
 
 	if len(products) == 0 {
 		c.JSON(http.StatusNotFound, "Not Found")
 		return
 	}
+
+	// ------ 상품 가져오기 End ------
+
+	// ------ 응답 폼 만들기 Start ------
+
+	var productResponses []utils.MapSlice
+
+	for _, product := range products {
+		productResponses = append(productResponses, utils.MapSlice{
+			utils.MapItem{Key: "id", Value: product.GetId()},
+			utils.MapItem{Key: "title", Value: product.GetTitle()},
+			utils.MapItem{Key: "createdAt", Value: product.GetCreatedAt()},
+			utils.MapItem{Key: "updatedAt", Value: product.GetUpdatedAt()},
+		})
+	}
+
+	// ------ 응답 폼 만들기 End ------
 
 	c.JSON(http.StatusOK, map[string]any{
 		"products": products,
