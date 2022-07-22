@@ -20,13 +20,15 @@ func (suite *PerformanceTestSuite) SetupTest() {
 }
 
 func (suite *PerformanceTestSuite) TestGet() {
-	products := suite.performanceRepository.Get()
-	fmt.Println("products", products)
+	products := suite.performanceRepository.Get(map[string]any{})
+	for _, product := range products {
+		fmt.Println("id:", product.GetId(), "title:", product.GetTitle())
+	}
 }
 
 func (suite *PerformanceTestSuite) TestFind() {
 	product := suite.performanceRepository.Find(1)
-	fmt.Println("product", product)
+	fmt.Println("id:", product.GetId(), "title:", product.GetTitle())
 
 	assert.Equal(suite.T(), uint(1), product.GetId())
 }

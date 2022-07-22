@@ -130,7 +130,8 @@ func Get(c *gin.Context) {
 	// ------ 응답 폼 만들기 End ------
 
 	c.JSON(http.StatusOK, map[string]any{
-		"products": products,
+		"products": productResponses,
+		"total":    repositories.product.GetTotal(query),
 	})
 }
 

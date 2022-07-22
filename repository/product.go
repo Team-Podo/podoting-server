@@ -126,3 +126,26 @@ func (repo *ProductRepository) Delete(id uint) {
 	product.ID = id
 	repo.Db.Delete(&product)
 }
+
+func (repo *ProductRepository) GetTotal(query map[string]any) int64 {
+	db := repo.Db
+
+	if query["reversed"] == true {
+		db = db.Order("id desc")
+	}
+
+	if query["limit"] != nil {
+		limit, _ := strconv.Atoi(utils.ToString(query["limit"]))
+		db = db.Limit(limit)
+	}
+
+	if query["offset"] != nil {
+		offset, _ := strconv.Atoi(utils.ToString(query["offset"]))
+		db = db.Offset(offset)
+	}
+
+	var count int64
+	db.Model(&Product{}).Count(&count)
+
+	return count
+}

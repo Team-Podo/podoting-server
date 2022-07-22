@@ -16,4 +16,5 @@ type ProductRepository interface {
 	Save(product Product) Product
 	Update(product Product) Product
 	Delete(id uint)
+	GetTotal(query map[string]any) int64
 }

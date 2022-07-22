@@ -20,9 +20,9 @@ func (suite *ProductTestSuite) SetupTest() {
 }
 
 func (suite *ProductTestSuite) TestGet() {
-	products := suite.productRepository.Get()
+	products := suite.productRepository.Get(map[string]any{})
 	for _, product := range products {
-		fmt.Println(product)
+		fmt.Println("id:", product.GetId(), "title", product.GetTitle())
 	}
 
 	assert.NotNil(suite.T(), products)
