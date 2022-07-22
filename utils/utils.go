@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	_, b, _, _ = runtime.Caller(0)
-	basePath   = filepath.Dir(b)
+	_, f, _, _ = runtime.Caller(0)
+	basePath   = filepath.Dir(f)
 )
 
 type MapItem struct {
