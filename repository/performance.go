@@ -108,12 +108,12 @@ func (p *PerformanceRepository) Find(id uint) models.Performance {
 	return &performance
 }
 
-func (p *PerformanceRepository) Save(m models.Performance) models.Performance {
+func (p *PerformanceRepository) Save(performanceModel models.Performance) models.Performance {
 	performance := Performance{
-		ProductID: m.GetProduct().GetId(),
-		Title:     m.GetTitle(),
-		StartDate: m.GetStartDate(),
-		EndDate:   m.GetEndDate(),
+		ProductID: performanceModel.GetProduct().GetId(),
+		Title:     performanceModel.GetTitle(),
+		StartDate: performanceModel.GetStartDate(),
+		EndDate:   performanceModel.GetEndDate(),
 	}
 
 	result := p.Db.Create(&performance)
@@ -125,21 +125,21 @@ func (p *PerformanceRepository) Save(m models.Performance) models.Performance {
 	return &performance
 }
 
-func (p *PerformanceRepository) Update(m models.Performance) models.Performance {
-	err := p.Db.First(&Performance{}, m.GetId()).Error
+func (p *PerformanceRepository) Update(performanceModel models.Performance) models.Performance {
+	err := p.Db.First(&Performance{}, performanceModel.GetId()).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil
 	}
 
-	p.Db.Model(&Performance{ID: m.GetId()}).Updates(Performance{
-		ProductID: m.GetProduct().GetId(),
-		Title:     m.GetTitle(),
-		StartDate: m.GetStartDate(),
-		EndDate:   m.GetEndDate(),
+	p.Db.Model(&Performance{ID: performanceModel.GetId()}).Updates(Performance{
+		ProductID: performanceModel.GetProduct().GetId(),
+		Title:     performanceModel.GetTitle(),
+		StartDate: performanceModel.GetStartDate(),
+		EndDate:   performanceModel.GetEndDate(),
 	})
 
-	return m
+	return performanceModel
 }
 
 func (p *PerformanceRepository) Delete(id uint) {

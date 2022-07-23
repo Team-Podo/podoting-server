@@ -1,19 +1,24 @@
 package repository
 
 import (
+	"errors"
 	"fmt"
 	"github.com/kwanok/podonine/models"
 	"gorm.io/gorm"
 	"gorm.io/gorm/utils"
 	"strconv"
+	"time"
 )
 
 type Product struct {
-	Model
-	Title   string
-	Place   *Place `gorm:"foreignkey:PlaceId"`
-	PlaceId uint   `json:"-"`
-	Content []*ProductContent
+	ID        uint `json:"id" gorm:"primarykey"`
+	Title     string
+	Place     *Place `gorm:"foreignkey:PlaceId"`
+	PlaceId   uint   `json:"-"`
+	Content   []*ProductContent
+	CreatedAt time.Time       `json:"createdAt"`
+	UpdatedAt time.Time       `json:"updatedAt"`
+	DeletedAt *gorm.DeletedAt `json:"-" gorm:"index"`
 }
 
 func (product *Product) GetId() uint {
@@ -110,15 +115,18 @@ func (repo *ProductRepository) Save(product models.Product) models.Product {
 	return &_product
 }
 
-func (repo *ProductRepository) Update(product models.Product) models.Product {
-	var _product Product
-	_product.ID = product.GetId()
-	repo.Db.First(&_product)
+func (repo *ProductRepository) Update(productModel models.Product) models.Product {
+	err := repo.Db.First(&Product{}, productModel.GetId()).Error
 
-	_product.Title = product.GetTitle()
-	repo.Db.Save(&_product)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil
+	}
 
-	return product
+	repo.Db.Model(&Product{ID: productModel.GetId()}).Updates(Product{
+		Title: productModel.GetTitle(),
+	})
+
+	return productModel
 }
 
 func (repo *ProductRepository) Delete(id uint) {
