@@ -14,10 +14,10 @@ import (
 var repositories Repository
 
 type request struct {
-	ProductID uint   `json:"ProductID"`
-	Title     string `json:"Title"`
-	StartDate string `json:"StartDate"`
-	EndDate   string `json:"EndDate"`
+	ProductID uint   `json:"productId"`
+	Title     string `json:"title"`
+	StartDate string `json:"startDate"`
+	EndDate   string `json:"endDate"`
 }
 
 type Performance struct {
