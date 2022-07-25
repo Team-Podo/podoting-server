@@ -156,7 +156,24 @@ func Find(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, performance)
+	var performanceProduct *utils.MapSlice
+
+	if performance.GetProduct().IsNotNil() {
+		performanceProduct = &utils.MapSlice{
+			utils.MapItem{Key: "id", Value: performance.GetProduct().GetId()},
+			utils.MapItem{Key: "title", Value: performance.GetProduct().GetTitle()},
+		}
+	}
+
+	c.JSON(http.StatusOK, utils.MapSlice{
+		utils.MapItem{Key: "id", Value: performance.GetId()},
+		utils.MapItem{Key: "title", Value: performance.GetTitle()},
+		utils.MapItem{Key: "product", Value: performanceProduct},
+		utils.MapItem{Key: "startDate", Value: performance.GetStartDate()},
+		utils.MapItem{Key: "endDate", Value: performance.GetEndDate()},
+		utils.MapItem{Key: "createdAt", Value: performance.GetCreatedAt()},
+		utils.MapItem{Key: "updatedAt", Value: performance.GetUpdatedAt()},
+	})
 }
 
 func Create(c *gin.Context) {
