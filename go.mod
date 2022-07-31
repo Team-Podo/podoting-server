@@ -1,4 +1,4 @@
-module github.com/kwanok/podonine
+module github.com/Team-Podo/podoting-server
 
 go 1.18
 
