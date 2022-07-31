@@ -7,10 +7,8 @@ ENV CGO_ENABLED=0
 ENV GOOS=linux
 ENV GOARCH=amd64
 
-COPY go.mod ./
-RUN GO111MODULE=on go mod tidy
-
 COPY . .
+RUN GO111MODULE=on go mod tidy
 
 RUN go build -o main main.go
 
