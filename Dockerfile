@@ -4,8 +4,15 @@ WORKDIR /app
 
 ENV GO111MODULE=on
 ENV CGO_ENABLED=0
+ENV GOOS=linux
+ENV GOARCH=amd64
 
-COPY . .
+COPY go.mod ./
+COPY go.sum ./
+RUN go mod download
+
+COPY *.go ./
+COPY .env ./
 
 RUN go build -o main main.go
 
