@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/Team-Podo/podoting-server/database/migration"
+	"github.com/Team-Podo/podoting-server/routes"
+	"github.com/Team-Podo/podoting-server/utils"
 	"github.com/gin-gonic/gin"
-	"github.com/kwanok/podonine/database/migration"
-	"github.com/kwanok/podonine/routes"
-	"github.com/kwanok/podonine/utils"
 	"os"
 )
 

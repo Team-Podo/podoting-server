@@ -2,7 +2,7 @@ package repository
 
 import (
 	"fmt"
-	"github.com/kwanok/podonine/database"
+	"github.com/Team-Podo/podoting-server/database"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"testing"

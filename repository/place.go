@@ -2,7 +2,7 @@ package repository
 
 import (
 	"fmt"
-	"github.com/kwanok/podonine/models"
+	"github.com/Team-Podo/podoting-server/models"
 	"gorm.io/gorm"
 )
 

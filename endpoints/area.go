@@ -1,9 +1,9 @@
 package endpoints
 
 import (
+	"github.com/Team-Podo/podoting-server/database"
+	"github.com/Team-Podo/podoting-server/repository"
 	"github.com/gin-gonic/gin"
-	"github.com/kwanok/podonine/database"
-	"github.com/kwanok/podonine/repository"
 	"net/http"
 	"strconv"
 )

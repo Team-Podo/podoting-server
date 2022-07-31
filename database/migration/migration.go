@@ -1,8 +1,8 @@
 package migration
 
 import (
-	"github.com/kwanok/podonine/database"
-	"github.com/kwanok/podonine/repository"
+	"github.com/Team-Podo/podoting-server/database"
+	"github.com/Team-Podo/podoting-server/repository"
 )
 
 func Init() {

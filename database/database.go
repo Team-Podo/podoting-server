@@ -2,7 +2,7 @@ package database
 
 import (
 	"fmt"
-	"github.com/kwanok/podonine/utils"
+	"github.com/Team-Podo/podoting-server/utils"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"

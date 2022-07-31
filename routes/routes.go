@@ -1,12 +1,12 @@
 package routes
 
 import (
+	"github.com/Team-Podo/podoting-server/endpoints"
+	"github.com/Team-Podo/podoting-server/endpoints/admin/area"
+	"github.com/Team-Podo/podoting-server/endpoints/admin/performance"
+	"github.com/Team-Podo/podoting-server/endpoints/admin/place"
+	"github.com/Team-Podo/podoting-server/endpoints/admin/product"
 	"github.com/gin-gonic/gin"
-	"github.com/kwanok/podonine/endpoints"
-	"github.com/kwanok/podonine/endpoints/admin/area"
-	"github.com/kwanok/podonine/endpoints/admin/performance"
-	"github.com/kwanok/podonine/endpoints/admin/place"
-	"github.com/kwanok/podonine/endpoints/admin/product"
 	"net/http"
 )
 

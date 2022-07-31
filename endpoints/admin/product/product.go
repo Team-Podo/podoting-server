@@ -1,11 +1,11 @@
 package product
 
 import (
+	"github.com/Team-Podo/podoting-server/database"
+	"github.com/Team-Podo/podoting-server/models"
+	"github.com/Team-Podo/podoting-server/repository"
+	"github.com/Team-Podo/podoting-server/utils"
 	"github.com/gin-gonic/gin"
-	"github.com/kwanok/podonine/database"
-	"github.com/kwanok/podonine/models"
-	"github.com/kwanok/podonine/repository"
-	"github.com/kwanok/podonine/utils"
 	"net/http"
 	"strconv"
 )

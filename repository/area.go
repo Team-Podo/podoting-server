@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"github.com/kwanok/podonine/database"
-	"github.com/kwanok/podonine/models"
+	"github.com/Team-Podo/podoting-server/database"
+	"github.com/Team-Podo/podoting-server/models"
 	"gorm.io/gorm"
 )
 

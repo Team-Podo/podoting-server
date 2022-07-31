@@ -3,7 +3,7 @@ package repository
 import (
 	"errors"
 	"fmt"
-	"github.com/kwanok/podonine/models"
+	"github.com/Team-Podo/podoting-server/models"
 	"gorm.io/gorm"
 	"gorm.io/gorm/utils"
 	"strconv"
