@@ -9,6 +9,7 @@ ENV GOARCH=amd64
 
 COPY go.mod ./
 RUN go mod tidy
+RUN go mod download
 
 COPY . .
 
