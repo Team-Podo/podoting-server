@@ -1,0 +1,98 @@
+# 이 워크플로는 새로운 이미지를 빌드하고, GitHub Container Registry 에 업로드합니다.
+# 그런 다음, "live" branch 에 push 가 있으면, Amazon ECS 에 새 작업 정의를 배포합니다.
+#
+# 이 워크플로우를 사용하려면, 아래의 단계를 밟아야 합니다.
+#
+# 1. 이미지를 저장할 GitHub Container Registry 를 만듭니다.
+#    For example: `aws ecr create-repository --repository-name my-ecr-repo --region us-east-2`.
+#    Replace the value of the `ECR_REPOSITORY` environment variable in the workflow below with your repository's name.
+#    Replace the value of the `AWS_REGION` environment variable in the workflow below with your repository's region.
+#
+# 2. ECS 작업 정의, ECS 클러스터, 그리고 ECS 서비스를 만듭니다.
+#    For example, follow the Getting Started guide on the ECS console:
+#      https://us-east-2.console.aws.amazon.com/ecs/home?region=us-east-2#/firstRun
+#    Replace the value of the `ECS_SERVICE` environment variable in the workflow below with the name you set for the Amazon ECS service.
+#    Replace the value of the `ECS_CLUSTER` environment variable in the workflow below with the name you set for the cluster.
+#
+# 3. repository 에 ECS 작업 정의 파일을 JSON 형식으로 저장합니다.
+#    The format should follow the output of `aws ecs register-task-definition --generate-cli-skeleton`.
+#    Replace the value of the `ECS_TASK_DEFINITION` environment variable in the workflow below with the path to the JSON file.
+#    Replace the value of the `CONTAINER_NAME` environment variable in the workflow below with the name of the container
+#    in the `containerDefinitions` section of the task definition.
+#
+# 4. IAM 사용자 액세스 키 'AWS_ACCESS_KEY_ID'와 'AWS_SECRET_ACCESS_KEY'를 GitHub Actions secrets 에 저장합니다.
+#    See the documentation for each action used below for the recommended IAM policies for this IAM user,
+#    and best practices on handling the access key credentials.
+
+name: Deploy to Amazon ECS
+
+on:
+  push:
+    branches:
+      - "main"
+
+env:
+  AWS_REGION: ap-northeast-2                  # set this to your preferred AWS region, e.g. ap-northeast-2
+  ECS_SERVICE: podoting-api                   # set this to your Amazon ECS service name
+  ECS_CLUSTER: podoting                       # set this to your Amazon ECS cluster name
+  ECS_TASK_DEFINITION: ./aws/task-definition.json    # set this to the path to your Amazon ECS task definition
+  # file, e.g. .aws/task-definition.json
+  CONTAINER_NAME: podoting_api           # set this to the name of the container in the
+  # containerDefinitions section of your task definition
+  RELEASE_VERSION: 0.4
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: 배포
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: kwanok
+          password: ${{ secrets.CR_PAT }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        id: build-image
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ghcr.io/kwanok/podoting_api:latest
+            ghcr.io/kwanok/podoting_api:${{ env.RELEASE_VERSION }}
+          run: |
+            echo "::set-output name=image::ghcr.io/kwanok/podoting_api:${{ env.RELEASE_VERSION }}"
+
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ env.ECS_TASK_DEFINITION }}
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ steps.build-image.outputs.image }}
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
