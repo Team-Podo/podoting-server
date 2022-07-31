@@ -8,8 +8,7 @@ ENV GOOS=linux
 ENV GOARCH=amd64
 
 COPY go.mod ./
-RUN go mod tidy
-RUN go mod download
+RUN GO111MODULE=on go mod tidy
 
 COPY . .
 
