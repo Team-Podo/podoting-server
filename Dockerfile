@@ -10,8 +10,7 @@ ENV GOARCH=amd64
 COPY go.mod ./
 RUN go mod download
 
-COPY *.go ./
-COPY .env ./
+COPY . .
 
 RUN go build -o main main.go
 
