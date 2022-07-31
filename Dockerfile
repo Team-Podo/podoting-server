@@ -8,7 +8,6 @@ ENV GOOS=linux
 ENV GOARCH=amd64
 
 COPY go.mod ./
-RUN go mod init github.com/Team-Podo/podoting-server
 RUN go mod tidy
 
 COPY . .
