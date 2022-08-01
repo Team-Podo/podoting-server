@@ -14,6 +14,7 @@ type Performance struct {
 	ID        uint            `json:"id" gorm:"primarykey"`
 	ProductID uint            `json:"-"`
 	Product   *Product        `json:"product" gorm:"foreignkey:ProductID"`
+	Schedules []Schedule      `gorm:"foreignkey:PerformanceId"`
 	Title     string          `json:"title"`
 	StartDate string          `json:"startDate"`
 	EndDate   string          `json:"endDate"`
@@ -28,6 +29,16 @@ func (p *Performance) GetId() uint {
 
 func (p *Performance) GetProduct() models.Product {
 	return p.Product
+}
+
+func (p *Performance) GetSchedules() []models.Schedule {
+	var schedules []models.Schedule
+
+	for i := range p.Schedules {
+		schedules = append(schedules, &p.Schedules[i])
+	}
+
+	return schedules
 }
 
 func (p *Performance) GetTitle() string {
@@ -94,7 +105,7 @@ func (p *PerformanceRepository) Get(query map[string]any) []models.Performance {
 
 func (p *PerformanceRepository) Find(id uint) models.Performance {
 	performance := Performance{}
-	err := p.Db.Preload("Product").First(&performance, id).Error
+	err := p.Db.Preload("Product").Preload("Schedules").First(&performance, id).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil

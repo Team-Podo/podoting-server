@@ -39,7 +39,7 @@ env:
   # file, e.g. .aws/task-definition.json
   CONTAINER_NAME: podoting_api           # set this to the name of the container in the
   # containerDefinitions section of your task definition
-  RELEASE_VERSION: 0.4
+  RELEASE_VERSION: 0.5
 
 permissions:
   contents: read

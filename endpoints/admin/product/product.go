@@ -151,7 +151,12 @@ func Find(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, product)
+	c.JSON(http.StatusOK, utils.MapSlice{
+		utils.MapItem{Key: "id", Value: product.GetId()},
+		utils.MapItem{Key: "title", Value: product.GetTitle()},
+		utils.MapItem{Key: "createdAt", Value: product.GetCreatedAt()},
+		utils.MapItem{Key: "updatedAt", Value: product.GetUpdatedAt()},
+	})
 }
 
 func Create(c *gin.Context) {

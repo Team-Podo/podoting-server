@@ -6,6 +6,7 @@ import (
 	"github.com/Team-Podo/podoting-server/endpoints/admin/performance"
 	"github.com/Team-Podo/podoting-server/endpoints/admin/place"
 	"github.com/Team-Podo/podoting-server/endpoints/admin/product"
+	"github.com/Team-Podo/podoting-server/endpoints/admin/schedule"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -47,6 +48,15 @@ func Routes(r *gin.Engine) {
 			performances.POST("/", performance.Create)
 			performances.PUT("/:id", performance.Update)
 			performances.DELETE("/", performance.Delete)
+		}
+
+		schedules := admin.Group("/schedules")
+		{
+			schedules.GET("/", schedule.Get)
+			schedules.GET("/:uuid", schedule.Find)
+			schedules.POST("/", schedule.Create)
+			schedules.PUT("/:uuid", schedule.Update)
+			schedules.DELETE("/", schedule.Delete)
 		}
 	}
 

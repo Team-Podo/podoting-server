@@ -15,7 +15,7 @@ type PerformanceTestSuite struct {
 }
 
 func (suite *PerformanceTestSuite) SetupTest() {
-	suite.performance = Performance{Title: "2022 서울투어", StartDate: "2022-07-19", EndDate: "2022-08-20"}
+	suite.performance = Performance{Title: "2022 서울투어", StartDate: "2022-07-19", EndDate: "2022-08-20", Product: &Product{ID: 1}}
 	suite.performanceRepository = PerformanceRepository{Db: database.Gorm}
 }
 
@@ -47,7 +47,7 @@ func (suite *PerformanceTestSuite) TestSave() {
 }
 
 func (suite *PerformanceTestSuite) TestUpdate() {
-	suite.performance.ID = 2
+	suite.performance.ID = 10
 	suite.performance.Title = "2022 서울투어 고고~"
 	result := suite.performanceRepository.Update(&suite.performance)
 
@@ -55,7 +55,7 @@ func (suite *PerformanceTestSuite) TestUpdate() {
 }
 
 func (suite *PerformanceTestSuite) TestDelete() {
-	suite.performanceRepository.Delete(2)
+	suite.performanceRepository.Delete(10)
 }
 
 func TestPerformanceTestSuite(t *testing.T) {

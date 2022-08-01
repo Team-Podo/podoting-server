@@ -44,6 +44,10 @@ func (p *Performance) GetProduct() models.Product {
 	return p.Product
 }
 
+func (p *Performance) GetSchedules() []models.Schedule {
+	return nil
+}
+
 func (p *Performance) GetTitle() string {
 	return p.Title
 }
@@ -165,10 +169,25 @@ func Find(c *gin.Context) {
 		}
 	}
 
+	var performanceSchedules []*utils.MapSlice
+
+	if performance.GetProduct().IsNotNil() {
+		schedules := performance.GetSchedules()
+		for _, schedule := range schedules {
+			performanceSchedules = append(performanceSchedules, &utils.MapSlice{
+				utils.MapItem{Key: "uuid", Value: schedule.GetUUID()},
+				utils.MapItem{Key: "memo", Value: schedule.GetMemo()},
+				utils.MapItem{Key: "date", Value: schedule.GetDate()},
+				utils.MapItem{Key: "time", Value: schedule.GetTime()},
+			})
+		}
+	}
+
 	c.JSON(http.StatusOK, utils.MapSlice{
 		utils.MapItem{Key: "id", Value: performance.GetId()},
 		utils.MapItem{Key: "title", Value: performance.GetTitle()},
 		utils.MapItem{Key: "product", Value: performanceProduct},
+		utils.MapItem{Key: "schedules", Value: performanceSchedules},
 		utils.MapItem{Key: "startDate", Value: performance.GetStartDate()},
 		utils.MapItem{Key: "endDate", Value: performance.GetEndDate()},
 		utils.MapItem{Key: "createdAt", Value: performance.GetCreatedAt()},

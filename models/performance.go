@@ -6,6 +6,7 @@ type Performance interface {
 	GetStartDate() string
 	GetEndDate() string
 	GetProduct() Product
+	GetSchedules() []Schedule
 	GetCreatedAt() string
 	GetUpdatedAt() string
 }
