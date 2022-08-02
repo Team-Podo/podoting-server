@@ -123,15 +123,14 @@ func Get(c *gin.Context) {
 	var scheduleResponses []utils.MapSlice
 
 	for _, schedule := range schedules {
-		scheduleResponses = append(scheduleResponses, utils.MapSlice{
-			utils.MapItem{Key: "uuid", Value: schedule.GetUUID()},
-			utils.MapItem{Key: "performance", Value: schedule.GetPerformance()},
-			utils.MapItem{Key: "memo", Value: schedule.GetMemo()},
-			utils.MapItem{Key: "date", Value: schedule.GetDate()},
-			utils.MapItem{Key: "time", Value: schedule.GetTime()},
-			utils.MapItem{Key: "createdAt", Value: schedule.GetCreatedAt()},
-			utils.MapItem{Key: "updatedAt", Value: schedule.GetUpdatedAt()},
-		})
+		scheduleResponses = append(scheduleResponses, utils.BuildMapSliceByMap(map[string]any{
+			"uuid":      schedule.GetUUID(),
+			"memo":      schedule.GetMemo(),
+			"date":      schedule.GetDate(),
+			"time":      schedule.GetTime(),
+			"createdAt": schedule.GetCreatedAt(),
+			"updatedAt": schedule.GetUpdatedAt(),
+		}))
 	}
 
 	// ------ 응답 폼 만들기 End ------
@@ -152,15 +151,17 @@ func Find(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, utils.MapSlice{
-		utils.MapItem{Key: "uuid", Value: schedule.GetUUID()},
-		utils.MapItem{Key: "performance", Value: schedule.GetPerformance()},
-		utils.MapItem{Key: "memo", Value: schedule.GetMemo()},
-		utils.MapItem{Key: "date", Value: schedule.GetDate()},
-		utils.MapItem{Key: "time", Value: schedule.GetTime()},
-		utils.MapItem{Key: "createdAt", Value: schedule.GetCreatedAt()},
-		utils.MapItem{Key: "updatedAt", Value: schedule.GetUpdatedAt()},
+	result := utils.BuildMapSliceByMap(map[string]any{
+		"uuid":        schedule.GetUUID(),
+		"performance": schedule.GetPerformance(),
+		"memo":        schedule.GetMemo(),
+		"date":        schedule.GetDate(),
+		"time":        schedule.GetTime(),
+		"createdAt":   schedule.GetCreatedAt(),
+		"updatedAt":   schedule.GetUpdatedAt(),
 	})
+
+	c.JSON(http.StatusOK, result)
 }
 
 func Create(c *gin.Context) {
@@ -180,10 +181,6 @@ func Create(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, schedule.GetUUID())
-}
-
-func CreateMany(c *gin.Context) {
-	// TODO endpoint 구현 필요
 }
 
 func Update(c *gin.Context) {

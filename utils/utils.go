@@ -50,3 +50,11 @@ func SetEnv() {
 		log.Fatal("Error loading .env file")
 	}
 }
+
+func BuildMapSliceByMap(m map[string]interface{}) MapSlice {
+	ms := make(MapSlice, 0)
+	for k, v := range m {
+		ms = append(ms, MapItem{Key: k, Value: v})
+	}
+	return ms
+}

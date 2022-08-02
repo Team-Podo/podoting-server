@@ -95,8 +95,11 @@ func (s *ScheduleRepository) Get(query map[string]any) []models.Schedule {
 }
 
 func (s *ScheduleRepository) Find(uuid string) models.Schedule {
-	schedule := Schedule{}
-	err := s.Db.Preload("Product").First(&schedule, uuid).Error
+	schedule := Schedule{
+		UUID: uuid,
+	}
+
+	err := s.Db.Preload("performance").First(&schedule).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil
@@ -114,10 +117,11 @@ func (s *ScheduleRepository) Save(scheduleModel models.Schedule) models.Schedule
 	scheduleUUID, _ := uuid.NewUUID()
 
 	schedule := Schedule{
-		UUID: scheduleUUID.String(),
-		Memo: scheduleModel.GetMemo(),
-		Date: scheduleModel.GetDate(),
-		Time: sql.NullString{String: scheduleModel.GetTime()},
+		UUID:          scheduleUUID.String(),
+		PerformanceId: scheduleModel.GetPerformance().GetId(),
+		Memo:          scheduleModel.GetMemo(),
+		Date:          scheduleModel.GetDate(),
+		Time:          sql.NullString{String: scheduleModel.GetTime()},
 	}
 
 	result := s.Db.Create(&schedule)
@@ -153,7 +157,9 @@ func (s *ScheduleRepository) SaveMany(scheduleModels []models.Schedule) error {
 }
 
 func (s *ScheduleRepository) Update(scheduleModel models.Schedule) models.Schedule {
-	err := s.Db.First(&Schedule{}, scheduleModel.GetUUID()).Error
+	err := s.Db.First(&Schedule{
+		UUID: scheduleModel.GetUUID(),
+	}).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil
@@ -171,7 +177,6 @@ func (s *ScheduleRepository) Update(scheduleModel models.Schedule) models.Schedu
 
 func (s *ScheduleRepository) Delete(uuid string) {
 	schedule := Schedule{}
-	schedule.UUID = uuid
 
 	s.Db.Delete(&schedule)
 }

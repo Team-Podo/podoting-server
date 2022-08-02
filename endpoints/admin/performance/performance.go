@@ -183,16 +183,18 @@ func Find(c *gin.Context) {
 		}
 	}
 
-	c.JSON(http.StatusOK, utils.MapSlice{
-		utils.MapItem{Key: "id", Value: performance.GetId()},
-		utils.MapItem{Key: "title", Value: performance.GetTitle()},
-		utils.MapItem{Key: "product", Value: performanceProduct},
-		utils.MapItem{Key: "schedules", Value: performanceSchedules},
-		utils.MapItem{Key: "startDate", Value: performance.GetStartDate()},
-		utils.MapItem{Key: "endDate", Value: performance.GetEndDate()},
-		utils.MapItem{Key: "createdAt", Value: performance.GetCreatedAt()},
-		utils.MapItem{Key: "updatedAt", Value: performance.GetUpdatedAt()},
+	result := utils.BuildMapSliceByMap(map[string]any{
+		"id":        performance.GetId(),
+		"title":     performance.GetTitle(),
+		"startDate": performance.GetStartDate(),
+		"endDate":   performance.GetEndDate(),
+		"product":   performanceProduct,
+		"schedules": performanceSchedules,
+		"createdAt": performance.GetCreatedAt(),
+		"updatedAt": performance.GetUpdatedAt(),
 	})
+
+	c.JSON(http.StatusOK, result)
 }
 
 func Create(c *gin.Context) {
