@@ -18,11 +18,6 @@ func Init() {
 		return
 	}
 
-	err = db.AutoMigrate(&repository.Place{})
-	if err != nil {
-		return
-	}
-
 	err = db.AutoMigrate(&repository.Product{})
 	if err != nil {
 		return
@@ -34,16 +29,6 @@ func Init() {
 	}
 
 	err = db.AutoMigrate(&repository.ProductContent{})
-	if err != nil {
-		return
-	}
-
-	err = db.AutoMigrate(&repository.Seat{})
-	if err != nil {
-		return
-	}
-
-	err = db.AutoMigrate(&repository.Area{})
 	if err != nil {
 		return
 	}
