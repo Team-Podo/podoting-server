@@ -22,6 +22,7 @@ func Routes(r *gin.Engine) {
 			products.GET("/", product.Get)
 			products.GET("/:id", product.Find)
 			products.POST("/", product.Create)
+			products.POST("/:id/main-image", product.UploadMainImage)
 		}
 
 		performances := admin.Group("/performances")
