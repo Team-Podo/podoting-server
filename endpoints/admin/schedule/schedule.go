@@ -1,8 +1,8 @@
 package schedule
 
 import (
+	"database/sql"
 	"github.com/Team-Podo/podoting-server/database"
-	"github.com/Team-Podo/podoting-server/endpoints/admin/performance"
 	"github.com/Team-Podo/podoting-server/models"
 	"github.com/Team-Podo/podoting-server/repository"
 	"github.com/Team-Podo/podoting-server/utils"
@@ -18,43 +18,6 @@ type request struct {
 	Memo          string `json:"memo"`
 	Date          string `json:"date"`
 	Time          string `json:"time"`
-}
-
-type Schedule struct {
-	Id          uint
-	UUID        string
-	Performance performance.Performance
-	Memo        string
-	Date        string
-	Time        string
-}
-
-func (s *Schedule) GetUUID() string {
-	return s.UUID
-}
-
-func (s *Schedule) GetPerformance() models.Performance {
-	return nil
-}
-
-func (s *Schedule) GetMemo() string {
-	return s.Memo
-}
-
-func (s *Schedule) GetDate() string {
-	return s.Date
-}
-
-func (s *Schedule) GetTime() string {
-	return s.Time
-}
-
-func (s *Schedule) GetCreatedAt() string {
-	return ""
-}
-
-func (s *Schedule) GetUpdatedAt() string {
-	return ""
 }
 
 type Repository struct {
@@ -124,12 +87,12 @@ func Get(c *gin.Context) {
 
 	for _, schedule := range schedules {
 		scheduleResponses = append(scheduleResponses, utils.BuildMapSliceByMap(map[string]any{
-			"uuid":      schedule.GetUUID(),
-			"memo":      schedule.GetMemo(),
-			"date":      schedule.GetDate(),
-			"time":      schedule.GetTime(),
-			"createdAt": schedule.GetCreatedAt(),
-			"updatedAt": schedule.GetUpdatedAt(),
+			"uuid":      schedule.UUID,
+			"memo":      schedule.Memo,
+			"date":      schedule.Date,
+			"time":      schedule.Time,
+			"createdAt": schedule.CreatedAt,
+			"updatedAt": schedule.UpdatedAt,
 		}))
 	}
 
@@ -152,13 +115,13 @@ func Find(c *gin.Context) {
 	}
 
 	result := utils.BuildMapSliceByMap(map[string]any{
-		"uuid":        schedule.GetUUID(),
-		"performance": schedule.GetPerformance(),
-		"memo":        schedule.GetMemo(),
-		"date":        schedule.GetDate(),
-		"time":        schedule.GetTime(),
-		"createdAt":   schedule.GetCreatedAt(),
-		"updatedAt":   schedule.GetUpdatedAt(),
+		"uuid":        schedule.UUID,
+		"performance": schedule.Performance,
+		"memo":        schedule.Memo,
+		"date":        schedule.Date,
+		"time":        schedule.Time,
+		"createdAt":   schedule.CreatedAt,
+		"updatedAt":   schedule.UpdatedAt,
 	})
 
 	c.JSON(http.StatusOK, result)
@@ -173,14 +136,16 @@ func Create(c *gin.Context) {
 		return
 	}
 
-	schedule := repositories.schedule.Save(&Schedule{})
+	var schedule repository.Schedule
 
-	if schedule == nil {
+	err := repositories.schedule.Save(&schedule)
+
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
 
-	c.JSON(http.StatusOK, schedule.GetUUID())
+	c.JSON(http.StatusOK, schedule)
 }
 
 func Update(c *gin.Context) {
@@ -195,25 +160,31 @@ func Update(c *gin.Context) {
 
 	uuid := c.Param("uuid")
 
-	schedule := repositories.schedule.Update(&Schedule{
+	schedule := repository.Schedule{
 		UUID: uuid,
 		Memo: json.Memo,
 		Date: json.Date,
-		Time: json.Time,
-	})
+		Time: sql.NullString{String: json.Time},
+	}
 
-	if schedule == nil {
+	err := repositories.schedule.Update(&schedule)
+
+	if err != nil {
 		c.JSON(http.StatusNotFound, "Not Found")
 		return
 	}
 
-	c.JSON(http.StatusOK, schedule.GetUUID())
+	c.JSON(http.StatusOK, schedule)
 }
 
 func Delete(c *gin.Context) {
 	uuid := c.Param("uuid")
 
-	repositories.schedule.Delete(uuid)
+	err := repositories.schedule.Delete(uuid)
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, "Not Found")
+	}
 
 	c.JSON(http.StatusOK, nil)
 }

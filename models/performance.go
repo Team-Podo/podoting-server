@@ -1,21 +1,12 @@
 package models
 
-type Performance interface {
-	GetId() uint
-	GetTitle() string
-	GetStartDate() string
-	GetEndDate() string
-	GetProduct() Product
-	GetSchedules() []Schedule
-	GetCreatedAt() string
-	GetUpdatedAt() string
-}
+import "github.com/Team-Podo/podoting-server/repository"
 
 type PerformanceRepository interface {
-	Get(query map[string]any) []Performance
-	Find(id uint) Performance
-	Save(performance Performance) Performance
-	Update(performance Performance) Performance
-	Delete(id uint)
-	GetTotal(query map[string]any) int64
+	GetWithQueryMap(query map[string]any) []repository.Performance
+	FindByID(id uint) *repository.Performance
+	Save(performance *repository.Performance) error
+	Update(performance *repository.Performance) error
+	Delete(id uint) error
+	GetTotalWithQueryMap(query map[string]any) int64
 }

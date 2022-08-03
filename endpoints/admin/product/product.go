@@ -5,9 +5,15 @@ import (
 	"github.com/Team-Podo/podoting-server/models"
 	"github.com/Team-Podo/podoting-server/repository"
 	"github.com/Team-Podo/podoting-server/utils"
+	"github.com/Team-Podo/podoting-server/utils/aws"
 	"github.com/gin-gonic/gin"
+	"log"
+	"mime/multipart"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
 )
 
 type Product struct {
@@ -15,51 +21,17 @@ type Product struct {
 	Title string `json:"title"`
 }
 
-func (p *Product) GetId() uint {
-	return p.ID
-}
-
-func (p *Product) GetTitle() string {
-	return p.Title
-}
-
-func (p *Product) GetPlace() models.Place {
-	return nil
-}
-
-func (p *Product) GetCreatedAt() string {
-	return ""
-}
-
-func (p *Product) GetUpdatedAt() string {
-	return ""
-}
-
-func (p *Product) IsNil() bool {
-	if p == nil {
-		return true
-	}
-
-	return false
-}
-
-func (p *Product) IsNotNil() bool {
-	if p == nil {
-		return false
-	}
-
-	return true
-}
-
 var repositories Repository
 
 type Repository struct {
 	product models.ProductRepository
+	file    models.FileRepository
 }
 
 func init() {
 	repositories = Repository{
-		product: &repository.ProductRepository{Db: database.Gorm},
+		product: &repository.ProductRepository{DB: database.Gorm},
+		file:    &repository.FileRepository{DB: database.Gorm},
 	}
 }
 
@@ -105,7 +77,12 @@ func Get(c *gin.Context) {
 
 	// ------ 상품 가져오기 Start ------
 
-	products := repositories.product.Get(query)
+	products, err := repositories.product.GetWithQueryMap(query)
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, "Not Found")
+		return
+	}
 
 	if len(products) == 0 {
 		c.JSON(http.StatusNotFound, "Not Found")
@@ -120,18 +97,25 @@ func Get(c *gin.Context) {
 
 	for _, product := range products {
 		productResponses = append(productResponses, utils.MapSlice{
-			utils.MapItem{Key: "id", Value: product.GetId()},
-			utils.MapItem{Key: "title", Value: product.GetTitle()},
-			utils.MapItem{Key: "createdAt", Value: product.GetCreatedAt()},
-			utils.MapItem{Key: "updatedAt", Value: product.GetUpdatedAt()},
+			utils.MapItem{Key: "id", Value: product.ID},
+			utils.MapItem{Key: "title", Value: product.Title},
+			utils.MapItem{Key: "createdAt", Value: product.CreatedAt},
+			utils.MapItem{Key: "updatedAt", Value: product.UpdatedAt},
 		})
+	}
+
+	total, err := repositories.product.GetTotalWithQueryMap(query)
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, "Not Found")
+		return
 	}
 
 	// ------ 응답 폼 만들기 End ------
 
 	c.JSON(http.StatusOK, map[string]any{
 		"products": productResponses,
-		"total":    repositories.product.GetTotal(query),
+		"total":    total,
 	})
 }
 
@@ -144,18 +128,19 @@ func Find(c *gin.Context) {
 		return
 	}
 
-	product := repositories.product.Find(uint(intId))
+	product, err := repositories.product.FindByID(uint(intId))
 
-	if product == nil {
+	if err != nil {
 		c.JSON(http.StatusNotFound, "Not Found")
 		return
 	}
 
 	c.JSON(http.StatusOK, utils.MapSlice{
-		utils.MapItem{Key: "id", Value: product.GetId()},
-		utils.MapItem{Key: "title", Value: product.GetTitle()},
-		utils.MapItem{Key: "createdAt", Value: product.GetCreatedAt()},
-		utils.MapItem{Key: "updatedAt", Value: product.GetUpdatedAt()},
+		utils.MapItem{Key: "id", Value: product.ID},
+		utils.MapItem{Key: "title", Value: product.Title},
+		utils.MapItem{Key: "file", Value: product.File},
+		utils.MapItem{Key: "createdAt", Value: product.CreatedAt},
+		utils.MapItem{Key: "updatedAt", Value: product.UpdatedAt},
 	})
 }
 
@@ -172,7 +157,94 @@ func Create(c *gin.Context) {
 		Title: json.Title,
 	}
 
-	result := repositories.product.Save(&product)
+	err := repositories.product.Save(&product)
 
-	c.JSON(http.StatusOK, result)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+
+	c.JSON(http.StatusOK, product)
+}
+
+func UploadMainImage(c *gin.Context) {
+	id, err := getIntParam(c, "id")
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, "id should be Integer")
+		return
+	}
+
+	product, err := repositories.product.FindByID(uint(id))
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, "Not Found")
+		return
+	}
+
+	mainImage, fileHeader, err := c.Request.FormFile("mainImage")
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, "mainImage is required")
+		return
+	}
+
+	if !checkFileExtension(fileHeader) {
+		c.JSON(http.StatusBadRequest, "File extension is not allowed")
+		return
+	}
+
+	fileExtension := filepath.Ext(fileHeader.Filename)
+
+	file, err := aws.S3.UploadFile(mainImage, "/main-images", fileExtension)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, "mainImage should be File")
+		return
+	}
+
+	product.File = &repository.File{
+		Path: *file.Key,
+		Size: fileHeader.Size,
+	}
+
+	err = repositories.file.Save(product.File)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "Internal Server Error")
+		log.Fatal(err)
+		return
+	}
+
+	err = repositories.product.Update(product)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "Internal Server Error")
+		log.Fatal(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]any{
+		"mainImage": getFullURLFromFile(product.File),
+	})
+}
+
+func checkFileExtension(fileHeader *multipart.FileHeader) bool {
+	extension := strings.ToLower(filepath.Ext(fileHeader.Filename))
+	return extension == ".jpg" || extension == ".jpeg" || extension == ".png"
+}
+
+func getIntParam(c *gin.Context, param string) (int, error) {
+	id := c.Param(param)
+
+	intId, err := strconv.Atoi(id)
+	if err != nil {
+		return 0, err
+	}
+
+	return intId, nil
+}
+
+func getFullURLFromFile(file *repository.File) string {
+	return os.Getenv("CDN_URL") + "/" + file.Path
 }

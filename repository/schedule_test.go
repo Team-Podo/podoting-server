@@ -29,14 +29,9 @@ func (suite *ScheduleTestSuite) SetupTest() {
 }
 
 func (suite *ScheduleTestSuite) TestSaveSchedule() {
-	schedule := suite.scheduleRepository.Save(&Schedule{
-		Performance: &Performance{ID: 1},
-		Memo:        "test",
-		Date:        "2022-08-02",
-		Time:        sql.NullString{Valid: false},
-	})
+	_ = suite.scheduleRepository.Save(&suite.schedule)
 
-	suite.scheduleRepository.Find(schedule.GetUUID())
+	suite.scheduleRepository.Find(suite.schedule.UUID)
 }
 
 func (suite *ScheduleTestSuite) TestGet() {
@@ -45,37 +40,31 @@ func (suite *ScheduleTestSuite) TestGet() {
 	assert.NotNil(suite.T(), schedules)
 }
 
-func (suite *ScheduleTestSuite) TestGetScheduleByUUID() {
-	schedule := suite.scheduleRepository.Save(&Schedule{
-		Performance: &Performance{ID: 1},
-		Memo:        "test",
-		Date:        "2022-08-02",
-		Time:        sql.NullString{Valid: false},
-	})
+func (suite *ScheduleTestSuite) TestFindScheduleByUUID() {
+	_ = suite.scheduleRepository.Save(&suite.schedule)
 
-	_schedule := suite.scheduleRepository.Find(schedule.GetUUID())
+	_schedule := suite.scheduleRepository.Find(suite.schedule.UUID)
 
-	assert.Equal(suite.T(), schedule.GetUUID(), _schedule.GetUUID())
+	assert.Equal(suite.T(), suite.schedule.UUID, _schedule.UUID)
 }
 
 func (suite *ScheduleTestSuite) TestUpdateSchedule() {
-	schedule := suite.scheduleRepository.Save(&suite.schedule)
-	assert.Equal(suite.T(), "test", schedule.GetMemo())
-	fmt.Println(schedule)
+	_ = suite.scheduleRepository.Save(&suite.schedule)
+	assert.Equal(suite.T(), "test", suite.schedule.Memo)
+	fmt.Println(suite.schedule)
 
 	var _schedule Schedule
-	_schedule.UUID = schedule.GetUUID()
+	_schedule.UUID = suite.schedule.UUID
 	_schedule.Memo = "수정 후"
 
-	schedule = suite.scheduleRepository.Update(&_schedule)
-	assert.Equal(suite.T(), "수정 후", schedule.GetMemo())
-	fmt.Println(schedule)
+	_ = suite.scheduleRepository.Update(&_schedule)
+	assert.Equal(suite.T(), "수정 후", suite.schedule.Memo)
 }
 
 func (suite *ScheduleTestSuite) TestDeleteScheduleByUUID() {
-	suite.scheduleRepository.Delete(suite.schedule.GetUUID())
+	suite.scheduleRepository.Delete(suite.schedule.UUID)
 
-	_schedule := suite.scheduleRepository.Find(suite.schedule.GetUUID())
+	_schedule := suite.scheduleRepository.Find(suite.schedule.UUID)
 
 	assert.Nil(suite.T(), _schedule)
 }

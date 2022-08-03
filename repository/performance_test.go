@@ -20,42 +20,42 @@ func (suite *PerformanceTestSuite) SetupTest() {
 }
 
 func (suite *PerformanceTestSuite) TestGet() {
-	products := suite.performanceRepository.Get(map[string]any{})
+	products := suite.performanceRepository.GetWithQueryMap(map[string]any{})
 	for _, product := range products {
-		fmt.Println("id:", product.GetId(), "title:", product.GetTitle())
+		fmt.Println("id:", product.ID, "title:", product.Title)
 	}
 }
 
 func (suite *PerformanceTestSuite) TestFind() {
-	product := suite.performanceRepository.Find(1)
-	fmt.Println("id:", product.GetId(), "title:", product.GetTitle())
+	product := suite.performanceRepository.FindByID(1)
+	fmt.Println("id:", product.ID, "title:", product.Title)
 
-	assert.Equal(suite.T(), uint(1), product.GetId())
+	assert.Equal(suite.T(), uint(1), product.ID)
 }
 
 func (suite *PerformanceTestSuite) TestFindNotFound() {
-	product := suite.performanceRepository.Find(10)
+	product := suite.performanceRepository.FindByID(10)
 	fmt.Println("product", product)
 
 	assert.Equal(suite.T(), nil, product)
 }
 
 func (suite *PerformanceTestSuite) TestSave() {
-	result := suite.performanceRepository.Save(&suite.performance)
+	_ = suite.performanceRepository.Save(&suite.performance)
 
-	fmt.Println(result.GetId())
+	fmt.Println(suite.performance.ID)
 }
 
 func (suite *PerformanceTestSuite) TestUpdate() {
 	suite.performance.ID = 10
 	suite.performance.Title = "2022 서울투어 고고~"
-	result := suite.performanceRepository.Update(&suite.performance)
+	_ = suite.performanceRepository.Update(&suite.performance)
 
-	fmt.Println(result.GetId())
+	fmt.Println(suite.performance.ID)
 }
 
 func (suite *PerformanceTestSuite) TestDelete() {
-	suite.performanceRepository.Delete(10)
+	_ = suite.performanceRepository.Delete(10)
 }
 
 func TestPerformanceTestSuite(t *testing.T) {

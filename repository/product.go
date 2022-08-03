@@ -1,9 +1,6 @@
 package repository
 
 import (
-	"errors"
-	"fmt"
-	"github.com/Team-Podo/podoting-server/models"
 	"gorm.io/gorm"
 	"gorm.io/gorm/utils"
 	"strconv"
@@ -11,34 +8,13 @@ import (
 )
 
 type Product struct {
-	ID        uint `json:"id" gorm:"primarykey"`
-	Title     string
-	Place     *Place `gorm:"foreignkey:PlaceId"`
-	PlaceId   uint   `json:"-"`
-	Content   []*ProductContent
+	ID        uint            `json:"id" gorm:"primarykey"`
+	Title     string          `json:"title"`
+	FileID    uint            `json:"-"`
+	File      *File           `json:"file" gorm:"foreignkey:FileID"`
 	CreatedAt time.Time       `json:"createdAt"`
 	UpdatedAt time.Time       `json:"updatedAt"`
 	DeletedAt *gorm.DeletedAt `json:"-" gorm:"index"`
-}
-
-func (product *Product) GetId() uint {
-	return product.ID
-}
-
-func (product *Product) GetTitle() string {
-	return product.Title
-}
-
-func (product *Product) GetPlace() models.Place {
-	return product.Place
-}
-
-func (product *Product) GetCreatedAt() string {
-	return product.CreatedAt.Format("2006-01-02 15:04:05")
-}
-
-func (product *Product) GetUpdatedAt() string {
-	return product.UpdatedAt.Format("2006-01-02 15:04:05")
 }
 
 func (product *Product) IsNil() bool {
@@ -58,13 +34,11 @@ func (product *Product) IsNotNil() bool {
 }
 
 type ProductRepository struct {
-	Db *gorm.DB
+	DB *gorm.DB
 }
 
-func (repo *ProductRepository) Get(query map[string]any) []models.Product {
-	var _products []*Product
-
-	db := repo.Db
+func (repo *ProductRepository) GetWithQueryMap(query map[string]any) ([]Product, error) {
+	db := repo.DB
 
 	if query["reversed"] == true {
 		db = db.Order("id desc")
@@ -80,63 +54,64 @@ func (repo *ProductRepository) Get(query map[string]any) []models.Product {
 		db = db.Offset(offset)
 	}
 
-	db.Find(&_products)
+	var products []Product
 
-	var products = make([]models.Product, len(_products))
-	for i, _product := range _products {
-		products[i] = _product
+	err := db.Find(&products).Error
+	if err != nil {
+		return nil, err
 	}
 
-	return products
+	return products, nil
 }
 
-func (repo *ProductRepository) Find(id uint) models.Product {
+func (repo *ProductRepository) FindByID(id uint) (*Product, error) {
 	var product Product
 	product.ID = id
-	result := repo.Db.Preload("Place.Areas.Seats").First(&product)
+	err := repo.DB.Preload("File").First(&product).Error
 
-	if result.Error != nil {
-		fmt.Println(result.Error.Error())
-		return nil
+	if err != nil {
+		return nil, err
 	}
 
-	return &product
+	return &product, nil
 }
 
-func (repo *ProductRepository) Save(product models.Product) models.Product {
-	var _product Product
-	_product.Title = product.GetTitle()
-
-	result := repo.Db.Create(&_product)
-	if result.Error != nil {
-		return nil
+func (repo *ProductRepository) Save(product *Product) error {
+	err := repo.DB.Create(&product).Error
+	if err != nil {
+		return err
 	}
 
-	return &_product
+	return nil
 }
 
-func (repo *ProductRepository) Update(productModel models.Product) models.Product {
-	err := repo.Db.First(&Product{}, productModel.GetId()).Error
-
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil
+func (repo *ProductRepository) Update(product *Product) error {
+	if product.File != nil {
+		product.FileID = product.File.ID
 	}
 
-	repo.Db.Model(&Product{ID: productModel.GetId()}).Updates(Product{
-		Title: productModel.GetTitle(),
-	})
+	err := repo.DB.Model(&Product{ID: product.ID}).Updates(product).Error
 
-	return productModel
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (repo *ProductRepository) Delete(id uint) {
+func (repo *ProductRepository) Delete(id uint) error {
 	var product Product
 	product.ID = id
-	repo.Db.Delete(&product)
+	err := repo.DB.Delete(&product).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (repo *ProductRepository) GetTotal(query map[string]any) int64 {
-	db := repo.Db
+func (repo *ProductRepository) GetTotalWithQueryMap(query map[string]any) (int64, error) {
+	db := repo.DB
 
 	if query["reversed"] == true {
 		db = db.Order("id desc")
@@ -153,7 +128,10 @@ func (repo *ProductRepository) GetTotal(query map[string]any) int64 {
 	}
 
 	var count int64
-	db.Model(&Product{}).Count(&count)
+	err := db.Model(&Product{}).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
 
-	return count
+	return count, nil
 }

@@ -15,60 +15,60 @@ type ProductTestSuite struct {
 }
 
 func (suite *ProductTestSuite) SetupTest() {
-	suite.productRepository = &ProductRepository{Db: database.Gorm}
+	suite.productRepository = &ProductRepository{DB: database.Gorm}
 	suite.product = Product{Title: "수정 전"}
 }
 
 func (suite *ProductTestSuite) TestGet() {
-	products := suite.productRepository.Get(map[string]any{})
+	products, _ := suite.productRepository.GetWithQueryMap(map[string]any{})
 	for _, product := range products {
-		fmt.Println("id:", product.GetId(), "title", product.GetTitle())
+		fmt.Println("id:", product.ID, "title", product.Title)
 	}
 
 	assert.NotNil(suite.T(), products)
 }
 
 func (suite *ProductTestSuite) TestGetProductById() {
-	product := suite.productRepository.Find(1)
-	fmt.Println(product.GetId())
-	fmt.Println(product.GetTitle())
-	fmt.Println(product.GetPlace())
+	product, _ := suite.productRepository.FindByID(1)
 
-	assert.Equal(suite.T(), uint(1), product.GetId())
+	assert.Equal(suite.T(), uint(1), product.ID)
 }
 
 func (suite *ProductTestSuite) TestSaveProduct() {
-	product := suite.productRepository.Save(&Product{
-		Title: "테스트 상품",
-	})
+	err := suite.productRepository.Save(&suite.product)
+	assert.Nil(suite.T(), err)
 
-	_product := suite.productRepository.Find(product.GetId())
+	_product, _ := suite.productRepository.FindByID(suite.product.ID)
 
-	assert.Equal(suite.T(), "테스트 상품", _product.GetTitle())
+	assert.Equal(suite.T(), "테스트 상품", _product.Title)
 }
 
 func (suite *ProductTestSuite) TestUpdateProduct() {
-	product := suite.productRepository.Save(&suite.product)
-	assert.Equal(suite.T(), "수정 전", product.GetTitle())
-	fmt.Println(product)
+	err := suite.productRepository.Save(&suite.product)
+	assert.Nil(suite.T(), err)
+
+	assert.Equal(suite.T(), "수정 전", suite.product.Title)
+	fmt.Println(suite.product)
 
 	var _product Product
-	_product.ID = product.GetId()
+	_product.ID = suite.product.ID
 	_product.Title = "수정 후"
 
-	product = suite.productRepository.Update(&_product)
-	assert.Equal(suite.T(), "수정 후", product.GetTitle())
-	fmt.Println(product)
+	err = suite.productRepository.Update(&_product)
+	assert.Nil(suite.T(), err)
+
+	assert.Equal(suite.T(), "수정 후", suite.product.Title)
+	fmt.Println(suite.product)
 }
 
 func (suite *ProductTestSuite) TestDeleteProductById() {
-	product := suite.productRepository.Save(&Product{
-		Title: "테스트 삭제 상품",
-	})
+	err := suite.productRepository.Save(&suite.product)
+	assert.Nil(suite.T(), err)
 
-	suite.productRepository.Delete(product.GetId())
+	err = suite.productRepository.Delete(suite.product.ID)
+	assert.Nil(suite.T(), err)
 
-	_product := suite.productRepository.Find(product.GetId())
+	_product, _ := suite.productRepository.FindByID(suite.product.ID)
 
 	assert.Equal(suite.T(), nil, _product)
 }

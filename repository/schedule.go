@@ -3,7 +3,6 @@ package repository
 import (
 	"database/sql"
 	"errors"
-	"github.com/Team-Podo/podoting-server/models"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/utils"
@@ -24,39 +23,11 @@ type Schedule struct {
 	DeletedAt     *gorm.DeletedAt `json:"-" gorm:"index"`
 }
 
-func (s *Schedule) GetUUID() string {
-	return s.UUID
-}
-
-func (s *Schedule) GetPerformance() models.Performance {
-	return s.Performance
-}
-
-func (s *Schedule) GetMemo() string {
-	return s.Memo
-}
-
-func (s *Schedule) GetDate() string {
-	return s.Date
-}
-
-func (s *Schedule) GetTime() string {
-	return s.Time.String
-}
-
-func (s *Schedule) GetCreatedAt() string {
-	return s.CreatedAt.Format("2006-01-02 15:04:05")
-}
-
-func (s *Schedule) GetUpdatedAt() string {
-	return s.UpdatedAt.Format("2006-01-02 15:04:05")
-}
-
 type ScheduleRepository struct {
 	Db *gorm.DB
 }
 
-func (s *ScheduleRepository) Get(query map[string]any) []models.Schedule {
+func (s *ScheduleRepository) Get(query map[string]any) []Schedule {
 	var schedules []Schedule
 	db := s.Db
 
@@ -85,16 +56,10 @@ func (s *ScheduleRepository) Get(query map[string]any) []models.Schedule {
 		return nil
 	}
 
-	var m = make([]models.Schedule, len(schedules))
-
-	for i, schedule := range schedules {
-		m[i] = &schedule
-	}
-
-	return m
+	return schedules
 }
 
-func (s *ScheduleRepository) Find(uuid string) models.Schedule {
+func (s *ScheduleRepository) Find(uuid string) *Schedule {
 	schedule := Schedule{
 		UUID: uuid,
 	}
@@ -113,41 +78,12 @@ func (s *ScheduleRepository) Find(uuid string) models.Schedule {
 	return &schedule
 }
 
-func (s *ScheduleRepository) Save(scheduleModel models.Schedule) models.Schedule {
+func (s *ScheduleRepository) Save(schedule *Schedule) error {
 	scheduleUUID, _ := uuid.NewUUID()
 
-	schedule := Schedule{
-		UUID:          scheduleUUID.String(),
-		PerformanceId: scheduleModel.GetPerformance().GetId(),
-		Memo:          scheduleModel.GetMemo(),
-		Date:          scheduleModel.GetDate(),
-		Time:          sql.NullString{String: scheduleModel.GetTime()},
-	}
+	schedule.UUID = scheduleUUID.String()
 
 	result := s.Db.Create(&schedule)
-
-	if result.Error != nil {
-		return nil
-	}
-
-	return &schedule
-}
-
-func (s *ScheduleRepository) SaveMany(scheduleModels []models.Schedule) error {
-	var schedules []Schedule
-
-	for i := range scheduleModels {
-		scheduleUUID, _ := uuid.NewUUID()
-		scheduleModel := scheduleModels[i]
-		schedules = append(schedules, Schedule{
-			UUID: scheduleUUID.String(),
-			Memo: scheduleModel.GetMemo(),
-			Date: scheduleModel.GetDate(),
-			Time: sql.NullString{String: scheduleModel.GetTime()},
-		})
-	}
-
-	result := s.Db.Create(&schedules)
 
 	if result.Error != nil {
 		return result.Error
@@ -156,29 +92,43 @@ func (s *ScheduleRepository) SaveMany(scheduleModels []models.Schedule) error {
 	return nil
 }
 
-func (s *ScheduleRepository) Update(scheduleModel models.Schedule) models.Schedule {
-	err := s.Db.First(&Schedule{
-		UUID: scheduleModel.GetUUID(),
-	}).Error
+func (s *ScheduleRepository) SaveMany(schedules []Schedule) error {
+	err := s.Db.Create(&schedules).Error
 
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil
+	if err != nil {
+		return err
 	}
 
-	s.Db.Model(&Schedule{UUID: scheduleModel.GetUUID()}).Updates(Schedule{
-		UUID: scheduleModel.GetUUID(),
-		Memo: scheduleModel.GetMemo(),
-		Date: scheduleModel.GetDate(),
-		Time: sql.NullString{String: scheduleModel.GetTime()},
-	})
-
-	return scheduleModel
+	return nil
 }
 
-func (s *ScheduleRepository) Delete(uuid string) {
-	schedule := Schedule{}
+func (s *ScheduleRepository) Update(schedule *Schedule) error {
+	err := s.Db.First(&Schedule{
+		UUID: schedule.UUID,
+	}).Error
 
-	s.Db.Delete(&schedule)
+	if err != nil {
+		return err
+	}
+
+	err = s.Db.Model(&Schedule{UUID: schedule.UUID}).Updates(schedule).Error
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *ScheduleRepository) Delete(uuid string) error {
+	schedule := Schedule{UUID: uuid}
+
+	err := s.Db.Delete(&schedule).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *ScheduleRepository) GetTotal(query map[string]any) int64 {

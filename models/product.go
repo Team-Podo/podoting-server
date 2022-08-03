@@ -1,20 +1,12 @@
 package models
 
-type Product interface {
-	GetId() uint
-	GetTitle() string
-	GetPlace() Place
-	IsNil() bool
-	IsNotNil() bool
-	GetCreatedAt() string
-	GetUpdatedAt() string
-}
+import "github.com/Team-Podo/podoting-server/repository"
 
 type ProductRepository interface {
-	Get(query map[string]any) []Product
-	Find(id uint) Product
-	Save(product Product) Product
-	Update(product Product) Product
-	Delete(id uint)
-	GetTotal(query map[string]any) int64
+	GetWithQueryMap(query map[string]any) ([]repository.Product, error)
+	FindByID(id uint) (*repository.Product, error)
+	Save(product *repository.Product) error
+	Update(product *repository.Product) error
+	Delete(id uint) error
+	GetTotalWithQueryMap(query map[string]any) (int64, error)
 }

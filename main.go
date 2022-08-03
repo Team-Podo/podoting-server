@@ -5,6 +5,7 @@ import (
 	"github.com/Team-Podo/podoting-server/database/migration"
 	"github.com/Team-Podo/podoting-server/routes"
 	"github.com/Team-Podo/podoting-server/utils"
+	"github.com/Team-Podo/podoting-server/utils/aws"
 	"github.com/gin-gonic/gin"
 	"os"
 )
@@ -18,6 +19,8 @@ func main() {
 
 	r := gin.Default()
 	routes.Routes(r)
+
+	aws.Init()
 
 	fmt.Printf("Podoting running on %s mode \n", os.Getenv("APP_ENV"))
 

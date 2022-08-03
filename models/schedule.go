@@ -1,21 +1,13 @@
 package models
 
-type Schedule interface {
-	GetUUID() string
-	GetPerformance() Performance
-	GetMemo() string
-	GetDate() string
-	GetTime() string
-	GetCreatedAt() string
-	GetUpdatedAt() string
-}
+import "github.com/Team-Podo/podoting-server/repository"
 
 type ScheduleRepository interface {
-	Get(query map[string]any) []Schedule
-	Find(uuid string) Schedule
-	Save(schedule Schedule) Schedule
-	SaveMany(schedules []Schedule) error
-	Update(schedule Schedule) Schedule
-	Delete(uuid string)
+	Get(query map[string]any) []repository.Schedule
+	Find(uuid string) *repository.Schedule
+	Save(schedule *repository.Schedule) error
+	SaveMany(schedules []repository.Schedule) error
+	Update(schedule *repository.Schedule) error
+	Delete(uuid string) error
 	GetTotal(query map[string]any) int64
 }
