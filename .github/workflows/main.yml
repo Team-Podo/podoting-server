@@ -54,6 +54,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: ADD Secret to env file
+        run: |
+          touch .env
+          echo APP_ENV=production > .env
+          echo DB_CONNECTION=mysql > .env
+          echo DB_DATABASE=${{ secrets.DB_DATABASE }} >> .env
+          echo DB_HOST=${{ secrets.DB_HOST}} >> .env
+          echo DB_USER=${{ secrets.DB_USER }} >> .env
+          echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> .env
+          echo S3_BUCKET=podoting-bucket-live >> .env
+          echo S3_KEY=${{ secrets.S3_KEY }} >> .env
+          echo S3_SECRET=${{ secrets.S3_SECRET }} >> .env
+          echo AWS_REGION=ap-northeast-2 >> .env
+          echo CDN_URL=https://cdn.podoting.com >> .env
+          cat .env
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
