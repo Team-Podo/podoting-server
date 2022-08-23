@@ -16,7 +16,7 @@ type PerformanceTestSuite struct {
 
 func (suite *PerformanceTestSuite) SetupTest() {
 	suite.performance = Performance{Title: "2022 서울투어", StartDate: "2022-07-19", EndDate: "2022-08-20", Product: &Product{ID: 1}}
-	suite.performanceRepository = PerformanceRepository{Db: database.Gorm}
+	suite.performanceRepository = PerformanceRepository{DB: database.Gorm}
 }
 
 func (suite *PerformanceTestSuite) TestGet() {

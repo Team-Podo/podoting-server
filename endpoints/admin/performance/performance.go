@@ -25,7 +25,7 @@ type Repository struct {
 
 func init() {
 	repositories = Repository{
-		performance: &repository.PerformanceRepository{Db: database.Gorm},
+		performance: &repository.PerformanceRepository{DB: database.Gorm},
 	}
 }
 

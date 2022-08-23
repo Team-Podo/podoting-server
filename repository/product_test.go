@@ -1,78 +1,113 @@
 package repository
 
 import (
-	"fmt"
-	"github.com/Team-Podo/podoting-server/database"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/suite"
+	"database/sql"
+	"github.com/DATA-DOG/go-sqlmock"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"regexp"
 	"testing"
+	"time"
 )
 
-type ProductTestSuite struct {
-	suite.Suite
-	productRepository *ProductRepository
-	product           Product
+func TestSql(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Sqlmock Suite")
 }
 
-func (suite *ProductTestSuite) SetupTest() {
-	suite.productRepository = &ProductRepository{DB: database.Gorm}
-	suite.product = Product{Title: "수정 전"}
-}
+var _ = Describe("Product", func() {
+	var repo ProductRepository
+	var mock sqlmock.Sqlmock
 
-func (suite *ProductTestSuite) TestGet() {
-	products, _ := suite.productRepository.GetWithQueryMap(map[string]any{})
-	for _, product := range products {
-		fmt.Println("id:", product.ID, "title", product.Title)
-	}
+	BeforeEach(func() {
+		var db *sql.DB
+		var err error
 
-	assert.NotNil(suite.T(), products)
-}
+		db, mock, err = sqlmock.New()
+		Expect(err).NotTo(HaveOccurred())
 
-func (suite *ProductTestSuite) TestGetProductById() {
-	product, _ := suite.productRepository.FindByID(1)
+		gormDB, err := gorm.Open(mysql.New(mysql.Config{
+			Conn:                      db,
+			SkipInitializeWithVersion: true,
+		}), &gorm.Config{})
+		Expect(err).NotTo(HaveOccurred())
 
-	assert.Equal(suite.T(), uint(1), product.ID)
-}
+		repo = ProductRepository{DB: gormDB}
+	})
 
-func (suite *ProductTestSuite) TestSaveProduct() {
-	err := suite.productRepository.Save(&suite.product)
-	assert.Nil(suite.T(), err)
+	AfterEach(func() {
+		err := mock.ExpectationsWereMet() // 모든 기대가 충족되었는지 확인
+		Expect(err).NotTo(HaveOccurred())
+	})
 
-	_product, _ := suite.productRepository.FindByID(suite.product.ID)
+	Describe("GetWithQueryMap", func() {
+		const defaultSelectQuery = "SELECT * FROM `products` WHERE `products`.`deleted_at` IS NULL"
+		var toInsertRows = []string{"id", "title", "file_id", "created_at", "updated_at", "deleted_at"}
 
-	assert.Equal(suite.T(), "테스트 상품", _product.Title)
-}
+		It("Success", func() {
+			mock.ExpectQuery(regexp.QuoteMeta(defaultSelectQuery)).
+				WillReturnRows(sqlmock.NewRows(toInsertRows).
+					AddRow(1, "웃는 남자", nil, time.Now(), time.Now(), nil).
+					AddRow(2, "안웃는 남자", nil, time.Now(), time.Now(), nil))
+			products, err := repo.GetWithQueryMap(map[string]any{})
 
-func (suite *ProductTestSuite) TestUpdateProduct() {
-	err := suite.productRepository.Save(&suite.product)
-	assert.Nil(suite.T(), err)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(products).To(HaveLen(2))
+		})
 
-	assert.Equal(suite.T(), "수정 전", suite.product.Title)
-	fmt.Println(suite.product)
+		It("Reversed", func() {
+			const sqlQuery = defaultSelectQuery + " ORDER BY id desc"
+			mock.ExpectQuery(regexp.QuoteMeta(sqlQuery)).
+				WillReturnRows(sqlmock.NewRows(toInsertRows).
+					AddRow(1, "웃는 남자", nil, time.Now(), time.Now(), nil).
+					AddRow(2, "안웃는 남자", nil, time.Now(), time.Now(), nil))
+			products, err := repo.GetWithQueryMap(map[string]any{
+				"reversed": true,
+			})
 
-	var _product Product
-	_product.ID = suite.product.ID
-	_product.Title = "수정 후"
+			Expect(err).NotTo(HaveOccurred())
+			Expect(products).To(HaveLen(2))
+		})
 
-	err = suite.productRepository.Update(&_product)
-	assert.Nil(suite.T(), err)
+		It("Limit", func() {
+			const sqlQuery = defaultSelectQuery + " LIMIT 1"
+			mock.ExpectQuery(regexp.QuoteMeta(sqlQuery)).
+				WillReturnRows(sqlmock.NewRows(toInsertRows).
+					AddRow(1, "웃는 남자", nil, time.Now(), time.Now(), nil))
+			products, err := repo.GetWithQueryMap(map[string]any{
+				"limit": 1,
+			})
 
-	assert.Equal(suite.T(), "수정 후", suite.product.Title)
-	fmt.Println(suite.product)
-}
+			Expect(err).NotTo(HaveOccurred())
+			Expect(products).To(HaveLen(1))
+		})
 
-func (suite *ProductTestSuite) TestDeleteProductById() {
-	err := suite.productRepository.Save(&suite.product)
-	assert.Nil(suite.T(), err)
+		It("Offset", func() {
+			const sqlQuery = defaultSelectQuery + " OFFSET 1"
+			mock.ExpectQuery(regexp.QuoteMeta(sqlQuery)).
+				WillReturnRows(sqlmock.NewRows(toInsertRows).
+					AddRow(2, "안웃는 남자", nil, time.Now(), time.Now(), nil))
+			products, err := repo.GetWithQueryMap(map[string]any{
+				"offset": 1,
+			})
 
-	err = suite.productRepository.Delete(suite.product.ID)
-	assert.Nil(suite.T(), err)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(products).To(HaveLen(1))
+		})
+	})
 
-	_product, _ := suite.productRepository.FindByID(suite.product.ID)
+	Describe("FindByID", func() {
+		It("Success", func() {
+			mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `products` WHERE `products`.`deleted_at` IS NULL AND `products`.`id` = ? ORDER BY `products`.`id` LIMIT 1")).
+				WithArgs(1).
+				WillReturnRows(sqlmock.NewRows([]string{"id", "title", "file_id", "created_at", "updated_at", "deleted_at"}).
+					AddRow(1, "웃는 남자", nil, time.Now(), time.Now(), nil))
+			product, err := repo.FindByID(1)
 
-	assert.Equal(suite.T(), nil, _product)
-}
-
-func TestSaveProductTestSuite(t *testing.T) {
-	suite.Run(t, new(ProductTestSuite))
-}
+			Expect(err).NotTo(HaveOccurred())
+			Expect(product.ID).To(Equal(uint(1)))
+		})
+	})
+})

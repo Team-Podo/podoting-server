@@ -22,12 +22,12 @@ type Performance struct {
 }
 
 type PerformanceRepository struct {
-	Db *gorm.DB
+	DB *gorm.DB
 }
 
 func (p *PerformanceRepository) GetWithQueryMap(query map[string]any) []Performance {
 	var performances []Performance
-	db := p.Db
+	db := p.DB
 
 	p.applyAllQuery(query)
 
@@ -46,7 +46,7 @@ func (p *PerformanceRepository) GetWithQueryMap(query map[string]any) []Performa
 
 func (p *PerformanceRepository) FindByID(id uint) *Performance {
 	performance := Performance{}
-	err := p.Db.Preload("Product").Preload("Schedules").First(&performance, id).Error
+	err := p.DB.Preload("Product").Preload("Schedules").First(&performance, id).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil
@@ -60,7 +60,7 @@ func (p *PerformanceRepository) FindByID(id uint) *Performance {
 }
 
 func (p *PerformanceRepository) Save(performance *Performance) error {
-	err := p.Db.Create(performance).Error
+	err := p.DB.Create(performance).Error
 
 	if err != nil {
 		return err
@@ -70,13 +70,13 @@ func (p *PerformanceRepository) Save(performance *Performance) error {
 }
 
 func (p *PerformanceRepository) Update(performance *Performance) error {
-	err := p.Db.First(&Performance{}, performance.ID).Error
+	err := p.DB.First(&Performance{}, performance.ID).Error
 
 	if err != nil {
 		return err
 	}
 
-	p.Db.Model(&Performance{ID: performance.ID}).Updates(performance)
+	p.DB.Model(&Performance{ID: performance.ID}).Updates(performance)
 
 	return nil
 }
@@ -85,7 +85,7 @@ func (p *PerformanceRepository) Delete(id uint) error {
 	performance := Performance{}
 	performance.ID = id
 
-	err := p.Db.Delete(&performance).Error
+	err := p.DB.Delete(&performance).Error
 	if err != nil {
 		return err
 	}
@@ -97,7 +97,7 @@ func (p *PerformanceRepository) GetTotalWithQueryMap(query map[string]any) int64
 	p.applyAllQuery(query)
 
 	var count int64
-	p.Db.Model(&Performance{}).Count(&count)
+	p.DB.Model(&Performance{}).Count(&count)
 
 	return count
 }
@@ -110,20 +110,20 @@ func (p *PerformanceRepository) applyAllQuery(query map[string]any) {
 
 func (p *PerformanceRepository) applyReversedQuery(query map[string]any) {
 	if query["reversed"] == true {
-		p.Db = p.Db.Order("id desc")
+		p.DB = p.DB.Order("id desc")
 	}
 }
 
 func (p *PerformanceRepository) applyLimitQuery(query map[string]any) {
 	if query["limit"] != nil {
 		limit, _ := strconv.Atoi(utils.ToString(query["limit"]))
-		p.Db = p.Db.Limit(limit)
+		p.DB = p.DB.Limit(limit)
 	}
 }
 
 func (p *PerformanceRepository) applyOffsetQuery(query map[string]any) {
 	if query["offset"] != nil {
 		offset, _ := strconv.Atoi(utils.ToString(query["offset"]))
-		p.Db = p.Db.Offset(offset)
+		p.DB = p.DB.Offset(offset)
 	}
 }
