@@ -20,8 +20,16 @@ type FileRepository struct {
 	DB *gorm.DB
 }
 
-func (file *File) FullPath() {
-	file.Path = fmt.Sprintf("%s/%s", file.Path, file.Title)
+func (file *File) IsNil() bool {
+	if file == nil {
+		return true
+	}
+
+	return false
+}
+
+func (file *File) FullPath() string {
+	return fmt.Sprintf("%s/%s", file.Path, file.Title)
 }
 
 func (f *FileRepository) Get(id uint) (*File, error) {

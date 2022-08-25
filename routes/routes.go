@@ -4,6 +4,7 @@ import (
 	"github.com/Team-Podo/podoting-server/endpoints/admin/performance"
 	"github.com/Team-Podo/podoting-server/endpoints/admin/product"
 	"github.com/Team-Podo/podoting-server/endpoints/admin/schedule"
+	"github.com/Team-Podo/podoting-server/endpoints/musical"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -42,6 +43,11 @@ func Routes(r *gin.Engine) {
 			schedules.PUT("/:uuid", schedule.Update)
 			schedules.DELETE("/", schedule.Delete)
 		}
+	}
+
+	musicalGroup := r.Group("/musical")
+	{
+		musicalGroup.GET("/:id", musical.Find)
 	}
 
 }

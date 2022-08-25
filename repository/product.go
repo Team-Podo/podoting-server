@@ -3,6 +3,7 @@ package repository
 import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/utils"
+	"os"
 	"strconv"
 	"time"
 )
@@ -31,6 +32,14 @@ func (product *Product) IsNotNil() bool {
 	}
 
 	return true
+}
+
+func (product *Product) GetFileURL() string {
+	if product.File.IsNil() {
+		return ""
+	}
+
+	return os.Getenv("CDN_URL") + "/" + product.File.FullPath()
 }
 
 type ProductRepository struct {

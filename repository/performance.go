@@ -21,6 +21,14 @@ type Performance struct {
 	DeletedAt *gorm.DeletedAt `json:"-" gorm:"index"`
 }
 
+func (p *Performance) GetFileURL() string {
+	if p.Product.IsNil() {
+		return ""
+	}
+
+	return p.Product.GetFileURL()
+}
+
 type PerformanceRepository struct {
 	DB *gorm.DB
 }
@@ -46,7 +54,7 @@ func (p *PerformanceRepository) GetWithQueryMap(query map[string]any) []Performa
 
 func (p *PerformanceRepository) FindByID(id uint) *Performance {
 	performance := Performance{}
-	err := p.DB.Preload("Product").Preload("Schedules").First(&performance, id).Error
+	err := p.DB.Preload("Product.File").Preload("Schedules").First(&performance, id).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil
