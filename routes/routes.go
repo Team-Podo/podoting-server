@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/Team-Podo/podoting-server/endpoints/admin/performance"
+	"github.com/Team-Podo/podoting-server/endpoints/admin/performance/cast"
 	"github.com/Team-Podo/podoting-server/endpoints/admin/product"
 	"github.com/Team-Podo/podoting-server/endpoints/admin/schedule"
 	"github.com/Team-Podo/podoting-server/endpoints/musical"
@@ -33,6 +34,11 @@ func Routes(r *gin.Engine) {
 			performances.POST("/", performance.Create)
 			performances.PUT("/:id", performance.Update)
 			performances.DELETE("/", performance.Delete)
+
+			casts := performances.Group("/:id/casts")
+			{
+				casts.POST("/:cast_id/profile-image", cast.UploadProfileImage)
+			}
 		}
 
 		schedules := admin.Group("/schedules")

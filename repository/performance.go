@@ -9,16 +9,18 @@ import (
 )
 
 type Performance struct {
-	ID        uint            `json:"id" gorm:"primarykey"`
-	ProductID uint            `json:"-"`
-	Product   *Product        `json:"product" gorm:"foreignkey:ProductID"`
-	Schedules []Schedule      `gorm:"foreignkey:PerformanceId"`
-	Title     string          `json:"title"`
-	StartDate string          `json:"startDate"`
-	EndDate   string          `json:"endDate"`
-	CreatedAt time.Time       `json:"createdAt"`
-	UpdatedAt time.Time       `json:"updatedAt"`
-	DeletedAt *gorm.DeletedAt `json:"-" gorm:"index"`
+	ID          uint            `json:"id" gorm:"primarykey"`
+	ProductID   uint            `json:"-"`
+	Product     *Product        `json:"product" gorm:"foreignkey:ProductID"`
+	Schedules   []*Schedule     `gorm:"foreignkey:PerformanceId"`
+	Casts       []*Cast         `gorm:"many2many:performance_casts;"`
+	Title       string          `json:"title"`
+	RunningTime string          `json:"runningTime"`
+	StartDate   string          `json:"startDate"`
+	EndDate     string          `json:"endDate"`
+	CreatedAt   time.Time       `json:"createdAt"`
+	UpdatedAt   time.Time       `json:"updatedAt"`
+	DeletedAt   *gorm.DeletedAt `json:"-" gorm:"index"`
 }
 
 func (p *Performance) GetFileURL() string {
@@ -52,9 +54,47 @@ func (p *PerformanceRepository) GetWithQueryMap(query map[string]any) []Performa
 	return performances
 }
 
+func (p *PerformanceRepository) GetTotalWithQueryMap(query map[string]any) int64 {
+	p.applyAllQuery(query)
+
+	var count int64
+	p.DB.Model(&Performance{}).Count(&count)
+
+	return count
+}
+
+func (p *PerformanceRepository) applyAllQuery(query map[string]any) {
+	p.applyReversedQuery(query)
+	p.applyLimitQuery(query)
+	p.applyOffsetQuery(query)
+}
+
+func (p *PerformanceRepository) applyReversedQuery(query map[string]any) {
+	if query["reversed"] == true {
+		p.DB = p.DB.Order("id desc")
+	}
+}
+
+func (p *PerformanceRepository) applyLimitQuery(query map[string]any) {
+	if query["limit"] != nil {
+		limit, _ := strconv.Atoi(utils.ToString(query["limit"]))
+		p.DB = p.DB.Limit(limit)
+	}
+}
+
+func (p *PerformanceRepository) applyOffsetQuery(query map[string]any) {
+	if query["offset"] != nil {
+		offset, _ := strconv.Atoi(utils.ToString(query["offset"]))
+		p.DB = p.DB.Offset(offset)
+	}
+}
+
 func (p *PerformanceRepository) FindByID(id uint) *Performance {
 	performance := Performance{}
-	err := p.DB.Preload("Product.File").Preload("Schedules").First(&performance, id).Error
+	err := p.DB.
+		Preload("Product.File").
+		Preload("Schedules").
+		First(&performance, id).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil
@@ -101,37 +141,38 @@ func (p *PerformanceRepository) Delete(id uint) error {
 	return nil
 }
 
-func (p *PerformanceRepository) GetTotalWithQueryMap(query map[string]any) int64 {
-	p.applyAllQuery(query)
+func (p *PerformanceRepository) GetCastsByID(id uint) []*Cast {
+	var performance Performance
+	performance.ID = id
 
-	var count int64
-	p.DB.Model(&Performance{}).Count(&count)
+	err := p.DB.
+		Model(&performance).
+		Joins("Character").
+		Joins("Person").
+		Joins("ProfileImage").
+		Association("Casts").
+		Find(&performance.Casts)
 
-	return count
-}
-
-func (p *PerformanceRepository) applyAllQuery(query map[string]any) {
-	p.applyReversedQuery(query)
-	p.applyLimitQuery(query)
-	p.applyOffsetQuery(query)
-}
-
-func (p *PerformanceRepository) applyReversedQuery(query map[string]any) {
-	if query["reversed"] == true {
-		p.DB = p.DB.Order("id desc")
+	if err != nil {
+		return nil
 	}
+
+	return performance.Casts
 }
 
-func (p *PerformanceRepository) applyLimitQuery(query map[string]any) {
-	if query["limit"] != nil {
-		limit, _ := strconv.Atoi(utils.ToString(query["limit"]))
-		p.DB = p.DB.Limit(limit)
-	}
-}
+func (p *PerformanceRepository) GetSchedulesByID(id uint) []*Schedule {
+	var performance Performance
+	performance.ID = id
 
-func (p *PerformanceRepository) applyOffsetQuery(query map[string]any) {
-	if query["offset"] != nil {
-		offset, _ := strconv.Atoi(utils.ToString(query["offset"]))
-		p.DB = p.DB.Offset(offset)
+	err := p.DB.
+		Model(&performance).
+		Preload("Casts.Person").
+		Association("Schedules").
+		Find(&performance.Schedules)
+
+	if err != nil {
+		return nil
 	}
+
+	return performance.Schedules
 }

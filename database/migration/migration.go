@@ -32,4 +32,24 @@ func Init() {
 	if err != nil {
 		return
 	}
+
+	err = db.AutoMigrate(&repository.Person{})
+	if err != nil {
+		return
+	}
+
+	err = db.AutoMigrate(&repository.Character{})
+	if err != nil {
+		return
+	}
+
+	err = db.AutoMigrate(&repository.Cast{})
+	if err != nil {
+		return
+	}
+
+	err = db.AutoMigrate(&repository.PerformanceCast{})
+	if err != nil {
+		return
+	}
 }

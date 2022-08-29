@@ -17,6 +17,7 @@ type Schedule struct {
 	PerformanceId uint `json:"-"`
 	Memo          string
 	Date          string
+	Casts         []Cast `gorm:"many2many:schedule_cast;"`
 	Time          sql.NullString
 	CreatedAt     time.Time       `json:"createdAt"`
 	UpdatedAt     time.Time       `json:"updatedAt"`

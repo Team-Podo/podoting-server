@@ -36,21 +36,10 @@ func Find(c *gin.Context) {
 		return
 	}
 
-	musical := models.Musical{
-		Id:          performance.ID,
-		Title:       performance.Title,
-		ThumbUrl:    performance.GetFileURL(),
-		RunningTime: "",
-		StartDate:   performance.StartDate,
-		EndDate:     performance.EndDate,
-		Schedules:   nil,
-		Cast:        nil,
-		Contents:    nil,
-	}
+	var schedules []models.MusicalSchedule
 
-	schedules := performance.Schedules
-	for _, schedule := range schedules {
-		musical.Schedules = append(musical.Schedules, models.MusicalSchedule{
+	for _, schedule := range performance.Schedules {
+		schedules = append(schedules, models.MusicalSchedule{
 			UUID: schedule.UUID,
 			Date: schedule.Date,
 			Time: schedule.Time.String,
@@ -58,5 +47,64 @@ func Find(c *gin.Context) {
 		})
 	}
 
+	musical := models.Musical{
+		Id:          performance.ID,
+		Title:       performance.Title,
+		ThumbUrl:    performance.GetFileURL(),
+		RunningTime: performance.RunningTime,
+		StartDate:   performance.StartDate,
+		EndDate:     performance.EndDate,
+		Schedules:   getSchedules(performance.ID),
+		Cast:        getCasts(performance.ID),
+		Contents:    nil,
+	}
+
 	c.JSON(200, musical)
+}
+
+func getCasts(id uint) []models.Cast {
+	casts := repositories.performance.GetCastsByID(id)
+	var result []models.Cast
+
+	for _, cast := range casts {
+		result = append(result, models.Cast{
+			Id: cast.ID,
+			Profile: models.Profile{
+				Url: cast.ProfileImageURL(),
+			},
+			Name: cast.Person.Name,
+			Role: cast.Character.Name,
+		})
+	}
+
+	return result
+}
+
+func getSchedules(id uint) []models.MusicalSchedule {
+	schedules := repositories.performance.GetSchedulesByID(id)
+	if schedules == nil {
+		return nil
+	}
+
+	var result []models.MusicalSchedule
+
+	for _, schedule := range schedules {
+		var casts []models.MusicalScheduleCast
+
+		for _, cast := range schedule.Casts {
+			casts = append(casts, models.MusicalScheduleCast{
+				ID:   cast.ID,
+				Name: cast.Person.Name,
+			})
+		}
+
+		result = append(result, models.MusicalSchedule{
+			UUID: schedule.UUID,
+			Date: schedule.Date,
+			Time: schedule.Time.String,
+			Cast: casts,
+		})
+	}
+
+	return result
 }

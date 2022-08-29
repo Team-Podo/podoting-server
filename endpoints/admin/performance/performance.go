@@ -13,10 +13,11 @@ import (
 var repositories Repository
 
 type request struct {
-	ProductID uint   `json:"productId"`
-	Title     string `json:"title"`
-	StartDate string `json:"startDate"`
-	EndDate   string `json:"endDate"`
+	ProductID   uint   `json:"productId"`
+	Title       string `json:"title"`
+	RunningTime string `json:"runningTime"`
+	StartDate   string `json:"startDate"`
+	EndDate     string `json:"endDate"`
 }
 
 type Repository struct {
@@ -53,14 +54,15 @@ func Get(c *gin.Context) {
 
 	for _, performance := range performances {
 		performanceResponses = append(performanceResponses, utils.BuildMapSliceByMap(map[string]any{
-			"id":        performance.ID,
-			"title":     performance.Title,
-			"startDate": performance.StartDate,
-			"endDate":   performance.EndDate,
-			"product":   performance.Product,
-			"schedules": performance.Schedules,
-			"createdAt": performance.CreatedAt,
-			"updatedAt": performance.UpdatedAt,
+			"id":          performance.ID,
+			"title":       performance.Title,
+			"runningTime": performance.RunningTime,
+			"startDate":   performance.StartDate,
+			"endDate":     performance.EndDate,
+			"product":     performance.Product,
+			"schedules":   performance.Schedules,
+			"createdAt":   performance.CreatedAt,
+			"updatedAt":   performance.UpdatedAt,
 		}))
 	}
 
@@ -110,14 +112,15 @@ func Find(c *gin.Context) {
 	}
 
 	result := utils.BuildMapSliceByMap(map[string]any{
-		"id":        performance.ID,
-		"title":     performance.Title,
-		"startDate": performance.StartDate,
-		"endDate":   performance.EndDate,
-		"product":   performanceProduct,
-		"schedules": performanceSchedules,
-		"createdAt": performance.CreatedAt,
-		"updatedAt": performance.UpdatedAt,
+		"id":          performance.ID,
+		"title":       performance.Title,
+		"runningTime": performance.RunningTime,
+		"startDate":   performance.StartDate,
+		"endDate":     performance.EndDate,
+		"product":     performanceProduct,
+		"schedules":   performanceSchedules,
+		"createdAt":   performance.CreatedAt,
+		"updatedAt":   performance.UpdatedAt,
 	})
 
 	c.JSON(http.StatusOK, result)
@@ -133,10 +136,11 @@ func Create(c *gin.Context) {
 	}
 
 	performance := repository.Performance{
-		Product:   &repository.Product{ID: json.ProductID},
-		Title:     json.Title,
-		StartDate: json.StartDate,
-		EndDate:   json.EndDate,
+		Product:     &repository.Product{ID: json.ProductID},
+		Title:       json.Title,
+		RunningTime: json.RunningTime,
+		StartDate:   json.StartDate,
+		EndDate:     json.EndDate,
 	}
 
 	err := repositories.performance.Save(&performance)
@@ -168,11 +172,12 @@ func Update(c *gin.Context) {
 	}
 
 	performance := repository.Performance{
-		ID:        uint(intId),
-		Product:   &repository.Product{ID: json.ProductID},
-		Title:     json.Title,
-		StartDate: json.StartDate,
-		EndDate:   json.EndDate,
+		ID:          uint(intId),
+		Product:     &repository.Product{ID: json.ProductID},
+		Title:       json.Title,
+		RunningTime: json.RunningTime,
+		StartDate:   json.StartDate,
+		EndDate:     json.EndDate,
 	}
 
 	err = repositories.performance.Update(&performance)

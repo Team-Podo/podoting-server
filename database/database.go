@@ -25,7 +25,6 @@ func initDB() *gorm.DB {
 		database := os.Getenv("DB_DATABASE")
 
 		dsn := user + ":" + password + "@tcp(" + host + ":3306)/" + database + "?charset=utf8mb4&parseTime=True&loc=Local"
-		fmt.Println(dsn)
 		db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 		if err != nil {
 			panic("failed to connect gorm")

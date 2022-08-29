@@ -1,14 +1,12 @@
 package repository
 
 import (
-	"fmt"
 	"gorm.io/gorm"
 	"time"
 )
 
 type File struct {
 	ID        uint `json:"id" gorm:"primarykey"`
-	Title     string
 	Size      int64
 	Path      string
 	CreatedAt time.Time  `json:"createdAt"`
@@ -26,10 +24,6 @@ func (file *File) IsNil() bool {
 	}
 
 	return false
-}
-
-func (file *File) FullPath() string {
-	return fmt.Sprintf("%s/%s", file.Path, file.Title)
 }
 
 func (f *FileRepository) Get(id uint) (*File, error) {

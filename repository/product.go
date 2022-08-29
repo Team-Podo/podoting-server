@@ -39,7 +39,7 @@ func (product *Product) GetFileURL() string {
 		return ""
 	}
 
-	return os.Getenv("CDN_URL") + "/" + product.File.FullPath()
+	return os.Getenv("CDN_URL") + "/" + product.File.Path
 }
 
 type ProductRepository struct {

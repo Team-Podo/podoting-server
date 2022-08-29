@@ -58,6 +58,26 @@ func (suite *PerformanceTestSuite) TestDelete() {
 	_ = suite.performanceRepository.Delete(10)
 }
 
+func (suite *PerformanceTestSuite) TestGetCastsByPerformanceID() {
+	casts := suite.performanceRepository.GetCastsByID(11)
+
+	fmt.Println("casts", casts)
+
+	for _, cast := range casts {
+		fmt.Println("id:", cast.ID, "person:", cast.Person, "character:", cast.Character)
+	}
+}
+
+func (suite *PerformanceTestSuite) TestGetSchedulesByPerformanceID() {
+	schedules := suite.performanceRepository.GetSchedulesByID(11)
+
+	fmt.Println("schedules", schedules)
+
+	for _, schedule := range schedules {
+		fmt.Println("id:", schedule.UUID, "time:", schedule.Time, "casts:", schedule.Casts)
+	}
+}
+
 func TestPerformanceTestSuite(t *testing.T) {
 	suite.Run(t, new(PerformanceTestSuite))
 }
