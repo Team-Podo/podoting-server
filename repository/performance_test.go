@@ -74,7 +74,7 @@ func (suite *PerformanceTestSuite) TestGetSchedulesByPerformanceID() {
 	fmt.Println("schedules", schedules)
 
 	for _, schedule := range schedules {
-		fmt.Println("id:", schedule.UUID, "time:", schedule.Time, "casts:", schedule.Casts)
+		fmt.Println("id:", schedule.UUID, "date:", schedule.Date, "time:", schedule.Time, "casts:", schedule.Casts)
 	}
 }
 

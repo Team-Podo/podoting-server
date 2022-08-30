@@ -166,6 +166,8 @@ func (p *PerformanceRepository) GetSchedulesByID(id uint) []*Schedule {
 
 	err := p.DB.
 		Model(&performance).
+		Order("date asc").
+		Order("time asc").
 		Preload("Casts.Person").
 		Association("Schedules").
 		Find(&performance.Schedules)
