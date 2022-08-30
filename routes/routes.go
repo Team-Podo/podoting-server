@@ -19,6 +19,13 @@ func Routes(r *gin.Engine) {
 			"https://podoting.com",
 			"https://www.podoting.com",
 		},
+		AllowCredentials: true,
+		AllowHeaders: []string{
+			"Origin",
+			"Content-Length",
+			"Content-Type",
+			"Authorization",
+		},
 		AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		MaxAge:       12 * time.Hour,
 	}))
