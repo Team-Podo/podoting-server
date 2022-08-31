@@ -36,16 +36,17 @@ func Find(c *gin.Context) {
 		return
 	}
 
-	var schedules []models.MusicalSchedule
+	placeCH := make(chan *models.MusicalPlace)
+	go getPlace(performance, placeCH)
 
-	for _, schedule := range performance.Schedules {
-		schedules = append(schedules, models.MusicalSchedule{
-			UUID: schedule.UUID,
-			Date: schedule.Date,
-			Time: schedule.Time.String,
-			Cast: nil,
-		})
-	}
+	scheduleCH := make(chan []models.MusicalSchedule)
+	go getSchedules(performance.ID, scheduleCH)
+
+	castCH := make(chan []models.Cast)
+	go getCasts(performance.ID, castCH)
+
+	contentCH := make(chan []models.MusicalContent)
+	go getContents(performance.ID, contentCH)
 
 	musical := models.Musical{
 		Id:          performance.ID,
@@ -54,15 +55,17 @@ func Find(c *gin.Context) {
 		RunningTime: performance.RunningTime,
 		StartDate:   performance.StartDate,
 		EndDate:     performance.EndDate,
-		Schedules:   getSchedules(performance.ID),
-		Cast:        getCasts(performance.ID),
-		Contents:    nil,
+		Rating:      performance.Rating,
+		Place:       <-placeCH,
+		Schedules:   <-scheduleCH,
+		Cast:        <-castCH,
+		Contents:    <-contentCH,
 	}
 
 	c.JSON(200, musical)
 }
 
-func getCasts(id uint) []models.Cast {
+func getCasts(id uint, ch chan []models.Cast) {
 	casts := repositories.performance.GetCastsByID(id)
 	var result []models.Cast
 
@@ -77,13 +80,27 @@ func getCasts(id uint) []models.Cast {
 		})
 	}
 
-	return result
+	ch <- result
 }
 
-func getSchedules(id uint) []models.MusicalSchedule {
+func getPlace(p *repository.Performance, ch chan *models.MusicalPlace) {
+	if p.Place == nil {
+		ch <- nil
+		return
+	}
+
+	ch <- &models.MusicalPlace{
+		ID:    p.Place.ID,
+		Name:  p.Place.Name,
+		Image: p.Place.ImageURL(),
+	}
+}
+
+func getSchedules(id uint, ch chan []models.MusicalSchedule) {
 	schedules := repositories.performance.GetSchedulesByID(id)
 	if schedules == nil {
-		return nil
+		ch <- nil
+		return
 	}
 
 	var result []models.MusicalSchedule
@@ -106,5 +123,25 @@ func getSchedules(id uint) []models.MusicalSchedule {
 		})
 	}
 
-	return result
+	ch <- result
+}
+
+func getContents(id uint, ch chan []models.MusicalContent) {
+	contents := repositories.performance.GetContentsByID(id)
+	if contents == nil {
+		ch <- nil
+		return
+	}
+
+	var result []models.MusicalContent
+
+	for _, content := range contents {
+		result = append(result, models.MusicalContent{
+			Uuid:    content.UUID,
+			Title:   content.Title,
+			Content: content.Content,
+		})
+	}
+
+	ch <- result
 }

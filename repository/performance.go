@@ -9,18 +9,22 @@ import (
 )
 
 type Performance struct {
-	ID          uint            `json:"id" gorm:"primarykey"`
-	ProductID   uint            `json:"-"`
-	Product     *Product        `json:"product" gorm:"foreignkey:ProductID"`
-	Schedules   []*Schedule     `gorm:"foreignkey:PerformanceId"`
-	Casts       []*Cast         `gorm:"many2many:performance_casts;"`
-	Title       string          `json:"title"`
-	RunningTime string          `json:"runningTime"`
-	StartDate   string          `json:"startDate"`
-	EndDate     string          `json:"endDate"`
-	CreatedAt   time.Time       `json:"createdAt"`
-	UpdatedAt   time.Time       `json:"updatedAt"`
-	DeletedAt   *gorm.DeletedAt `json:"-" gorm:"index"`
+	ID          uint                  `json:"id" gorm:"primarykey"`
+	Product     *Product              `json:"product" gorm:"foreignkey:ProductID"`
+	ProductID   uint                  `json:"-"`
+	Place       *Place                `json:"place" gorm:"foreignkey:PlaceID"`
+	PlaceID     *uint                 `json:"-"`
+	Casts       []*Cast               `gorm:"many2many:performance_casts;"`
+	Schedules   []*Schedule           `gorm:"foreignkey:PerformanceID"`
+	Contents    []*PerformanceContent `gorm:"foreignkey:PerformanceID"`
+	Title       string                `json:"title"`
+	RunningTime string                `json:"runningTime"`
+	StartDate   string                `json:"startDate"`
+	EndDate     string                `json:"endDate"`
+	Rating      string                `json:"rating"`
+	CreatedAt   time.Time             `json:"createdAt"`
+	UpdatedAt   time.Time             `json:"updatedAt"`
+	DeletedAt   *gorm.DeletedAt       `json:"-" gorm:"index"`
 }
 
 func (p *Performance) GetFileURL() string {
@@ -90,11 +94,14 @@ func (p *PerformanceRepository) applyOffsetQuery(query map[string]any) {
 }
 
 func (p *PerformanceRepository) FindByID(id uint) *Performance {
-	performance := Performance{}
+	performance := Performance{
+		ID: id,
+	}
+
 	err := p.DB.
+		Preload("Place.PlaceImage").
 		Preload("Product.File").
-		Preload("Schedules").
-		First(&performance, id).Error
+		First(&performance).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil
@@ -177,4 +184,21 @@ func (p *PerformanceRepository) GetSchedulesByID(id uint) []*Schedule {
 	}
 
 	return performance.Schedules
+}
+
+func (p *PerformanceRepository) GetContentsByID(id uint) []*PerformanceContent {
+	var performance Performance
+	performance.ID = id
+
+	err := p.DB.
+		Model(&performance).
+		Order("priority asc").
+		Association("Contents").
+		Find(&performance.Contents)
+
+	if err != nil {
+		return nil
+	}
+
+	return performance.Contents
 }

@@ -3,6 +3,7 @@ package routes
 import (
 	"github.com/Team-Podo/podoting-server/endpoints/admin/performance"
 	"github.com/Team-Podo/podoting-server/endpoints/admin/performance/cast"
+	"github.com/Team-Podo/podoting-server/endpoints/admin/performance/place"
 	"github.com/Team-Podo/podoting-server/endpoints/admin/product"
 	"github.com/Team-Podo/podoting-server/endpoints/admin/schedule"
 	"github.com/Team-Podo/podoting-server/endpoints/musical"
@@ -26,7 +27,7 @@ func Routes(r *gin.Engine) {
 			"Content-Type",
 			"Authorization",
 		},
-		AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowMethods: []string{"GET", "POST", "PUT", "DELETE"},
 		MaxAge:       12 * time.Hour,
 	}))
 
@@ -57,6 +58,11 @@ func Routes(r *gin.Engine) {
 			casts := performances.Group("/:id/casts")
 			{
 				casts.POST("/:cast_id/profile-image", cast.UploadProfileImage)
+			}
+
+			places := performances.Group("/:id/places")
+			{
+				places.POST("/:place_id/place-image", place.UploadPlaceImage)
 			}
 		}
 

@@ -1,12 +1,13 @@
 package models
 
+import "github.com/Team-Podo/podoting-server/repository"
+
 type Place interface {
 	GetId() uint
 	GetTitle() string
 }
 
 type PlaceRepository interface {
-	Get() []Place
-	Find(id uint) Place
-	Save(place Place) Place
+	FindByID(id uint) (*repository.Place, error)
+	Update(place *repository.Place) error
 }

@@ -8,7 +8,22 @@ import (
 func Init() {
 	db := database.Gorm
 
-	err := db.AutoMigrate(&repository.Schedule{})
+	err := db.AutoMigrate(&repository.PerformanceContent{})
+	if err != nil {
+		return
+	}
+
+	err = db.AutoMigrate(&repository.Location{})
+	if err != nil {
+		return
+	}
+
+	err = db.AutoMigrate(&repository.Place{})
+	if err != nil {
+		return
+	}
+
+	err = db.AutoMigrate(&repository.Schedule{})
 	if err != nil {
 		return
 	}

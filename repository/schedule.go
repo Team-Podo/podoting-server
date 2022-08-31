@@ -14,7 +14,7 @@ import (
 type Schedule struct {
 	UUID          string `json:"uuid" gorm:"primarykey"`
 	Performance   *Performance
-	PerformanceId uint `json:"-"`
+	PerformanceID uint `json:"-"`
 	Memo          string
 	Date          string
 	Casts         []Cast `gorm:"many2many:schedule_cast;"`

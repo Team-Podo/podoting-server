@@ -27,10 +27,10 @@ func (suite *PerformanceTestSuite) TestGet() {
 }
 
 func (suite *PerformanceTestSuite) TestFind() {
-	product := suite.performanceRepository.FindByID(1)
-	fmt.Println("id:", product.ID, "title:", product.Title)
+	performance := suite.performanceRepository.FindByID(11)
+	fmt.Println("id:", performance.ID, "title:", performance.Title, "place:", performance.Place, "file:", performance.Place.PlaceImage)
 
-	assert.Equal(suite.T(), uint(1), product.ID)
+	assert.Equal(suite.T(), uint(11), performance.ID)
 }
 
 func (suite *PerformanceTestSuite) TestFindNotFound() {

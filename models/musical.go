@@ -7,13 +7,17 @@ type Musical struct {
 	RunningTime string            `json:"runningTime"`
 	StartDate   string            `json:"startDate"`
 	EndDate     string            `json:"endDate"`
+	Rating      string            `json:"rating"`
+	Place       *MusicalPlace     `json:"place"`
 	Schedules   []MusicalSchedule `json:"schedules"`
 	Cast        []Cast            `json:"cast"`
-	Contents    []struct {
-		Uuid    string `json:"uuid"`
-		Title   string `json:"title"`
-		Content string `json:"content"`
-	} `json:"contents"`
+	Contents    []MusicalContent  `json:"contents"`
+}
+
+type MusicalPlace struct {
+	ID    uint   `json:"id"`
+	Name  string `json:"name"`
+	Image string `json:"image"`
 }
 
 type MusicalSchedule struct {
@@ -37,4 +41,10 @@ type Cast struct {
 
 type Profile struct {
 	Url string `json:"url"`
+}
+
+type MusicalContent struct {
+	Uuid    string `json:"uuid"`
+	Title   string `json:"title"`
+	Content string `json:"content"`
 }
