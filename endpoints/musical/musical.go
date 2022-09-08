@@ -4,6 +4,7 @@ import (
 	"github.com/Team-Podo/podoting-server/database"
 	"github.com/Team-Podo/podoting-server/models"
 	"github.com/Team-Podo/podoting-server/repository"
+	"github.com/Team-Podo/podoting-server/response/musical"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -36,19 +37,19 @@ func Find(c *gin.Context) {
 		return
 	}
 
-	placeCH := make(chan *models.MusicalPlace)
+	placeCH := make(chan *musical.Place)
 	go getPlace(performance, placeCH)
 
-	scheduleCH := make(chan []models.MusicalSchedule)
+	scheduleCH := make(chan []musical.Schedule)
 	go getSchedules(performance.ID, scheduleCH)
 
-	castCH := make(chan []models.Cast)
+	castCH := make(chan []musical.Cast)
 	go getCasts(performance.ID, castCH)
 
-	contentCH := make(chan []models.MusicalContent)
+	contentCH := make(chan []musical.Content)
 	go getContents(performance.ID, contentCH)
 
-	musical := models.Musical{
+	c.JSON(200, musical.Musical{
 		Id:          performance.ID,
 		Title:       performance.Title,
 		ThumbUrl:    performance.GetFileURL(),
@@ -60,19 +61,17 @@ func Find(c *gin.Context) {
 		Schedules:   <-scheduleCH,
 		Cast:        <-castCH,
 		Contents:    <-contentCH,
-	}
-
-	c.JSON(200, musical)
+	})
 }
 
-func getCasts(id uint, ch chan []models.Cast) {
+func getCasts(id uint, ch chan []musical.Cast) {
 	casts := repositories.performance.GetCastsByID(id)
-	var result []models.Cast
+	var result []musical.Cast
 
 	for _, cast := range casts {
-		result = append(result, models.Cast{
+		result = append(result, musical.Cast{
 			Id: cast.ID,
-			Profile: models.Profile{
+			Profile: musical.Profile{
 				Url: cast.ProfileImageURL(),
 			},
 			Name: cast.Person.Name,
@@ -83,39 +82,39 @@ func getCasts(id uint, ch chan []models.Cast) {
 	ch <- result
 }
 
-func getPlace(p *repository.Performance, ch chan *models.MusicalPlace) {
+func getPlace(p *repository.Performance, ch chan *musical.Place) {
 	if p.Place == nil {
 		ch <- nil
 		return
 	}
 
-	ch <- &models.MusicalPlace{
+	ch <- &musical.Place{
 		ID:    p.Place.ID,
 		Name:  p.Place.Name,
 		Image: p.Place.ImageURL(),
 	}
 }
 
-func getSchedules(id uint, ch chan []models.MusicalSchedule) {
+func getSchedules(id uint, ch chan []musical.Schedule) {
 	schedules := repositories.performance.GetSchedulesByID(id)
 	if schedules == nil {
 		ch <- nil
 		return
 	}
 
-	var result []models.MusicalSchedule
+	var result []musical.Schedule
 
 	for _, schedule := range schedules {
-		var casts []models.MusicalScheduleCast
+		var casts []musical.ScheduleCast
 
 		for _, cast := range schedule.Casts {
-			casts = append(casts, models.MusicalScheduleCast{
+			casts = append(casts, musical.ScheduleCast{
 				ID:   cast.ID,
 				Name: cast.Person.Name,
 			})
 		}
 
-		result = append(result, models.MusicalSchedule{
+		result = append(result, musical.Schedule{
 			UUID: schedule.UUID,
 			Date: schedule.Date,
 			Time: schedule.Time.String,
@@ -126,17 +125,17 @@ func getSchedules(id uint, ch chan []models.MusicalSchedule) {
 	ch <- result
 }
 
-func getContents(id uint, ch chan []models.MusicalContent) {
+func getContents(id uint, ch chan []musical.Content) {
 	contents := repositories.performance.GetContentsByID(id)
 	if contents == nil {
 		ch <- nil
 		return
 	}
 
-	var result []models.MusicalContent
+	var result []musical.Content
 
 	for _, content := range contents {
-		result = append(result, models.MusicalContent{
+		result = append(result, musical.Content{
 			Uuid:    content.UUID,
 			Title:   content.Title,
 			Content: content.Content,

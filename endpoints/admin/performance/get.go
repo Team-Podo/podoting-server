@@ -1,8 +1,9 @@
 package performance
 
 import (
+	"fmt"
 	"github.com/Team-Podo/podoting-server/repository"
-	"github.com/Team-Podo/podoting-server/utils"
+	response "github.com/Team-Podo/podoting-server/response/admin/performance_get"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -18,31 +19,65 @@ func Get(c *gin.Context) {
 		return
 	}
 
+	fmt.Println(performances)
+
 	c.JSON(http.StatusOK, gin.H{
 		"performances": getResponseFormForGet(performances),
 		"total":        repositories.performance.GetTotalWithQueryMap(queryMap),
 	})
 }
 
-func getResponseFormForGet(ps []repository.Performance) []utils.MapSlice {
-	var res []utils.MapSlice
+func getResponseFormForGet(ps []repository.Performance) []response.Performance {
+	var res []response.Performance
 
 	for _, p := range ps {
-		res = append(res, utils.BuildMapSliceByMap(map[string]any{
-			"id":          p.ID,
-			"title":       p.Title,
-			"runningTime": p.RunningTime,
-			"startDate":   p.StartDate,
-			"endDate":     p.EndDate,
-			"rating":      p.Rating,
-			"product":     p.Product,
-			"schedules":   p.Schedules,
-			"createdAt":   p.CreatedAt,
-			"updatedAt":   p.UpdatedAt,
-		}))
+		res = append(res, response.Performance{
+			ID:          p.ID,
+			Title:       p.Title,
+			RunningTime: p.RunningTime,
+			StartDate:   p.StartDate,
+			EndDate:     p.EndDate,
+			Rating:      p.Rating,
+			Product:     getProductFromPerformance(&p),
+			Schedules:   p.Schedules,
+			CreatedAt:   p.CreatedAt,
+			UpdatedAt:   p.UpdatedAt,
+		})
 	}
 
 	return res
+}
+
+func getProductFromPerformance(p *repository.Performance) *response.Product {
+	if p.Product == nil {
+		return nil
+	}
+
+	product := p.Product
+
+	return &response.Product{
+		ID:        product.ID,
+		Title:     product.Title,
+		File:      getFileFromProduct(product),
+		CreatedAt: product.CreatedAt,
+		UpdatedAt: product.UpdatedAt,
+	}
+}
+
+func getFileFromProduct(p *repository.Product) *response.File {
+	if p.File == nil {
+		return nil
+	}
+
+	file := p.File
+
+	return &response.File{
+		ID:        file.ID,
+		Size:      file.Size,
+		Path:      file.Path,
+		CreatedAt: file.CreatedAt,
+		UpdatedAt: file.UpdatedAt,
+	}
 }
 
 func extractQueriesToMap(c *gin.Context) map[string]any {

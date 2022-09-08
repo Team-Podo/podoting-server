@@ -2,7 +2,9 @@ package repository
 
 import (
 	"errors"
+	"fmt"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"gorm.io/gorm/utils"
 	"strconv"
 	"time"
@@ -41,13 +43,19 @@ type PerformanceRepository struct {
 
 func (p *PerformanceRepository) GetWithQueryMap(query map[string]any) []Performance {
 	var performances []Performance
-	db := p.DB
 
-	p.applyAllQuery(query)
+	limit, _ := strconv.Atoi(utils.ToString(query["limit"]))
+	offset, _ := strconv.Atoi(utils.ToString(query["offset"]))
+	reversed, _ := query["reversed"].(bool)
 
-	err := db.Find(&performances).Error
+	result := p.DB.
+		Debug().
+		Limit(limit).
+		Offset(offset).
+		Order(clause.OrderByColumn{Column: clause.Column{Name: "id"}, Desc: reversed}).
+		Find(&performances)
 
-	if err != nil {
+	if result.Error != nil {
 		return nil
 	}
 
@@ -59,10 +67,16 @@ func (p *PerformanceRepository) GetWithQueryMap(query map[string]any) []Performa
 }
 
 func (p *PerformanceRepository) GetTotalWithQueryMap(query map[string]any) int64 {
-	p.applyAllQuery(query)
-
 	var count int64
-	p.DB.Model(&Performance{}).Count(&count)
+
+	limit, _ := strconv.Atoi(utils.ToString(query["limit"]))
+	offset, _ := strconv.Atoi(utils.ToString(query["offset"]))
+	reversed, _ := query["reversed"].(bool)
+
+	p.DB.Limit(limit).
+		Offset(offset).
+		Order(clause.OrderByColumn{Column: clause.Column{Name: "id"}, Desc: reversed}).
+		Model(&Performance{}).Count(&count)
 
 	return count
 }
@@ -75,7 +89,11 @@ func (p *PerformanceRepository) applyAllQuery(query map[string]any) {
 
 func (p *PerformanceRepository) applyReversedQuery(query map[string]any) {
 	if query["reversed"] == true {
-		p.DB = p.DB.Order("id desc")
+		fmt.Println("reversed")
+		p.DB = p.DB.Order(clause.OrderByColumn{Column: clause.Column{Name: "id"}, Desc: true})
+	} else {
+		fmt.Println("not reversed")
+		p.DB = p.DB.Order(clause.OrderByColumn{Column: clause.Column{Name: "id"}, Desc: false})
 	}
 }
 
@@ -83,6 +101,8 @@ func (p *PerformanceRepository) applyLimitQuery(query map[string]any) {
 	if query["limit"] != nil {
 		limit, _ := strconv.Atoi(utils.ToString(query["limit"]))
 		p.DB = p.DB.Limit(limit)
+	} else {
+		p.DB = p.DB.Limit(10)
 	}
 }
 
@@ -90,6 +110,8 @@ func (p *PerformanceRepository) applyOffsetQuery(query map[string]any) {
 	if query["offset"] != nil {
 		offset, _ := strconv.Atoi(utils.ToString(query["offset"]))
 		p.DB = p.DB.Offset(offset)
+	} else {
+		p.DB = p.DB.Offset(0)
 	}
 }
 
