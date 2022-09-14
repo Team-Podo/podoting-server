@@ -82,7 +82,7 @@ func Routes(r *gin.Engine) {
 		musicalGroup.GET("/:id", musical.Find)
 		musicalGroup.GET("/:id/schedules/:scheduleUUID/seats", func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
-				"backgroundImage": "https://podoting.com/images/seat-background.png",
+				"backgroundImage": "https://cdn.podoting.com/uploads/performances/11/places/8/place-images/5fdc98d6-b1c0-4476-97a6-f6733d472b9a.jpeg",
 				"seats": []utils.MapSlice{
 					utils.BuildMapSliceByMap(map[string]any{
 						"uuid": "a6c6a191-7ef9-4695-b89b-d76bf2e31d08",
