@@ -1,13 +1,16 @@
 package models
 
+import "github.com/Team-Podo/podoting-server/repository"
+
 type Area interface {
 	GetId() uint
 	GetTitle() string
-	GetSeats() []Seat
+	GetSeats() []repository.Seat
 }
 
 type AreaRepository interface {
-	Get() []Area
-	Find(id uint) Area
-	Save(area Area) Area
+	FindOne(id uint) *repository.Area
+	SaveArea(area *repository.Area) interface{}
+	Update(area *repository.Area) error
+	GetBackgroundImageByAreaId(areaID uint) string
 }

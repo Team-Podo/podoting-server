@@ -2,6 +2,7 @@ package repository
 
 import (
 	"gorm.io/gorm"
+	"os"
 	"time"
 )
 
@@ -24,6 +25,10 @@ func (file *File) IsNil() bool {
 	}
 
 	return false
+}
+
+func (file *File) FullPath() string {
+	return os.Getenv("CDN_URL") + "/" + file.Path
 }
 
 func (f *FileRepository) Get(id uint) (*File, error) {

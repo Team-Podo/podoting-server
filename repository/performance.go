@@ -16,6 +16,9 @@ type Performance struct {
 	ProductID   uint                  `json:"-"`
 	Place       *Place                `json:"place" gorm:"foreignkey:PlaceID"`
 	PlaceID     *uint                 `json:"-"`
+	Areas       []*Area               `json:"areas" gorm:"many2many:performance_areas;"`
+	MainArea    *Area                 `json:"main_area" gorm:"foreignkey:MainAreaID"`
+	MainAreaID  uint                  `json:"main_area_id"`
 	Casts       []*Cast               `gorm:"many2many:performance_casts;"`
 	Schedules   []*Schedule           `gorm:"foreignkey:PerformanceID"`
 	Contents    []*PerformanceContent `gorm:"foreignkey:PerformanceID"`
@@ -134,6 +137,18 @@ func (p *PerformanceRepository) FindByID(id uint) *Performance {
 	}
 
 	return &performance
+}
+
+func (p *PerformanceRepository) CheckMainAreaExistsByID(performanceID uint) (uint, error) {
+	var performance Performance
+
+	p.DB.Where("main_area_id is not null").Find(&performance, performanceID)
+
+	if performance.ID == 0 {
+		return 0, errors.New("main area not exists")
+	}
+
+	return performance.MainAreaID, nil
 }
 
 func (p *PerformanceRepository) Save(performance *Performance) error {

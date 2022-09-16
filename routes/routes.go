@@ -4,10 +4,11 @@ import (
 	"github.com/Team-Podo/podoting-server/endpoints/admin/performance"
 	"github.com/Team-Podo/podoting-server/endpoints/admin/performance/cast"
 	"github.com/Team-Podo/podoting-server/endpoints/admin/performance/place"
+	"github.com/Team-Podo/podoting-server/endpoints/admin/performance/place/area"
 	"github.com/Team-Podo/podoting-server/endpoints/admin/product"
 	"github.com/Team-Podo/podoting-server/endpoints/admin/schedule"
 	"github.com/Team-Podo/podoting-server/endpoints/musical"
-	"github.com/Team-Podo/podoting-server/utils"
+	"github.com/Team-Podo/podoting-server/endpoints/musical/seat"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -64,6 +65,11 @@ func Routes(r *gin.Engine) {
 			places := performances.Group("/:id/places")
 			{
 				places.POST("/:place_id/place-image", place.UploadPlaceImage)
+
+				areas := places.Group("/:place_id/areas")
+				{
+					areas.POST("/:area_id/background-image", area.UploadAreaImage)
+				}
 			}
 		}
 
@@ -80,54 +86,6 @@ func Routes(r *gin.Engine) {
 	musicalGroup := r.Group("/musical")
 	{
 		musicalGroup.GET("/:id", musical.Find)
-		musicalGroup.GET("/:id/schedules/:scheduleUUID/seats", func(c *gin.Context) {
-			c.JSON(http.StatusOK, gin.H{
-				"backgroundImage": "https://cdn.podoting.com/uploads/performances/11/places/8/place-images/5fdc98d6-b1c0-4476-97a6-f6733d472b9a.jpeg",
-				"seats": []utils.MapSlice{
-					utils.BuildMapSliceByMap(map[string]any{
-						"uuid": "a6c6a191-7ef9-4695-b89b-d76bf2e31d08",
-						"point": utils.BuildMapSliceByMap(map[string]any{
-							"x": 530.2091,
-							"y": 620.1124,
-						}),
-						"name": "I 열 11번 좌석",
-						"grade": utils.BuildMapSliceByMap(map[string]any{
-							"id":   102,
-							"name": "VIP",
-						}),
-						"price": 99000,
-						"color": "#7748F4",
-					}),
-					utils.BuildMapSliceByMap(map[string]any{
-						"uuid": "a6c6a191-7ef9-4695-b89b-d76bf2e31d09",
-						"point": utils.BuildMapSliceByMap(map[string]any{
-							"x": 534.2091,
-							"y": 620.1124,
-						}),
-						"name": "I 열 12번 좌석",
-						"grade": utils.BuildMapSliceByMap(map[string]any{
-							"id":   102,
-							"name": "VIP",
-						}),
-						"price": 99000,
-						"color": "#7748F4",
-					}),
-					utils.BuildMapSliceByMap(map[string]any{
-						"uuid": "a6c6a191-7ef9-4695-b89b-d76bf2e31d10",
-						"point": utils.BuildMapSliceByMap(map[string]any{
-							"x": 538.2091,
-							"y": 620.1124,
-						}),
-						"name": "I 열 13번 좌석",
-						"grade": utils.BuildMapSliceByMap(map[string]any{
-							"id":   102,
-							"name": "VIP",
-						}),
-						"price": 99000,
-						"color": "#7748F4",
-					}),
-				},
-			})
-		})
+		musicalGroup.GET("/:id/schedules/:schedule_uuid/seats", seat.Get)
 	}
 }

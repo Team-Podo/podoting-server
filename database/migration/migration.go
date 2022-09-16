@@ -13,6 +13,26 @@ func Init() {
 		return
 	}
 
+	err = db.AutoMigrate(&repository.Point{})
+	if err != nil {
+		return
+	}
+
+	err = db.AutoMigrate(&repository.Seat{})
+	if err != nil {
+		return
+	}
+
+	err = db.AutoMigrate(&repository.SeatBooking{})
+	if err != nil {
+		return
+	}
+
+	err = db.AutoMigrate(&repository.SeatGrade{})
+	if err != nil {
+		return
+	}
+
 	err = db.AutoMigrate(&repository.Location{})
 	if err != nil {
 		return

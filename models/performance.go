@@ -6,6 +6,7 @@ type PerformanceRepository interface {
 	GetWithQueryMap(query map[string]any) []repository.Performance
 	GetTotalWithQueryMap(query map[string]any) int64
 	FindByID(id uint) *repository.Performance
+	CheckMainAreaExistsByID(id uint) (uint, error)
 	Save(performance *repository.Performance) error
 	Update(performance *repository.Performance) error
 	Delete(id uint) error

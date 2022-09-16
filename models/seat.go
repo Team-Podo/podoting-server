@@ -1,8 +1,7 @@
 package models
 
-type Seat interface {
-}
+import "github.com/Team-Podo/podoting-server/repository"
 
 type SeatRepository interface {
-	GetSeatsByAreaId(areaId uint) []Seat
+	GetSeatsByAreaIdAndScheduleUUID(areaId uint, scheduleUUID string) []repository.Seat
 }
