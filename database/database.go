@@ -28,6 +28,8 @@ func initDB() *gorm.DB {
 		db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 		if err != nil {
 			panic("failed to connect gorm")
+		} else {
+			fmt.Println("mysql 연결 성공")
 		}
 
 		return db

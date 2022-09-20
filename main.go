@@ -15,7 +15,7 @@ func init() {
 }
 
 func main() {
-	migration.Init()
+	go migration.Init()
 
 	r := gin.Default()
 	routes.Routes(r)
