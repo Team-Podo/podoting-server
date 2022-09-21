@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/joho/godotenv"
 	"log"
+	"os"
 	"path/filepath"
 	"runtime"
 )
@@ -44,10 +45,12 @@ func RootPath() string {
 }
 
 func SetEnv() {
-	err := godotenv.Load(filepath.Join(RootPath(), ".env"))
+	if os.Getenv("APP_ENV") != "production" {
+		err := godotenv.Load(filepath.Join(RootPath(), ".env"))
 
-	if err != nil {
-		log.Fatal("Error loading .env file")
+		if err != nil {
+			log.Fatal("Error loading .env file")
+		}
 	}
 }
 
