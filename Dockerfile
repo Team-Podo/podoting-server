@@ -20,7 +20,6 @@ RUN apk --update add ca-certificates
 WORKDIR /app
 
 COPY --from=build /app/main .
-COPY --from=build /app/.env .
 
 EXPOSE 80
 
