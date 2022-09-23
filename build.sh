@@ -1,6 +1,6 @@
+#!/usr/bin/env bash
 set -xe
 
-go env -w GO111MODULE=on
 go get
 
-go build -o bin/application application.go
+GOOS=linux GOARCH=amd64 go build -o bin/application -ldflags="-s -w"
