@@ -74,7 +74,6 @@
     "cpuArchitecture": null
   },
   "cpu": "256",
-  "revision": 2,
   "inferenceAccelerators": null,
   "proxyConfiguration": null,
   "volumes": []
