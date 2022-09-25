@@ -4,6 +4,7 @@ import (
 	"github.com/Team-Podo/podoting-server/database"
 	"github.com/Team-Podo/podoting-server/models"
 	"github.com/Team-Podo/podoting-server/repository"
+	"strconv"
 )
 
 var repositories Repository
@@ -20,10 +21,17 @@ type request struct {
 
 type Repository struct {
 	performance models.PerformanceRepository
+	file        models.FileRepository
 }
 
 func init() {
 	repositories = Repository{
 		performance: &repository.PerformanceRepository{DB: database.Gorm},
+		file:        &repository.FileRepository{DB: database.Gorm},
 	}
+}
+
+func parseUint(s string) (uint, error) {
+	i, err := strconv.Atoi(s)
+	return uint(i), err
 }

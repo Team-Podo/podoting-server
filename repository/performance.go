@@ -13,12 +13,14 @@ import (
 type Performance struct {
 	ID          uint                  `json:"id" gorm:"primarykey"`
 	Product     *Product              `json:"product" gorm:"foreignkey:ProductID"`
-	ProductID   uint                  `json:"-"`
+	ProductID   *uint                 `json:"-"`
+	Thumbnail   *File                 `json:"thumbnail" gorm:"foreignkey:ThumbnailID"`
+	ThumbnailID *uint                 `json:"-"`
 	Place       *Place                `json:"place" gorm:"foreignkey:PlaceID"`
 	PlaceID     *uint                 `json:"-"`
 	Areas       []*Area               `json:"areas" gorm:"many2many:performance_areas;"`
 	MainArea    *Area                 `json:"main_area" gorm:"foreignkey:MainAreaID"`
-	MainAreaID  uint                  `json:"main_area_id"`
+	MainAreaID  *uint                 `json:"main_area_id"`
 	Casts       []*Cast               `gorm:"many2many:performance_casts;"`
 	Schedules   []*Schedule           `gorm:"foreignkey:PerformanceID"`
 	Contents    []*PerformanceContent `gorm:"foreignkey:PerformanceID"`
@@ -148,7 +150,7 @@ func (p *PerformanceRepository) CheckMainAreaExistsByID(performanceID uint) (uin
 		return 0, errors.New("main area not exists")
 	}
 
-	return performance.MainAreaID, nil
+	return *performance.MainAreaID, nil
 }
 
 func (p *PerformanceRepository) Save(performance *Performance) error {

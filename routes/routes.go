@@ -56,6 +56,7 @@ func Routes(r *gin.Engine) {
 			performances.GET("/", performance.Get)
 			performances.GET("/:id", performance.Find)
 			performances.POST("/", performance.Create)
+			performances.POST("/:id/thumbnail", performance.UploadThumbnailImage)
 			performances.PUT("/:id", performance.Update)
 			performances.DELETE("/", performance.Delete)
 

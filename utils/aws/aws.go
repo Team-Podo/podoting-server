@@ -2,6 +2,7 @@ package aws
 
 import (
 	"context"
+	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
@@ -67,6 +68,8 @@ func (s *S3Config) UploadFile(file io.Reader, path string, fileExtension string)
 		log.Fatal(err)
 		return nil, err
 	}
+
+	fmt.Println("File uploaded to", result.Location)
 
 	return result, nil
 }
