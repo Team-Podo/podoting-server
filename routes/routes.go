@@ -21,6 +21,8 @@ func Routes(r *gin.Engine) {
 			"http://localhost:3000",
 			"https://podoting.com",
 			"https://www.podoting.com",
+			"https://app.podoting.com",
+			"https://partner.podoting.com",
 		},
 		AllowCredentials: true,
 		AllowHeaders: []string{
