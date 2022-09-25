@@ -46,7 +46,12 @@ func RootPath() string {
 
 func SetEnv() {
 	if os.Getenv("APP_ENV") != "production" {
-		err := godotenv.Load(filepath.Join(RootPath(), ".env"))
+		fmt.Println("Loading .env file")
+
+		path := filepath.Join(RootPath(), ".env")
+		fmt.Println("filepath", filepath.Join(RootPath(), ".env"))
+
+		err := godotenv.Load(path)
 
 		if err != nil {
 			log.Fatal("Error loading .env file")
