@@ -1,6 +1,6 @@
 {
   "ipcMode": null,
-  "executionRoleArn": "arn:aws:iam::723718541117:role/ecsTaskExecutionRole",
+  "executionRoleArn": "arn:aws:iam::993225596194:role/ecsTaskExecutionRole",
   "containerDefinitions": [
     {
       "dnsSearchDomains": null,
@@ -9,7 +9,7 @@
         "logDriver": "awslogs",
         "secretOptions": null,
         "options": {
-          "awslogs-group": "/ecs/deploy_podoting_api",
+          "awslogs-group": "/ecs/deploy-podoting-api",
           "awslogs-region": "ap-northeast-2",
           "awslogs-stream-prefix": "ecs"
         }
@@ -29,7 +29,7 @@
       "resourceRequirements": null,
       "ulimits": null,
       "repositoryCredentials": {
-        "credentialsParameter": "arn:aws:secretsmanager:us-east-1:723718541117:secret:live/podoting/image_pull-pNCAGM"
+        "credentialsParameter": "arn:aws:secretsmanager:ap-northeast-2:993225596194:secret:prod/podoting/ghcr-qpjfwO"
       },
       "dnsServers": null,
       "mountPoints": [],
@@ -62,13 +62,13 @@
   ],
   "placementConstraints": [],
   "memory": "512",
-  "taskRoleArn": null,
+  "taskRoleArn": "arn:aws:iam::993225596194:role/ecsTaskExecutionRole",
   "compatibilities": [
     "EC2",
     "FARGATE"
   ],
-  "taskDefinitionArn": "arn:aws:ecs:ap-northeast-2:723718541117:task-definition/deploy_podoting_api:4",
-  "family": "deploy_podoting_api",
+  "taskDefinitionArn": "arn:aws:ecs:ap-northeast-2:993225596194:task-definition/deploy-podoting-api:2",
+  "family": "deploy-podoting-api",
   "requiresAttributes": [
     {
       "targetId": null,
@@ -98,6 +98,12 @@
       "targetId": null,
       "targetType": null,
       "value": null,
+      "name": "com.amazonaws.ecs.capability.task-iam-role"
+    },
+    {
+      "targetId": null,
+      "targetType": null,
+      "value": null,
       "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
     },
     {
@@ -117,7 +123,7 @@
     "cpuArchitecture": null
   },
   "cpu": "256",
-  "revision": 4,
+  "revision": 2,
   "status": "ACTIVE",
   "inferenceAccelerators": null,
   "proxyConfiguration": null,
