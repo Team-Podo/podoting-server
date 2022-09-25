@@ -67,7 +67,7 @@ func UploadThumbnailImage(c *gin.Context) {
 	}
 
 	fileExtension := filepath.Ext(fileHeader.Filename)
-	filePath := fmt.Sprintf("performance/%d/thumbnail%s", performanceID, fileExtension)
+	filePath := fmt.Sprintf("performance/%d/thumbnail", performanceID)
 	file, err := aws.S3.UploadFile(thumbnailImage, filePath, fileExtension)
 
 	if err != nil {
@@ -80,13 +80,13 @@ func UploadThumbnailImage(c *gin.Context) {
 		Size: fileHeader.Size,
 	}
 
-	fmt.Println(performance.Thumbnail)
-
 	err = repositories.file.Save(performance.Thumbnail)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, "File Save Error")
 		return
 	}
+
+	performance.ThumbnailID = &performance.Thumbnail.ID
 
 	err = repositories.performance.Update(performance)
 	if err != nil {

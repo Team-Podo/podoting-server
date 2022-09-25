@@ -128,6 +128,7 @@ func (p *PerformanceRepository) FindByID(id uint) *Performance {
 	err := p.DB.
 		Preload("Place.PlaceImage").
 		Preload("Product.File").
+		Joins("Thumbnail").
 		First(&performance).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {

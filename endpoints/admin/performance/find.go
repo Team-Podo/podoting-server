@@ -48,6 +48,12 @@ func getResponseFormForFind(p *repository.Performance) utils.MapSlice {
 		}))
 	}
 
+	var thumbnail *string
+	if p.Thumbnail != nil {
+		t := p.Thumbnail.FullPath()
+		thumbnail = &t
+	}
+
 	return utils.BuildMapSliceByMap(map[string]any{
 		"id":          p.ID,
 		"title":       p.Title,
@@ -56,6 +62,7 @@ func getResponseFormForFind(p *repository.Performance) utils.MapSlice {
 		"endDate":     p.EndDate,
 		"rating":      p.Rating,
 		"product":     performanceProduct,
+		"thumbUrl":    thumbnail,
 		"schedules":   schedules,
 		"createdAt":   p.CreatedAt,
 		"updatedAt":   p.UpdatedAt,
