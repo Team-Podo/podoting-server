@@ -10,7 +10,7 @@ type Place struct {
 	ID           uint            `json:"id" gorm:"primarykey"`
 	Name         string          `json:"name"`
 	Location     *Location       `json:"location"`
-	LocationID   uint            `json:"-"`
+	LocationID   *uint           `json:"-"`
 	PlaceImage   *File           `json:"placeImage" gorm:"foreignkey:PlaceImageID"`
 	PlaceImageID *uint           `json:"-"`
 	CreatedAt    time.Time       `json:"createdAt"`
@@ -47,8 +47,8 @@ func (r *PlaceRepository) FindByID(id uint) (*Place, error) {
 	return &place, nil
 }
 
-func (r *PlaceRepository) FindAll() ([]*Place, error) {
-	var places []*Place
+func (r *PlaceRepository) FindAll() ([]Place, error) {
+	var places []Place
 	if err := r.DB.Find(&places).Error; err != nil {
 		return nil, err
 	}

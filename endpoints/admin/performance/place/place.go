@@ -12,7 +12,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 )
 
 var repositories Repository
@@ -29,17 +28,117 @@ func init() {
 	}
 }
 
-func UploadPlaceImage(c *gin.Context) {
-	performanceID, err := getIntParam(c, "id")
+func Find(c *gin.Context) {
+	placeID, err := utils.ParseUint(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, "id should be Integer")
 		return
 	}
 
-	placeID, err := getIntParam(c, "place_id")
+	place, err := repositories.place.FindByID(placeID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, "Not Found")
+		return
+	}
+
+	c.JSON(http.StatusOK, place)
+}
+
+func Get(c *gin.Context) {
+	place, err := repositories.place.FindAll()
+	if err != nil {
+		c.JSON(http.StatusNotFound, "Not Found")
+		return
+	}
+
+	c.JSON(http.StatusOK, place)
+}
+
+func Create(c *gin.Context) {
+	var place repository.Place
+
+	err := c.BindJSON(&place)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, "cast_id should be Integer")
+		c.JSON(http.StatusBadRequest, "Invalid JSON")
+		return
+	}
+
+	err = repositories.place.Create(&place)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "Internal Server Error")
+		log.Fatal(err)
+		return
+	}
+
+	c.JSON(http.StatusCreated, place.ID)
+}
+
+func Update(c *gin.Context) {
+	placeID, err := utils.ParseUint(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, "id should be Integer")
+		return
+	}
+
+	var request repository.Place
+	err = c.BindJSON(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, "Invalid JSON")
+		return
+	}
+
+	place, err := repositories.place.FindByID(placeID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, "Not Found")
+		return
+	}
+
+	place.Name = request.Name
+
+	err = repositories.place.Update(place)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "Internal Server Error")
+		log.Fatal(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, place.ID)
+}
+
+func Delete(c *gin.Context) {
+	placeID, err := utils.ParseUint(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, "id should be Integer")
+		return
+	}
+
+	place, err := repositories.place.FindByID(placeID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, "Not Found")
+		return
+	}
+
+	err = repositories.place.Delete(place.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "Internal Server Error")
+		log.Fatal(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, place.ID)
+}
+
+func UploadPlaceImage(c *gin.Context) {
+	performanceID, err := utils.ParseUint(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, "id should be Integer")
+		return
+	}
+
+	placeID, err := utils.ParseUint(c.Param("place_id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, "place_id should be Integer")
 		return
 	}
 
@@ -97,15 +196,4 @@ func UploadPlaceImage(c *gin.Context) {
 	c.JSON(http.StatusOK, map[string]any{
 		"profileImage": fmt.Sprintf("%s/%s", os.Getenv("CDN_URL"), place.PlaceImage.Path),
 	})
-}
-
-func getIntParam(c *gin.Context, param string) (int, error) {
-	id := c.Param(param)
-
-	intId, err := strconv.Atoi(id)
-	if err != nil {
-		return 0, err
-	}
-
-	return intId, nil
 }

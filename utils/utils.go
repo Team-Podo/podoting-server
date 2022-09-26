@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strconv"
 )
 
 var (
@@ -65,4 +66,9 @@ func BuildMapSliceByMap(m map[string]interface{}) MapSlice {
 		ms = append(ms, MapItem{Key: k, Value: v})
 	}
 	return ms
+}
+
+func ParseUint(s string) (uint, error) {
+	i, err := strconv.Atoi(s)
+	return uint(i), err
 }
