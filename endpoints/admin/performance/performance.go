@@ -10,8 +10,8 @@ import (
 var repositories Repository
 
 type request struct {
-	ProductID   uint   `json:"productId"`
-	PlaceID     uint   `json:"placeId"`
+	ProductID   uint   `json:"productID"`
+	PlaceID     uint   `json:"placeID"`
 	Title       string `json:"title"`
 	RunningTime string `json:"runningTime"`
 	StartDate   string `json:"startDate"`
