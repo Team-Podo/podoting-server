@@ -49,7 +49,7 @@ func (r *PlaceRepository) FindByID(id uint) (*Place, error) {
 
 func (r *PlaceRepository) FindAll() ([]Place, error) {
 	var places []Place
-	if err := r.DB.Find(&places).Error; err != nil {
+	if err := r.DB.Joins("Location").Find(&places).Error; err != nil {
 		return nil, err
 	}
 

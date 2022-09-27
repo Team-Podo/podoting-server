@@ -64,7 +64,12 @@ func getResponseFormForFind(p *repository.Performance) utils.MapSlice {
 		"product":     performanceProduct,
 		"thumbUrl":    thumbnail,
 		"schedules":   schedules,
-		"createdAt":   p.CreatedAt,
-		"updatedAt":   p.UpdatedAt,
+		"place": utils.BuildMapSliceByMap(map[string]any{
+			"id":      p.Place.ID,
+			"name":    p.Place.Name,
+			"address": p.Place.Location.Name,
+		}),
+		"createdAt": p.CreatedAt,
+		"updatedAt": p.UpdatedAt,
 	})
 }
