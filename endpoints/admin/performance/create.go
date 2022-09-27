@@ -58,7 +58,7 @@ func UploadThumbnailImage(c *gin.Context) {
 
 	thumbnailImage, fileHeader, err := c.Request.FormFile("thumbnailImage")
 	if err != nil {
-		c.JSON(http.StatusBadRequest, "mainImage is required")
+		c.JSON(http.StatusBadRequest, "thumbnailImage is required")
 		return
 	}
 

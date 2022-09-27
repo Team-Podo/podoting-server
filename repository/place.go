@@ -31,7 +31,7 @@ type PlaceRepository struct {
 }
 
 func (r *PlaceRepository) Create(place *Place) error {
-	if err := r.DB.Create(place).Error; err != nil {
+	if err := r.DB.Debug().Create(place).Error; err != nil {
 		return err
 	}
 
@@ -40,7 +40,7 @@ func (r *PlaceRepository) Create(place *Place) error {
 
 func (r *PlaceRepository) FindByID(id uint) (*Place, error) {
 	var place Place
-	if err := r.DB.First(&place, id).Error; err != nil {
+	if err := r.DB.Joins("Location").First(&place, id).Error; err != nil {
 		return nil, err
 	}
 
@@ -57,8 +57,16 @@ func (r *PlaceRepository) FindAll() ([]Place, error) {
 }
 
 func (r *PlaceRepository) Update(place *Place) error {
-	if err := r.DB.Save(place).Error; err != nil {
+	if err := r.DB.Model(Place{ID: place.ID}).Updates(Place{
+		Name: place.Name,
+	}).Error; err != nil {
 		return err
+	}
+
+	if place.Location != nil {
+		if err := r.DB.Save(place.Location).Error; err != nil {
+			return err
+		}
 	}
 
 	return nil

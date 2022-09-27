@@ -5,6 +5,8 @@ import (
 	"github.com/Team-Podo/podoting-server/database"
 	"github.com/Team-Podo/podoting-server/models"
 	"github.com/Team-Podo/podoting-server/repository"
+	"github.com/Team-Podo/podoting-server/request/admin"
+	response "github.com/Team-Podo/podoting-server/response/admin"
 	"github.com/Team-Podo/podoting-server/utils"
 	"github.com/Team-Podo/podoting-server/utils/aws"
 	"github.com/gin-gonic/gin"
@@ -41,7 +43,18 @@ func Find(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, place)
+	res := response.FindPlace{
+		ID:        place.ID,
+		Name:      place.Name,
+		CreatedAt: place.CreatedAt.String(),
+		UpdatedAt: place.UpdatedAt.String(),
+	}
+
+	if place.Location != nil {
+		res.Address = place.Location.Name
+	}
+
+	c.JSON(http.StatusOK, res)
 }
 
 func Get(c *gin.Context) {
@@ -51,17 +64,37 @@ func Get(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, place)
+	res := make([]response.FindPlace, len(place))
+	for i, p := range place {
+		res[i] = response.FindPlace{
+			ID:        p.ID,
+			Name:      p.Name,
+			CreatedAt: p.CreatedAt.String(),
+			UpdatedAt: p.UpdatedAt.String(),
+		}
+
+		if p.Location != nil {
+			res[i].Address = p.Location.Name
+		}
+	}
+
+	c.JSON(http.StatusOK, res)
 }
 
 func Create(c *gin.Context) {
-	var place repository.Place
+	var request admin.CreatePlace
 
-	err := c.BindJSON(&place)
-
+	err := c.BindJSON(&request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, "Invalid JSON")
 		return
+	}
+
+	place := repository.Place{
+		Name: request.Name,
+		Location: &repository.Location{
+			Name: request.Address,
+		},
 	}
 
 	err = repositories.place.Create(&place)
@@ -81,7 +114,7 @@ func Update(c *gin.Context) {
 		return
 	}
 
-	var request repository.Place
+	var request admin.CreatePlace
 	err = c.BindJSON(&request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, "Invalid JSON")
@@ -95,6 +128,7 @@ func Update(c *gin.Context) {
 	}
 
 	place.Name = request.Name
+	place.Location.Name = request.Address
 
 	err = repositories.place.Update(place)
 	if err != nil {
