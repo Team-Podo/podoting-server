@@ -54,6 +54,24 @@ func getResponseFormForFind(p *repository.Performance) utils.MapSlice {
 		thumbnail = &t
 	}
 
+	place := utils.BuildMapSliceByMap(map[string]any{})
+	if p.Place != nil {
+		place = utils.BuildMapSliceByMap(map[string]any{
+			"id":   p.Place.ID,
+			"name": p.Place.Name,
+		})
+
+		if p.Place.Location != nil {
+			place = append(place, utils.BuildMapSliceByMap(map[string]any{
+				"address": p.Place.Location.Name,
+			})...)
+		} else {
+			place = append(place, utils.BuildMapSliceByMap(map[string]any{
+				"address": "",
+			})...)
+		}
+	}
+
 	return utils.BuildMapSliceByMap(map[string]any{
 		"id":          p.ID,
 		"title":       p.Title,
@@ -64,12 +82,8 @@ func getResponseFormForFind(p *repository.Performance) utils.MapSlice {
 		"product":     performanceProduct,
 		"thumbUrl":    thumbnail,
 		"schedules":   schedules,
-		"place": utils.BuildMapSliceByMap(map[string]any{
-			"id":      p.Place.ID,
-			"name":    p.Place.Name,
-			"address": p.Place.Location.Name,
-		}),
-		"createdAt": p.CreatedAt,
-		"updatedAt": p.UpdatedAt,
+		"place":       place,
+		"createdAt":   p.CreatedAt,
+		"updatedAt":   p.UpdatedAt,
 	})
 }
