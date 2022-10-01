@@ -69,11 +69,6 @@ func Routes(r *gin.Engine) {
 			{
 				places.GET("/", place.Find)
 				places.POST("/:place_id/place-image", place.UploadPlaceImage)
-
-				areas := places.Group("/:place_id/areas")
-				{
-					areas.POST("/:area_id/background-image", area.UploadAreaImage)
-				}
 			}
 		}
 
@@ -84,6 +79,16 @@ func Routes(r *gin.Engine) {
 			places.POST("/", place.Create)
 			places.PUT("/:id", place.Update)
 			places.DELETE("/:id", place.Delete)
+
+			areas := places.Group("/:id/areas")
+			{
+				areas.GET("/", area.Get)
+				areas.GET("/:area_id", area.Find)
+				areas.POST("/", area.Create)
+				areas.POST("/:area_id/background-image", area.UploadAreaImage)
+				areas.PUT("/:area_id", area.Update)
+				areas.DELETE("/:area_id", area.Delete)
+			}
 		}
 
 		schedules := admin.Group("/schedules")

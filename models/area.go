@@ -9,8 +9,10 @@ type Area interface {
 }
 
 type AreaRepository interface {
-	FindOne(id uint) *repository.Area
-	SaveArea(area *repository.Area) interface{}
+	GetByPlaceID(placeID uint) []repository.Area
+	FindOne(placeID uint, areaID uint) *repository.Area
+	Create(area *repository.Area) error
 	Update(area *repository.Area) error
+	Delete(area *repository.Area) error
 	GetBackgroundImageByAreaId(areaID uint) string
 }

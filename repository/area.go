@@ -11,7 +11,7 @@ type Area struct {
 	Place             *Place         `json:"place" gorm:"foreignKey:PlaceID"`
 	PlaceID           uint           `json:"-"`
 	BackgroundImage   *File          `json:"backgroundImage" gorm:"foreignKey:BackgroundImageID"`
-	BackgroundImageID uint           `json:"-"`
+	BackgroundImageID *uint          `json:"-"`
 	Seats             []Seat         `json:"seats" gorm:"foreignKey:AreaID"`
 	CreatedAt         time.Time      `json:"createdAt"`
 	UpdatedAt         time.Time      `json:"updatedAt"`
@@ -22,14 +22,27 @@ type AreaRepository struct {
 	DB *gorm.DB
 }
 
-func (r *AreaRepository) FindOne(id uint) *Area {
+func (r *AreaRepository) GetByPlaceID(placeID uint) []Area {
+	var areas []Area
+	err := r.DB.Where("place_id = ?", placeID).
+		Find(&areas).Error
+
+	if err != nil {
+		return nil
+	}
+
+	return areas
+}
+
+func (r *AreaRepository) FindOne(placeID uint, areaID uint) *Area {
 	var area Area
 	err := r.DB.
 		Debug().
 		Preload("Seats.Point").
 		Preload("Seats.Bookings").
 		Preload("Seats.Grade").
-		First(&area, id).
+		Where("place_id = ?", placeID).
+		First(&area, areaID).
 		Error
 
 	if err != nil {
@@ -57,16 +70,14 @@ func (r *AreaRepository) GetBackgroundImageByAreaId(areaID uint) string {
 	return area.BackgroundImage.FullPath()
 }
 
+func (r *AreaRepository) Create(area *Area) error {
+	return r.DB.Create(area).Error
+}
+
 func (r *AreaRepository) Update(area *Area) error {
 	return r.DB.Save(area).Error
 }
 
-func (r *AreaRepository) SaveArea(area *Area) interface{} {
-	err := r.DB.Debug().Create(area).Error
-
-	if err != nil {
-		return nil
-	}
-
-	return area
+func (r *AreaRepository) Delete(area *Area) error {
+	return r.DB.Delete(area).Error
 }

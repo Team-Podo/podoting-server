@@ -40,7 +40,7 @@ func (suite *GetAreaTestSuite) TestFindOneArea() {
 }
 
 func (suite *SaveAreaTestSuite) TestSaveArea() {
-	err := suite.areaRepository.SaveArea(&suite.area)
+	err := suite.areaRepository.Create(&suite.area)
 	suite.NotNil(err)
 }
 
