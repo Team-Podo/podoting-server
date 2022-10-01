@@ -27,8 +27,7 @@ func Update(c *gin.Context) {
 
 	performance := repository.Performance{
 		ID:          uint(intId),
-		Product:     &repository.Product{ID: json.ProductID},
-		Place:       &repository.Place{ID: json.PlaceID},
+		PlaceID:     &json.PlaceID,
 		Title:       json.Title,
 		RunningTime: json.RunningTime,
 		StartDate:   json.StartDate,
@@ -39,7 +38,7 @@ func Update(c *gin.Context) {
 	err = repositories.performance.Update(&performance)
 
 	if err != nil {
-		c.JSON(http.StatusNotFound, "Not Found")
+		c.JSON(http.StatusNotFound, "Performance Not Found Please Check ID")
 		return
 	}
 

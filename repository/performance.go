@@ -22,7 +22,7 @@ type Performance struct {
 	MainArea    *Area                 `json:"main_area" gorm:"foreignkey:MainAreaID"`
 	MainAreaID  *uint                 `json:"main_area_id"`
 	Casts       []*Cast               `gorm:"many2many:performance_casts;"`
-	Schedules   []*Schedule           `gorm:"foreignkey:PerformanceID"`
+	Schedules   []Schedule            `gorm:"foreignkey:PerformanceID"`
 	Contents    []*PerformanceContent `gorm:"foreignkey:PerformanceID"`
 	Title       string                `json:"title"`
 	RunningTime string                `json:"runningTime"`
@@ -54,10 +54,10 @@ func (p *PerformanceRepository) GetWithQueryMap(query map[string]any) []Performa
 	reversed, _ := query["reversed"].(bool)
 
 	result := p.DB.
-		Debug().
 		Limit(limit).
 		Offset(offset).
 		Order(clause.OrderByColumn{Column: clause.Column{Name: "id"}, Desc: reversed}).
+		Joins("Thumbnail").
 		Find(&performances)
 
 	if result.Error != nil {
@@ -129,6 +129,7 @@ func (p *PerformanceRepository) FindByID(id uint) *Performance {
 		Preload("Place.PlaceImage").
 		Preload("Product.File").
 		Joins("Thumbnail").
+		Preload("Place.Location").
 		First(&performance).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -207,7 +208,7 @@ func (p *PerformanceRepository) GetCastsByID(id uint) []*Cast {
 	return performance.Casts
 }
 
-func (p *PerformanceRepository) GetSchedulesByID(id uint) []*Schedule {
+func (p *PerformanceRepository) GetSchedulesByID(id uint) []Schedule {
 	var performance Performance
 	performance.ID = id
 

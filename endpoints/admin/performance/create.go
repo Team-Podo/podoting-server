@@ -28,22 +28,18 @@ func Create(c *gin.Context) {
 		Rating:      json.Rating,
 	}
 
-	if json.ProductID != 0 {
-		performance.ProductID = &json.ProductID
-	}
-
 	err := repositories.performance.Save(&performance)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, "Internal Server Error")
+		c.JSON(http.StatusInternalServerError, "database_error: performance save failed")
 		return
 	}
 
-	c.JSON(http.StatusOK, performance.ID)
+	c.JSON(http.StatusCreated, performance.ID)
 }
 
 func UploadThumbnailImage(c *gin.Context) {
-	performanceID, err := parseUint(c.Param("id"))
+	performanceID, err := utils.ParseUint(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, "id should be Integer")
 		return
@@ -52,7 +48,7 @@ func UploadThumbnailImage(c *gin.Context) {
 	performance := repositories.performance.FindByID(performanceID)
 
 	if performance == nil {
-		c.JSON(http.StatusNotFound, "Not Found")
+		c.JSON(http.StatusNotFound, "performance not found please check id")
 		return
 	}
 
@@ -63,7 +59,7 @@ func UploadThumbnailImage(c *gin.Context) {
 	}
 
 	if !utils.CheckFileExtension(fileHeader) {
-		c.JSON(http.StatusBadRequest, "File extension is not allowed")
+		c.JSON(http.StatusBadRequest, "file extension is not allowed")
 		return
 	}
 
@@ -72,7 +68,7 @@ func UploadThumbnailImage(c *gin.Context) {
 	file, err := aws.S3.UploadFile(thumbnailImage, filePath, fileExtension)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, "mainImage should be File")
+		c.JSON(http.StatusInternalServerError, "file upload failed")
 		return
 	}
 
@@ -83,7 +79,7 @@ func UploadThumbnailImage(c *gin.Context) {
 
 	err = repositories.file.Save(performance.Thumbnail)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, "File Save Error")
+		c.JSON(http.StatusInternalServerError, "database_error: file db save failed")
 		return
 	}
 
@@ -91,11 +87,11 @@ func UploadThumbnailImage(c *gin.Context) {
 
 	err = repositories.performance.Update(performance)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, "Performance Update Error")
+		c.JSON(http.StatusInternalServerError, "database_error: performance update failed")
 		return
 	}
 
-	c.JSON(http.StatusOK, map[string]any{
+	c.JSON(http.StatusCreated, map[string]any{
 		"thumbnail": performance.Thumbnail.FullPath(),
 	})
 }

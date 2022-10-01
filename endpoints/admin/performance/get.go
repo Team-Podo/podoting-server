@@ -1,7 +1,6 @@
 package performance
 
 import (
-	"fmt"
 	"github.com/Team-Podo/podoting-server/repository"
 	response "github.com/Team-Podo/podoting-server/response/admin/performance_get"
 	"github.com/gin-gonic/gin"
@@ -15,11 +14,9 @@ func Get(c *gin.Context) {
 	performances := repositories.performance.GetWithQueryMap(queryMap)
 
 	if performances == nil {
-		c.JSON(http.StatusNotFound, "Not Found")
+		c.JSON(http.StatusNotFound, "performances not found")
 		return
 	}
-
-	fmt.Println(performances)
 
 	c.JSON(http.StatusOK, gin.H{
 		"performances": getResponseFormForGet(performances),
@@ -34,50 +31,27 @@ func getResponseFormForGet(ps []repository.Performance) []response.Performance {
 		res = append(res, response.Performance{
 			ID:          p.ID,
 			Title:       p.Title,
+			ThumbUrl:    getThumbUrl(&p),
 			RunningTime: p.RunningTime,
 			StartDate:   p.StartDate,
 			EndDate:     p.EndDate,
 			Rating:      p.Rating,
-			Product:     getProductFromPerformance(&p),
 			Schedules:   p.Schedules,
-			CreatedAt:   p.CreatedAt,
-			UpdatedAt:   p.UpdatedAt,
+			CreatedAt:   p.CreatedAt.String(),
+			UpdatedAt:   p.UpdatedAt.String(),
 		})
 	}
 
 	return res
 }
 
-func getProductFromPerformance(p *repository.Performance) *response.Product {
-	if p.Product == nil {
-		return nil
+func getThumbUrl(p *repository.Performance) *string {
+	if p.Thumbnail != nil {
+		thumbUrl := p.Thumbnail.FullPath()
+		return &thumbUrl
 	}
 
-	product := p.Product
-
-	return &response.Product{
-		ID:        product.ID,
-		Title:     product.Title,
-		File:      getFileFromProduct(product),
-		CreatedAt: product.CreatedAt,
-		UpdatedAt: product.UpdatedAt,
-	}
-}
-
-func getFileFromProduct(p *repository.Product) *response.File {
-	if p.File == nil {
-		return nil
-	}
-
-	file := p.File
-
-	return &response.File{
-		ID:        file.ID,
-		Size:      file.Size,
-		Path:      file.Path,
-		CreatedAt: file.CreatedAt,
-		UpdatedAt: file.UpdatedAt,
-	}
+	return nil
 }
 
 func extractQueriesToMap(c *gin.Context) map[string]any {

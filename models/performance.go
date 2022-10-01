@@ -11,6 +11,6 @@ type PerformanceRepository interface {
 	Update(performance *repository.Performance) error
 	Delete(id uint) error
 	GetCastsByID(id uint) []*repository.Cast
-	GetSchedulesByID(id uint) []*repository.Schedule
+	GetSchedulesByID(id uint) []repository.Schedule
 	GetContentsByID(id uint) []*repository.PerformanceContent
 }
