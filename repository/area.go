@@ -24,7 +24,7 @@ type AreaRepository struct {
 
 func (r *AreaRepository) GetByPlaceID(placeID uint) []Area {
 	var areas []Area
-	err := r.DB.Where("place_id = ?", placeID).
+	err := r.DB.Joins("BackgroundImage").Where("place_id = ?", placeID).
 		Find(&areas).Error
 
 	if err != nil {
@@ -37,10 +37,10 @@ func (r *AreaRepository) GetByPlaceID(placeID uint) []Area {
 func (r *AreaRepository) FindOne(placeID uint, areaID uint) *Area {
 	var area Area
 	err := r.DB.
-		Debug().
 		Preload("Seats.Point").
 		Preload("Seats.Bookings").
 		Preload("Seats.Grade").
+		Joins("BackgroundImage").
 		Where("place_id = ?", placeID).
 		First(&area, areaID).
 		Error
