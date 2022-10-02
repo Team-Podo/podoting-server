@@ -97,7 +97,7 @@ func Create(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, area.ID)
+	c.JSON(http.StatusCreated, area.ID)
 }
 
 func UploadAreaImage(c *gin.Context) {
