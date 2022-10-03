@@ -51,10 +51,15 @@ func (r *CharacterRepository) Update(character *Character) error {
 }
 
 func (r *CharacterRepository) Delete(id uint) error {
-	if err := r.DB.Model(Cast{
-		CharacterID: id,
-	}).First(&Cast{}).Error; err == nil {
-		return errors.Wrap(err, "character is used by cast")
+	var exists bool
+
+	r.DB.Model(&Cast{}).
+		Select("count(*) > 0").
+		Where("character_id = ?", id).
+		Find(&exists)
+
+	if exists {
+		return errors.New("character is used by cast")
 	}
 
 	if err := r.DB.Delete(&Character{ID: id}).Error; err != nil {
