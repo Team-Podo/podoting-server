@@ -62,7 +62,8 @@ func Routes(r *gin.Engine) {
 
 		characters := admin.Group("/characters")
 		{
-			characters.DELETE("/", character.Delete)
+			characters.PUT("/:id", character.Update)
+			characters.DELETE("/:id", character.Delete)
 		}
 
 		performances := admin.Group("/performances")
@@ -88,10 +89,10 @@ func Routes(r *gin.Engine) {
 				performanceCasts.PUT("/:cast_id", performanceCast.Update)
 			}
 
-			performanceCharacters := admin.Group("/:id/characters")
+			performanceCharacters := performances.Group("/:id/characters")
 			{
+				performanceCharacters.GET("/", performanceCharacter.Get)
 				performanceCharacters.POST("/", performanceCharacter.Create)
-				performanceCharacters.PUT("/:character_id", performanceCharacter.Update)
 			}
 
 		}

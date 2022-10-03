@@ -4,6 +4,7 @@ import (
 	"github.com/Team-Podo/podoting-server/database"
 	"github.com/Team-Podo/podoting-server/models"
 	"github.com/Team-Podo/podoting-server/repository"
+	"github.com/Team-Podo/podoting-server/response/admin/character_get"
 	"github.com/Team-Podo/podoting-server/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -25,39 +26,26 @@ func init() {
 	}
 }
 
-func Create(c *gin.Context) {
-	performanceID, err := utils.ParseUint(c.Param("performance_id"))
+func Get(c *gin.Context) {
+	performanceID, err := utils.ParseUint(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, "(performance) id should be Integer")
 		return
 	}
 
-	var req request
-	err = c.BindJSON(&req)
-
+	characters, err := repositories.character.FindByPerformanceID(performanceID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.JSON(http.StatusNotFound, "character not found")
 		return
 	}
 
-	character := repositories.character.Create(&repository.Character{
-		PerformanceID: performanceID,
-		Name:          req.Name,
-	})
-
-	c.JSON(http.StatusOK, character)
+	c.JSON(http.StatusOK, character_get.ParseResponseForm(characters))
 }
 
-func Update(c *gin.Context) {
-	performanceID, err := utils.ParseUint(c.Param("performance_id"))
+func Create(c *gin.Context) {
+	performanceID, err := utils.ParseUint(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, "(performance) id should be Integer")
-		return
-	}
-
-	characterID, err := utils.ParseUint(c.Param("character_id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, "(character) id should be Integer")
 		return
 	}
 
@@ -69,11 +57,15 @@ func Update(c *gin.Context) {
 		return
 	}
 
-	character := repositories.character.Update(&repository.Character{
-		PerformanceID: performanceID,
-		ID:            characterID,
-		Name:          req.Name,
-	})
+	var character repository.Character
+	character.Name = req.Name
+	character.PerformanceID = performanceID
 
-	c.JSON(http.StatusOK, character)
+	err = repositories.character.Create(&character)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, character.ID)
 }

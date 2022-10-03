@@ -58,7 +58,7 @@ func (r *CharacterRepository) Delete(id uint) error {
 	}
 
 	if err := r.DB.Delete(&Character{ID: id}).Error; err != nil {
-		return errors.Wrap(err, "failed to delete character")
+		return errors.Wrap(err, "database error: failed to delete character")
 	}
 
 	return nil
