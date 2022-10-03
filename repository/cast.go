@@ -31,6 +31,35 @@ type CastRepository struct {
 	DB *gorm.DB
 }
 
+func (c *CastRepository) Get() ([]Cast, error) {
+	var casts []Cast
+
+	err := c.DB.Find(&casts).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return casts, nil
+}
+
+func (c *CastRepository) GetByPerformanceID(performanceID uint) ([]Cast, error) {
+	var casts []Cast
+
+	err := c.DB.
+		Joins("Character").
+		Joins("Person").
+		Joins("ProfileImage").
+		Where("performance_id = ?", performanceID).
+		Find(&casts).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return casts, nil
+}
+
 func (c *CastRepository) FindByID(id uint) (*Cast, error) {
 	var cast Cast
 	cast.ID = id
@@ -42,6 +71,30 @@ func (c *CastRepository) FindByID(id uint) (*Cast, error) {
 	}
 
 	return &cast, nil
+}
+
+func (c *CastRepository) Create(cast *Cast) error {
+	if cast.ProfileImage != nil {
+		cast.ProfileImageID = cast.ProfileImage.ID
+	}
+
+	err := c.DB.Create(cast).Error
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *CastRepository) Delete(id uint) error {
+	err := c.DB.Delete(&Cast{ID: id}).Error
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (c *CastRepository) GetCastsByPerformanceID(id uint) ([]*Cast, error) {

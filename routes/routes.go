@@ -1,10 +1,13 @@
 package routes
 
 import (
+	"github.com/Team-Podo/podoting-server/endpoints/admin/cast"
+	"github.com/Team-Podo/podoting-server/endpoints/admin/character"
 	"github.com/Team-Podo/podoting-server/endpoints/admin/performance"
-	"github.com/Team-Podo/podoting-server/endpoints/admin/performance/cast"
-	"github.com/Team-Podo/podoting-server/endpoints/admin/performance/place"
-	"github.com/Team-Podo/podoting-server/endpoints/admin/performance/place/area"
+	performanceCast "github.com/Team-Podo/podoting-server/endpoints/admin/performance/cast"
+	performanceCharacter "github.com/Team-Podo/podoting-server/endpoints/admin/performance/character"
+	"github.com/Team-Podo/podoting-server/endpoints/admin/place"
+	"github.com/Team-Podo/podoting-server/endpoints/admin/place/area"
 	"github.com/Team-Podo/podoting-server/endpoints/admin/product"
 	"github.com/Team-Podo/podoting-server/endpoints/admin/schedule"
 	"github.com/Team-Podo/podoting-server/endpoints/musical"
@@ -51,6 +54,17 @@ func Routes(r *gin.Engine) {
 			products.POST("/:id/main-image", product.UploadMainImage)
 		}
 
+		casts := admin.Group("/casts")
+		{
+			casts.GET("/:cast_id", cast.Find)
+			casts.DELETE("/:cast_id", cast.Delete)
+		}
+
+		characters := admin.Group("/characters")
+		{
+			characters.DELETE("/", character.Delete)
+		}
+
 		performances := admin.Group("/performances")
 		{
 			performances.GET("/", performance.Get)
@@ -60,16 +74,26 @@ func Routes(r *gin.Engine) {
 			performances.PUT("/:id", performance.Update)
 			performances.DELETE("/", performance.Delete)
 
-			casts := performances.Group("/:id/casts")
-			{
-				casts.POST("/:cast_id/profile-image", cast.UploadProfileImage)
-			}
-
 			places := performances.Group("/:id/places")
 			{
 				places.GET("/", place.Find)
 				places.POST("/:place_id/place-image", place.UploadPlaceImage)
 			}
+
+			performanceCasts := admin.Group("/:id/casts")
+			{
+				performanceCasts.GET("/", performanceCast.Get)
+				performanceCasts.POST("/", performanceCast.Create)
+				performanceCasts.POST("/profile-image", performanceCast.UploadProfileImage)
+				performanceCasts.PUT("/:cast_id", performanceCast.Update)
+			}
+
+			performanceCharacters := admin.Group("/:id/characters")
+			{
+				performanceCharacters.POST("/", performanceCharacter.Create)
+				performanceCharacters.PUT("/:character_id", performanceCharacter.Update)
+			}
+
 		}
 
 		places := admin.Group("/places")
