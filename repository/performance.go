@@ -21,7 +21,7 @@ type Performance struct {
 	Areas       []*Area               `json:"areas" gorm:"many2many:performance_areas;"`
 	MainArea    *Area                 `json:"main_area" gorm:"foreignkey:MainAreaID"`
 	MainAreaID  *uint                 `json:"main_area_id"`
-	Casts       []*Cast               `gorm:"many2many:performance_casts;"`
+	Casts       []Cast                `gorm:"many2many:performance_casts;"`
 	Schedules   []Schedule            `gorm:"foreignkey:PerformanceID"`
 	Contents    []*PerformanceContent `gorm:"foreignkey:PerformanceID"`
 	Title       string                `json:"title"`
@@ -189,7 +189,7 @@ func (p *PerformanceRepository) Delete(id uint) error {
 	return nil
 }
 
-func (p *PerformanceRepository) GetCastsByID(id uint) []*Cast {
+func (p *PerformanceRepository) GetCastsByID(id uint) []Cast {
 	var performance Performance
 	performance.ID = id
 

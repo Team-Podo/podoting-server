@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"gorm.io/gorm"
 	"os"
 	"time"
@@ -13,7 +14,7 @@ type Cast struct {
 	Person         *Person    `json:"person" gorm:"foreignkey:PersonID"`
 	PersonID       uint       `json:"-"`
 	ProfileImage   *File      `json:"profileImage" gorm:"foreignkey:ProfileImageID"`
-	ProfileImageID uint       `json:"-"`
+	ProfileImageID *uint      `json:"-"`
 	CreatedAt      time.Time  `json:"createdAt"`
 	UpdatedAt      time.Time  `json:"updatedAt"`
 	DeletedAt      *time.Time `json:"-" gorm:"index"`
@@ -44,27 +45,36 @@ func (c *CastRepository) Get() ([]Cast, error) {
 }
 
 func (c *CastRepository) GetByPerformanceID(performanceID uint) ([]Cast, error) {
-	var casts []Cast
+	var performance Performance
+	performance.ID = performanceID
 
 	err := c.DB.
+		Model(&performance).
 		Joins("Character").
 		Joins("Person").
 		Joins("ProfileImage").
-		Where("performance_id = ?", performanceID).
-		Find(&casts).Error
+		Association("Casts").
+		Find(&performance.Casts)
+
+	fmt.Println("character", performance.Casts[0].Person)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return casts, nil
+	return performance.Casts, nil
 }
 
 func (c *CastRepository) FindByID(id uint) (*Cast, error) {
 	var cast Cast
 	cast.ID = id
 
-	err := c.DB.First(&cast).Error
+	err := c.DB.
+		Joins("Character").
+		Joins("Person").
+		Joins("ProfileImage").
+		First(&cast).
+		Error
 
 	if err != nil {
 		return nil, err
@@ -75,10 +85,30 @@ func (c *CastRepository) FindByID(id uint) (*Cast, error) {
 
 func (c *CastRepository) Create(cast *Cast) error {
 	if cast.ProfileImage != nil {
-		cast.ProfileImageID = cast.ProfileImage.ID
+		cast.ProfileImageID = &cast.ProfileImage.ID
 	}
 
 	err := c.DB.Create(cast).Error
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *CastRepository) CreateMany(casts []Cast) error {
+	err := c.DB.Save(casts).Error
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *CastRepository) LinkPerformances(performanceCasts []PerformanceCast) error {
+	err := c.DB.Save(performanceCasts).Error
 
 	if err != nil {
 		return err
@@ -105,7 +135,7 @@ func (c *CastRepository) GetCastsByPerformanceID(id uint) ([]*Cast, error) {
 
 func (c *CastRepository) Update(cast *Cast) error {
 	if cast.ProfileImage != nil {
-		cast.ProfileImageID = cast.ProfileImage.ID
+		cast.ProfileImageID = &cast.ProfileImage.ID
 	}
 
 	err := c.DB.Model(&Cast{ID: cast.ID}).Updates(cast).Error

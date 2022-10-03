@@ -57,8 +57,10 @@ func Routes(r *gin.Engine) {
 
 		casts := admin.Group("/casts")
 		{
-			casts.GET("/:cast_id", cast.Find)
-			casts.DELETE("/:cast_id", cast.Delete)
+			casts.GET("/:id", cast.Find)
+			casts.DELETE("/:id", cast.Delete)
+			casts.PUT("/:id", cast.Update)
+			casts.POST("/:id/profile-image", cast.UploadProfileImage)
 		}
 
 		characters := admin.Group("/characters")
@@ -91,12 +93,10 @@ func Routes(r *gin.Engine) {
 				places.POST("/:place_id/place-image", place.UploadPlaceImage)
 			}
 
-			performanceCasts := admin.Group("/:id/casts")
+			performanceCasts := performances.Group("/:id/casts")
 			{
 				performanceCasts.GET("/", performanceCast.Get)
-				performanceCasts.POST("/", performanceCast.Create)
-				performanceCasts.POST("/profile-image", performanceCast.UploadProfileImage)
-				performanceCasts.PUT("/:cast_id", performanceCast.Update)
+				performanceCasts.POST("/many", performanceCast.CreateMany)
 			}
 
 			performanceCharacters := performances.Group("/:id/characters")

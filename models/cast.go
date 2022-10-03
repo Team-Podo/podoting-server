@@ -7,6 +7,8 @@ type CastRepository interface {
 	GetByPerformanceID(performanceID uint) ([]repository.Cast, error)
 	FindByID(id uint) (*repository.Cast, error)
 	Create(cast *repository.Cast) error
+	CreateMany(casts []repository.Cast) error
+	LinkPerformances(performanceCasts []repository.PerformanceCast) error
 	Update(cast *repository.Cast) error
 	Delete(id uint) error
 }

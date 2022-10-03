@@ -3,12 +3,12 @@ package cast_find
 import "github.com/Team-Podo/podoting-server/repository"
 
 type Cast struct {
-	ID        uint       `json:"id"`
-	Profile   string     `json:"profile"`
-	Character *Character `json:"character"`
-	Person    *Person    `json:"person"`
-	CreatedAt string     `json:"createdAt"`
-	UpdatedAt string     `json:"updatedAt"`
+	ID           uint       `json:"id"`
+	ProfileImage *string    `json:"profileImage"`
+	Character    *Character `json:"character"`
+	Person       *Person    `json:"person"`
+	CreatedAt    string     `json:"createdAt"`
+	UpdatedAt    string     `json:"updatedAt"`
 }
 
 type Character struct {
@@ -28,16 +28,30 @@ type Person struct {
 
 func ParseResponseForm(cast *repository.Cast) Cast {
 	return Cast{
-		ID:        cast.ID,
-		Profile:   cast.ProfileImage.FullPath(),
-		Character: getCharacter(cast.Character),
-		Person:    getPerson(cast.Person),
-		CreatedAt: cast.CreatedAt.String(),
-		UpdatedAt: cast.UpdatedAt.String(),
+		ID:           cast.ID,
+		ProfileImage: getProfileImage(cast.ProfileImage),
+		Character:    getCharacter(cast.Character),
+		Person:       getPerson(cast.Person),
+		CreatedAt:    cast.CreatedAt.String(),
+		UpdatedAt:    cast.UpdatedAt.String(),
 	}
 }
 
+func getProfileImage(f *repository.File) *string {
+	if f == nil {
+		return nil
+	}
+
+	url := f.FullPath()
+
+	return &url
+}
+
 func getCharacter(c *repository.Character) *Character {
+	if c == nil {
+		return nil
+	}
+
 	return &Character{
 		ID:        c.ID,
 		Name:      c.Name,
@@ -47,6 +61,10 @@ func getCharacter(c *repository.Character) *Character {
 }
 
 func getPerson(c *repository.Person) *Person {
+	if c == nil {
+		return nil
+	}
+
 	return &Person{
 		ID:        c.ID,
 		Name:      c.Name,

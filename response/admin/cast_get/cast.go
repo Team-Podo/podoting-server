@@ -4,7 +4,7 @@ import "github.com/Team-Podo/podoting-server/repository"
 
 type Cast struct {
 	ID            uint    `json:"id"`
-	Profile       *string `json:"profile"`
+	ProfileImage  *string `json:"profileImage"`
 	CharacterName *string `json:"characterName"`
 	PersonName    *string `json:"personName"`
 	CreatedAt     string  `json:"createdAt"`
@@ -16,7 +16,7 @@ func ParseResponseForm(casts []repository.Cast) []Cast {
 	for _, cast := range casts {
 		response = append(response, Cast{
 			ID:            cast.ID,
-			Profile:       getProfile(cast.ProfileImage),
+			ProfileImage:  getProfile(cast.ProfileImage),
 			CharacterName: getCharacterName(cast.Character),
 			PersonName:    getPersonName(cast.Person),
 			CreatedAt:     cast.CreatedAt.String(),
