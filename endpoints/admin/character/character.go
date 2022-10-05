@@ -34,7 +34,7 @@ func Delete(c *gin.Context) {
 
 	err = repositories.character.Delete(characterID)
 	if err != nil {
-		c.JSON(http.StatusNotFound, err.Error())
+		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 
