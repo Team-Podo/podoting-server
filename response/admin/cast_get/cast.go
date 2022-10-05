@@ -5,8 +5,8 @@ import "github.com/Team-Podo/podoting-server/repository"
 type Cast struct {
 	ID           uint    `json:"id"`
 	ProfileImage *string `json:"profileImage"`
-	CharacterID  *uint   `json:"characterId"`
-	PersonID     *uint   `json:"personId"`
+	CharacterID  *uint   `json:"characterID"`
+	PersonID     *uint   `json:"personID"`
 	CreatedAt    string  `json:"createdAt"`
 	UpdatedAt    string  `json:"updatedAt"`
 }
