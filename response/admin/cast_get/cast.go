@@ -3,24 +3,24 @@ package cast_get
 import "github.com/Team-Podo/podoting-server/repository"
 
 type Cast struct {
-	ID            uint    `json:"id"`
-	ProfileImage  *string `json:"profileImage"`
-	CharacterName *string `json:"characterName"`
-	PersonName    *string `json:"personName"`
-	CreatedAt     string  `json:"createdAt"`
-	UpdatedAt     string  `json:"updatedAt"`
+	ID           uint    `json:"id"`
+	ProfileImage *string `json:"profileImage"`
+	CharacterID  *uint   `json:"characterId"`
+	PersonID     *uint   `json:"personId"`
+	CreatedAt    string  `json:"createdAt"`
+	UpdatedAt    string  `json:"updatedAt"`
 }
 
 func ParseResponseForm(casts []repository.Cast) []Cast {
 	var response []Cast
 	for _, cast := range casts {
 		response = append(response, Cast{
-			ID:            cast.ID,
-			ProfileImage:  getProfile(cast.ProfileImage),
-			CharacterName: getCharacterName(cast.Character),
-			PersonName:    getPersonName(cast.Person),
-			CreatedAt:     cast.CreatedAt.String(),
-			UpdatedAt:     cast.UpdatedAt.String(),
+			ID:           cast.ID,
+			ProfileImage: getProfile(cast.ProfileImage),
+			CharacterID:  getCharacterID(cast.Character),
+			PersonID:     getPersonID(cast.Person),
+			CreatedAt:    cast.CreatedAt.String(),
+			UpdatedAt:    cast.UpdatedAt.String(),
 		})
 	}
 
@@ -37,18 +37,18 @@ func getProfile(c *repository.File) *string {
 	return &url
 }
 
-func getCharacterName(c *repository.Character) *string {
+func getCharacterID(c *repository.Character) *uint {
 	if c == nil {
 		return nil
 	}
 
-	return &c.Name
+	return &c.ID
 }
 
-func getPersonName(c *repository.Person) *string {
+func getPersonID(c *repository.Person) *uint {
 	if c == nil {
 		return nil
 	}
 
-	return &c.Name
+	return &c.ID
 }
