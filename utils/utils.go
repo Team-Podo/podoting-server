@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strconv"
+	"time"
 )
 
 var (
@@ -71,4 +72,14 @@ func BuildMapSliceByMap(m map[string]interface{}) MapSlice {
 func ParseUint(s string) (uint, error) {
 	i, err := strconv.Atoi(s)
 	return uint(i), err
+}
+
+func CheckDateFormatInvalid(d string) bool {
+	_, err := time.Parse("2006-01-02", d)
+	return err != nil
+}
+
+func CheckTimeFormatInvalid(t string) bool {
+	_, err := time.Parse("15:04", t)
+	return err != nil
 }

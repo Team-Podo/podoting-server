@@ -5,9 +5,7 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"gorm.io/gorm/utils"
 	"log"
-	"strconv"
 	"time"
 )
 
@@ -17,6 +15,7 @@ type Schedule struct {
 	PerformanceID uint `json:"-"`
 	Memo          string
 	Date          string
+	Open          bool   `json:"open" gorm:"default:false"`
 	Casts         []Cast `gorm:"many2many:schedule_cast;"`
 	Time          sql.NullString
 	CreatedAt     time.Time       `json:"createdAt"`
@@ -25,39 +24,25 @@ type Schedule struct {
 }
 
 type ScheduleRepository struct {
-	Db *gorm.DB
+	DB *gorm.DB
 }
 
-func (s *ScheduleRepository) Get(query map[string]any) []Schedule {
+func (s *ScheduleRepository) FindByPerformanceID(performanceID uint) ([]Schedule, error) {
 	var schedules []Schedule
-	db := s.Db
 
-	if query["reversed"] == true {
-		db = db.Order("id desc")
-	}
-
-	if query["limit"] != nil {
-		limit, _ := strconv.Atoi(utils.ToString(query["limit"]))
-		db = db.Limit(limit)
-	}
-
-	if query["offset"] != nil {
-		offset, _ := strconv.Atoi(utils.ToString(query["offset"]))
-		db = db.Offset(offset)
-	}
-
-	err := db.Preload("Performance").Find(&schedules).Error
+	err := s.DB.
+		Preload("Casts").
+		Preload("Casts.Person").
+		Preload("Casts.Character").
+		Preload("Casts.ProfileImage").
+		Where("performance_id = ?", performanceID).
+		Find(&schedules).Error
 
 	if err != nil {
-		log.Fatal(err.Error())
-		return nil
+		return nil, err
 	}
 
-	if len(schedules) == 0 {
-		return nil
-	}
-
-	return schedules
+	return schedules, nil
 }
 
 func (s *ScheduleRepository) Find(uuid string) *Schedule {
@@ -65,7 +50,7 @@ func (s *ScheduleRepository) Find(uuid string) *Schedule {
 		UUID: uuid,
 	}
 
-	err := s.Db.Preload("performance").First(&schedule).Error
+	err := s.DB.Preload("Performance").First(&schedule).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil
@@ -84,7 +69,7 @@ func (s *ScheduleRepository) Save(schedule *Schedule) error {
 
 	schedule.UUID = scheduleUUID.String()
 
-	result := s.Db.Create(&schedule)
+	result := s.DB.Create(&schedule)
 
 	if result.Error != nil {
 		return result.Error
@@ -94,7 +79,7 @@ func (s *ScheduleRepository) Save(schedule *Schedule) error {
 }
 
 func (s *ScheduleRepository) SaveMany(schedules []Schedule) error {
-	err := s.Db.Create(&schedules).Error
+	err := s.DB.Create(&schedules).Error
 
 	if err != nil {
 		return err
@@ -104,18 +89,16 @@ func (s *ScheduleRepository) SaveMany(schedules []Schedule) error {
 }
 
 func (s *ScheduleRepository) Update(schedule *Schedule) error {
-	err := s.Db.First(&Schedule{
-		UUID: schedule.UUID,
-	}).Error
-
+	err := s.DB.Unscoped().Model(&schedule).Association("Casts").Replace(schedule.Casts)
 	if err != nil {
-		return err
+		return errors.New("failed to update casts")
 	}
 
-	err = s.Db.Model(&Schedule{UUID: schedule.UUID}).Updates(schedule).Error
+	err = s.DB.Model(&Schedule{UUID: schedule.UUID}).
+		Updates(schedule).Error
 
 	if err != nil {
-		return err
+		return errors.New("failed to update schedule")
 	}
 
 	return nil
@@ -124,33 +107,10 @@ func (s *ScheduleRepository) Update(schedule *Schedule) error {
 func (s *ScheduleRepository) Delete(uuid string) error {
 	schedule := Schedule{UUID: uuid}
 
-	err := s.Db.Delete(&schedule).Error
+	err := s.DB.Delete(&schedule).Error
 	if err != nil {
 		return err
 	}
 
 	return nil
-}
-
-func (s *ScheduleRepository) GetTotal(query map[string]any) int64 {
-	db := s.Db
-
-	if query["reversed"] == true {
-		db = db.Order("id desc")
-	}
-
-	if query["limit"] != nil {
-		limit, _ := strconv.Atoi(utils.ToString(query["limit"]))
-		db = db.Limit(limit)
-	}
-
-	if query["offset"] != nil {
-		offset, _ := strconv.Atoi(utils.ToString(query["offset"]))
-		db = db.Offset(offset)
-	}
-
-	var count int64
-	db.Model(&Schedule{}).Count(&count)
-
-	return count
 }

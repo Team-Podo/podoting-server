@@ -17,7 +17,7 @@ type ScheduleTestSuite struct {
 }
 
 func (suite *ScheduleTestSuite) SetupTest() {
-	suite.scheduleRepository = &ScheduleRepository{Db: database.Gorm}
+	suite.scheduleRepository = &ScheduleRepository{DB: database.Gorm}
 	newUUID, _ := uuid.NewUUID()
 	suite.schedule = Schedule{
 		UUID:        newUUID.String(),
@@ -32,12 +32,6 @@ func (suite *ScheduleTestSuite) TestSaveSchedule() {
 	_ = suite.scheduleRepository.Save(&suite.schedule)
 
 	suite.scheduleRepository.Find(suite.schedule.UUID)
-}
-
-func (suite *ScheduleTestSuite) TestGet() {
-	schedules := suite.scheduleRepository.Get(map[string]any{})
-
-	assert.NotNil(suite.T(), schedules)
 }
 
 func (suite *ScheduleTestSuite) TestFindScheduleByUUID() {
