@@ -26,9 +26,16 @@ func ParseResponseForm(seats []repository.Seat) []Seat {
 		response = append(response, Seat{
 			UUID:  seat.UUID,
 			Grade: Grade{ID: seat.Grade.ID, Name: seat.Grade.Name, Price: seat.Grade.Price, Color: seat.Grade.Color},
-			Point: Point{X: seat.Point.X, Y: seat.Point.Y},
+			Point: getPoint(seat),
 		})
 	}
 
 	return response
+}
+
+func getPoint(seat repository.Seat) Point {
+	return Point{
+		X: seat.AreaBoilerplate.Point.X,
+		Y: seat.AreaBoilerplate.Point.Y,
+	}
 }

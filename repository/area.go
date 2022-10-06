@@ -6,16 +6,16 @@ import (
 )
 
 type Area struct {
-	ID                uint           `json:"id" gorm:"primaryKey"`
-	Name              string         `json:"name"`
-	Place             *Place         `json:"place" gorm:"foreignKey:PlaceID"`
-	PlaceID           uint           `json:"-"`
-	BackgroundImage   *File          `json:"backgroundImage" gorm:"foreignKey:BackgroundImageID"`
-	BackgroundImageID *uint          `json:"-"`
-	Seats             []Seat         `json:"seats" gorm:"foreignKey:AreaID"`
-	CreatedAt         time.Time      `json:"createdAt"`
-	UpdatedAt         time.Time      `json:"updatedAt"`
-	DeletedAt         gorm.DeletedAt `json:"-" gorm:"index"`
+	ID                uint              `json:"id" gorm:"primaryKey"`
+	Name              string            `json:"name"`
+	Place             *Place            `json:"place" gorm:"foreignKey:PlaceID"`
+	PlaceID           uint              `json:"-"`
+	BackgroundImage   *File             `json:"backgroundImage" gorm:"foreignKey:BackgroundImageID"`
+	BackgroundImageID *uint             `json:"-"`
+	Boilerplates      []AreaBoilerplate `json:"boilerplates" gorm:"foreignKey:AreaID"`
+	CreatedAt         time.Time         `json:"createdAt"`
+	UpdatedAt         time.Time         `json:"updatedAt"`
+	DeletedAt         gorm.DeletedAt    `json:"-" gorm:"index"`
 }
 
 type AreaRepository struct {
@@ -37,9 +37,6 @@ func (r *AreaRepository) GetByPlaceID(placeID uint) []Area {
 func (r *AreaRepository) FindOne(placeID uint, areaID uint) *Area {
 	var area Area
 	err := r.DB.
-		Preload("Seats.Point").
-		Preload("Seats.Bookings").
-		Preload("Seats.Grade").
 		Joins("BackgroundImage").
 		Where("place_id = ?", placeID).
 		First(&area, areaID).

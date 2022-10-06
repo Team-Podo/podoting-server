@@ -58,6 +58,7 @@ func (p *PerformanceRepository) GetWithQueryMap(query map[string]any) []Performa
 		Offset(offset).
 		Order(clause.OrderByColumn{Column: clause.Column{Name: "id"}, Desc: reversed}).
 		Joins("Thumbnail").
+		Joins("MainArea").
 		Find(&performances)
 
 	if result.Error != nil {
@@ -128,6 +129,7 @@ func (p *PerformanceRepository) FindByID(id uint) *Performance {
 	err := p.DB.
 		Preload("Place.PlaceImage").
 		Preload("Product.File").
+		Joins("MainArea").
 		Joins("Thumbnail").
 		Preload("Place.Location").
 		First(&performance).Error

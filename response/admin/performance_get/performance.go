@@ -3,6 +3,7 @@ package performance_get
 type Performance struct {
 	ID          uint        `json:"id"`
 	Title       string      `json:"title"`
+	MainAreaID  *uint       `json:"mainAreaID"`
 	ThumbUrl    *string     `json:"thumbUrl"`
 	RunningTime string      `json:"runningTime"`
 	StartDate   string      `json:"startDate"`

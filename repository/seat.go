@@ -6,31 +6,32 @@ import (
 )
 
 type Seat struct {
-	UUID        string          `json:"uuid" gorm:"primarykey"`
-	Name        string          `json:"name" gorm:"default:''"`
-	Area        *Area           `json:"area" gorm:"foreignKey:AreaID"`
-	AreaID      uint            `json:"-"`
-	Grade       *SeatGrade      `json:"seatGrade" gorm:"foreignkey:SeatGradeID"`
-	SeatGradeID uint            `json:"-"`
-	Point       *Point          `json:"point" gorm:"foreignkey:PointID"`
-	PointID     uint            `json:"-"`
-	Bookings    []SeatBooking   `json:"booking" gorm:"foreignKey:SeatUUID"`
-	CreatedAt   time.Time       `json:"createdAt"`
-	UpdatedAt   time.Time       `json:"updatedAt"`
-	DeletedAt   *gorm.DeletedAt `json:"-" gorm:"index"`
+	UUID              string           `json:"uuid" gorm:"primarykey"`
+	AreaBoilerplate   *AreaBoilerplate `json:"areaBoilerplate" gorm:"foreignKey:AreaBoilerplateID"`
+	AreaBoilerplateID *uint            `json:"-"`
+	Performance       *Performance     `json:"performance" gorm:"foreignKey:PerformanceID"`
+	PerformanceID     uint             `json:"-"`
+	Grade             *SeatGrade       `json:"seatGrade" gorm:"foreignkey:SeatGradeID"`
+	SeatGradeID       uint             `json:"-"`
+	Bookings          []SeatBooking    `json:"booking" gorm:"foreignKey:SeatUUID"`
+	CreatedAt         time.Time        `json:"createdAt"`
+	UpdatedAt         time.Time        `json:"updatedAt"`
+	DeletedAt         *gorm.DeletedAt  `json:"-" gorm:"index"`
 }
 
 type SeatRepository struct {
 	DB *gorm.DB
 }
 
-func (s *SeatRepository) GetByAreaID(areaID uint) []Seat {
+func (s *SeatRepository) GetByAreaAndPerformanceID(areaID uint, performanceID uint) []Seat {
 	var seats []Seat
 
 	err := s.DB.
 		Joins("Grade").
-		Joins("Point").
-		Where("area_id = ?", areaID).
+		Preload("AreaBoilerplate", "area_id = ?", areaID).
+		Preload("AreaBoilerplate.Point").
+		Where("performance_id = ?", performanceID).
+		Order("area_boilerplate_id").
 		Find(&seats).
 		Error
 
@@ -68,7 +69,6 @@ func (s *SeatRepository) GetSeatsByAreaIdAndScheduleUUID(areaId uint, scheduleUU
 	var seats []Seat
 
 	err := s.DB.
-		Joins("Point").
 		Joins("Grade").
 		Preload("Bookings", "schedule_uuid = ?", scheduleUUID).
 		Where("area_id = ?", areaId).

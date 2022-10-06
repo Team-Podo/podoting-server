@@ -9,6 +9,7 @@ type Performance struct {
 	Title       string     `json:"title"`
 	ThumbUrl    *string    `json:"thumbUrl"`
 	Place       *Place     `json:"place"`
+	MainArea    *MainArea  `json:"mainArea"`
 	RunningTime string     `json:"runningTime"`
 	StartDate   string     `json:"startDate"`
 	EndDate     string     `json:"endDate"`
@@ -33,10 +34,19 @@ type Schedule struct {
 	Time string `json:"time"`
 }
 
+type MainArea struct {
+	ID              uint    `json:"id"`
+	Name            string  `json:"name"`
+	BackgroundImage *string `json:"backgroundImage"`
+	CreatedAt       string  `json:"createdAt"`
+	UpdatedAt       string  `json:"updatedAt"`
+}
+
 func ParseResponseForm(p *repository.Performance) Performance {
 	return Performance{
 		ID:          p.ID,
 		Place:       getPlace(p.Place),
+		MainArea:    getMainArea(p.MainArea),
 		Title:       p.Title,
 		ThumbUrl:    getThumbUrl(p.Thumbnail),
 		RunningTime: p.RunningTime,
@@ -46,6 +56,26 @@ func ParseResponseForm(p *repository.Performance) Performance {
 		Schedules:   getSchedules(p.Schedules),
 		CreatedAt:   p.CreatedAt.String(),
 		UpdatedAt:   p.UpdatedAt.String(),
+	}
+}
+
+func getMainArea(area *repository.Area) *MainArea {
+	if area == nil {
+		return nil
+	}
+
+	var backgroundImage *string
+
+	if area.BackgroundImage != nil {
+		backgroundImage = &area.BackgroundImage.Path
+	}
+
+	return &MainArea{
+		ID:              area.ID,
+		Name:            area.Name,
+		BackgroundImage: backgroundImage,
+		CreatedAt:       area.CreatedAt.String(),
+		UpdatedAt:       area.UpdatedAt.String(),
 	}
 }
 

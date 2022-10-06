@@ -28,6 +28,7 @@ func Update(c *gin.Context) {
 	performance := repository.Performance{
 		ID:          uint(intId),
 		PlaceID:     &json.PlaceID,
+		MainAreaID:  &json.MainAreaID,
 		Title:       json.Title,
 		RunningTime: json.RunningTime,
 		StartDate:   json.StartDate,

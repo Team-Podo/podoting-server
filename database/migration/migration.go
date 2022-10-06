@@ -9,6 +9,7 @@ func Init() {
 	db := database.Gorm
 
 	err := db.AutoMigrate(
+		&repository.AreaBoilerplate{},
 		&repository.PerformanceContent{},
 		&repository.Point{},
 		&repository.Seat{},

@@ -56,8 +56,6 @@ func Get(c *gin.Context) {
 
 		response[i] = seat.Seat{
 			UUID:   s.UUID,
-			Name:   s.Name,
-			Point:  seat.Point{X: s.Point.X, Y: s.Point.Y},
 			Grade:  seat.Grade{ID: s.Grade.ID, Name: s.Grade.Name},
 			Price:  s.Grade.Price,
 			Color:  s.Grade.Color,

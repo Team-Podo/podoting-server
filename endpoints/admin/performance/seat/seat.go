@@ -7,7 +7,6 @@ import (
 	"github.com/Team-Podo/podoting-server/response/admin/seat_get"
 	"github.com/Team-Podo/podoting-server/utils"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 )
 
@@ -29,9 +28,9 @@ func init() {
 var repositories Repository
 
 func Get(c *gin.Context) {
-	placeID, err := getPlaceID(c)
+	performanceID, err := getPerformanceID(c)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, "(place) id should be Integer")
+		c.JSON(http.StatusBadRequest, "(performance) id should be Integer")
 		return
 	}
 
@@ -41,22 +40,15 @@ func Get(c *gin.Context) {
 		return
 	}
 
-	log.Default().Printf("placeID: %d, areaID: %d", *placeID, *areaID)
-
-	seats := repositories.seat.GetByAreaID(*areaID)
+	seats := repositories.seat.GetByAreaAndPerformanceID(*areaID, *performanceID)
 
 	c.JSON(http.StatusOK, seat_get.ParseResponseForm(seats))
 }
 
 func Save(c *gin.Context) {
-	areaID, err := getAreaID(c)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, "(area) id should be Integer")
-		return
-	}
 
 	var requests []Request
-	if err = c.ShouldBindJSON(&requests); err != nil {
+	if err := c.ShouldBindJSON(&requests); err != nil {
 		c.JSON(http.StatusBadRequest, "Invalid request body")
 		return
 	}
@@ -66,11 +58,10 @@ func Save(c *gin.Context) {
 		seats = append(seats, repository.Seat{
 			UUID:        request.UUID,
 			SeatGradeID: request.GradeID,
-			AreaID:      *areaID,
 		})
 	}
 
-	err = repositories.seat.SaveSeats(seats)
+	err := repositories.seat.SaveSeats(seats)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
@@ -80,7 +71,7 @@ func Save(c *gin.Context) {
 	c.JSON(http.StatusOK, "success")
 }
 
-func getPlaceID(c *gin.Context) (*uint, error) {
+func getPerformanceID(c *gin.Context) (*uint, error) {
 	id, err := utils.ParseUint(c.Param("id"))
 	if err != nil {
 		return nil, err

@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/Team-Podo/podoting-server/database"
 	"github.com/stretchr/testify/suite"
 	"testing"
@@ -29,14 +27,6 @@ func (suite *SaveAreaTestSuite) SetupTest() {
 
 func (suite *GetAreaTestSuite) SetupTest() {
 	suite.areaRepository = &AreaRepository{DB: database.Gorm}
-}
-
-func (suite *GetAreaTestSuite) TestFindOneArea() {
-	area := suite.areaRepository.FindOne(1)
-	jsonArea, _ := json.Marshal(&area)
-	fmt.Println(string(jsonArea))
-	fmt.Println(area)
-	suite.NotNil(area)
 }
 
 func (suite *SaveAreaTestSuite) TestSaveArea() {

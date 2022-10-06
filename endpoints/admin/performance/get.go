@@ -31,6 +31,7 @@ func getResponseFormForGet(ps []repository.Performance) []response.Performance {
 		res = append(res, response.Performance{
 			ID:          p.ID,
 			Title:       p.Title,
+			MainAreaID:  p.MainAreaID,
 			ThumbUrl:    getThumbUrl(&p),
 			RunningTime: p.RunningTime,
 			StartDate:   p.StartDate,

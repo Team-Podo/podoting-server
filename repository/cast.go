@@ -7,19 +7,19 @@ import (
 )
 
 type Cast struct {
-	ID             uint         `json:"id" gorm:"primarykey"`
-	Character      *Character   `json:"character" gorm:"foreignkey:CharacterID"`
-	CharacterID    uint         `json:"-"`
-	Person         *Person      `json:"person" gorm:"foreignkey:PersonID"`
-	PersonID       uint         `json:"-"`
-	ProfileImage   *File        `json:"profileImage" gorm:"foreignkey:ProfileImageID"`
-	ProfileImageID *uint        `json:"-"`
-	Performance    *Performance `json:"performance" gorm:"foreignkey:PerformanceID"`
-	PerformanceID  uint         `json:"-"`
-	Schedules      []Schedule   `json:"schedules" gorm:"many2many:schedule_cast;"`
-	CreatedAt      time.Time    `json:"createdAt"`
-	UpdatedAt      time.Time    `json:"updatedAt"`
-	DeletedAt      *time.Time   `json:"-" gorm:"index"`
+	ID             uint           `json:"id" gorm:"primarykey"`
+	Character      *Character     `json:"character" gorm:"foreignkey:CharacterID"`
+	CharacterID    uint           `json:"-"`
+	Person         *Person        `json:"person" gorm:"foreignkey:PersonID"`
+	PersonID       uint           `json:"-"`
+	ProfileImage   *File          `json:"profileImage" gorm:"foreignkey:ProfileImageID"`
+	ProfileImageID *uint          `json:"-"`
+	Performance    *Performance   `json:"performance" gorm:"foreignkey:PerformanceID"`
+	PerformanceID  uint           `json:"-"`
+	Schedules      []Schedule     `json:"schedules" gorm:"many2many:schedule_cast;"`
+	CreatedAt      time.Time      `json:"createdAt"`
+	UpdatedAt      time.Time      `json:"updatedAt"`
+	DeletedAt      gorm.DeletedAt `json:"-" gorm:"index"`
 }
 
 func (c *Cast) ProfileImageURL() string {
