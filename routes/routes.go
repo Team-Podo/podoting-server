@@ -80,8 +80,8 @@ func Routes(r *gin.Engine) {
 
 		schedule := admin.Group("/schedules")
 		{
-			schedule.PUT("/:schedule_uuid", performanceSchedule.Update)
-			schedule.DELETE("/:schedule_uuid", performanceSchedule.Delete)
+			schedule.PUT("/:uuid", performanceSchedule.Update)
+			schedule.DELETE("/:uuid", performanceSchedule.Delete)
 		}
 
 		performances := admin.Group("/performances")

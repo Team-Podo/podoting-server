@@ -23,6 +23,12 @@ type Cast struct {
 	ProfileImage  *string `json:"profileImage"`
 }
 
+type Performance struct {
+	ID        uint   `json:"id"`
+	StartDate string `json:"startDate"`
+	EndDate   string `json:"endDate"`
+}
+
 func ParseResponseFrom(schedules []repository.Schedule, casts []repository.Cast) ([]Schedule, []Cast) {
 	var scheduleResponse []Schedule
 
@@ -51,6 +57,14 @@ func ParseResponseFrom(schedules []repository.Schedule, casts []repository.Cast)
 	}
 
 	return scheduleResponse, castResponse
+}
+
+func ParsePerformanceResponseFrom(performances *repository.Performance) Performance {
+	return Performance{
+		ID:        performances.ID,
+		StartDate: performances.StartDate,
+		EndDate:   performances.EndDate,
+	}
 }
 
 func getTime(time sql.NullString) *string {

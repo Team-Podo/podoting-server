@@ -19,16 +19,18 @@ type request struct {
 }
 
 type Repository struct {
-	schedule models.ScheduleRepository
-	cast     models.CastRepository
+	schedule    models.ScheduleRepository
+	performance models.PerformanceRepository
+	cast        models.CastRepository
 }
 
 var repositories Repository
 
 func init() {
 	repositories = Repository{
-		schedule: &repository.ScheduleRepository{DB: database.Gorm},
-		cast:     &repository.CastRepository{DB: database.Gorm},
+		schedule:    &repository.ScheduleRepository{DB: database.Gorm},
+		performance: &repository.PerformanceRepository{DB: database.Gorm},
+		cast:        &repository.CastRepository{DB: database.Gorm},
 	}
 }
 
@@ -38,6 +40,8 @@ func Get(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, "(performance) id should be Integer")
 		return
 	}
+
+	performance := repositories.performance.FindByID(performanceID)
 
 	schedules, err := repositories.schedule.FindByPerformanceID(performanceID)
 	if err != nil {
@@ -54,8 +58,9 @@ func Get(c *gin.Context) {
 	scheduleRes, castRes := schedule_get.ParseResponseFrom(schedules, casts)
 
 	c.JSON(http.StatusOK, gin.H{
-		"schedules": scheduleRes,
-		"casts":     castRes,
+		"schedules":   scheduleRes,
+		"casts":       castRes,
+		"performance": schedule_get.ParsePerformanceResponseFrom(performance),
 	})
 }
 
@@ -110,7 +115,7 @@ func Create(c *gin.Context) {
 }
 
 func Update(c *gin.Context) {
-	scheduleUUID := c.Param("schedule_uuid")
+	scheduleUUID := c.Param("uuid")
 
 	var req request
 	err := c.BindJSON(&req)
@@ -154,7 +159,7 @@ func Update(c *gin.Context) {
 }
 
 func Delete(c *gin.Context) {
-	scheduleUUID := c.Param("schedule_uuid")
+	scheduleUUID := c.Param("uuid")
 
 	err := repositories.schedule.Delete(scheduleUUID)
 	if err != nil {

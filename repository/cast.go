@@ -16,6 +16,7 @@ type Cast struct {
 	ProfileImageID *uint        `json:"-"`
 	Performance    *Performance `json:"performance" gorm:"foreignkey:PerformanceID"`
 	PerformanceID  uint         `json:"-"`
+	Schedules      []Schedule   `json:"schedules" gorm:"many2many:schedule_cast;"`
 	CreatedAt      time.Time    `json:"createdAt"`
 	UpdatedAt      time.Time    `json:"updatedAt"`
 	DeletedAt      *time.Time   `json:"-" gorm:"index"`
@@ -115,7 +116,13 @@ func (c *CastRepository) LinkPerformances(performanceCasts []PerformanceCast) er
 }
 
 func (c *CastRepository) Delete(id uint) error {
-	err := c.DB.Delete(&Cast{ID: id}).Error
+	model := c.DB.Model(&Cast{ID: id})
+	err := model.Association("Schedules").Clear()
+	if err != nil {
+		return err
+	}
+
+	err = c.DB.Delete(&Cast{ID: id}).Error
 
 	if err != nil {
 		return err
