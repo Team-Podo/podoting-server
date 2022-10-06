@@ -20,7 +20,7 @@ type Repository struct {
 
 func init() {
 	repositories = Repository{
-		seat:        &repository.SeatRepository{Db: database.Gorm},
+		seat:        &repository.SeatRepository{DB: database.Gorm},
 		performance: &repository.PerformanceRepository{DB: database.Gorm},
 		area:        &repository.AreaRepository{DB: database.Gorm},
 	}

@@ -3,11 +3,11 @@ package cast_save
 import "github.com/Team-Podo/podoting-server/repository"
 
 type Cast struct {
-	ID          uint `json:"id"`
-	PersonID    uint `json:"personID"`
-	CharacterID uint `json:"characterID"`
-	CreatedAt   string
-	UpdatedAt   string
+	ID          uint   `json:"id"`
+	PersonID    uint   `json:"personID"`
+	CharacterID uint   `json:"characterID"`
+	CreatedAt   string `json:"createdAt"`
+	UpdatedAt   string `json:"updatedAt"`
 }
 
 func ParseResponseForm(casts []repository.Cast) []Cast {

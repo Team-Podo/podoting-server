@@ -31,8 +31,8 @@ func getMusical11() repository.Performance {
 }
 
 func seatSeeder() {
-	seatRepository := repository.SeatRepository{Db: database.Gorm}
-	_ = seatRepository.SaveSeats(getSeats())
+	seatRepository := repository.SeatRepository{DB: database.Gorm}
+	_ = seatRepository.CreateSeats(getSeats())
 }
 
 func getSeats() []repository.Seat {

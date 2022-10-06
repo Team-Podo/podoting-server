@@ -20,7 +20,7 @@ type GetSeatTestSuite struct {
 }
 
 func (suite *SaveSeatTestSuite) SetupTest() {
-	suite.seatRepository = &SeatRepository{Db: database.Gorm}
+	suite.seatRepository = &SeatRepository{DB: database.Gorm}
 	newUUID, _ := uuid.NewUUID()
 	suite.seat = Seat{
 		UUID:   newUUID.String(),
@@ -35,12 +35,12 @@ func (suite *SaveSeatTestSuite) SetupTest() {
 
 func (suite *SaveSeatTestSuite) TestSaveSeats() {
 	fmt.Println(suite.seat)
-	err := suite.seatRepository.SaveSeats([]Seat{suite.seat})
+	err := suite.seatRepository.CreateSeats([]Seat{suite.seat})
 	suite.Nil(err)
 }
 
 func (suite *GetSeatTestSuite) TestGetSeatsByAreaIdAndScheduleUUID() {
-	seatRepository := &SeatRepository{Db: database.Gorm}
+	seatRepository := &SeatRepository{DB: database.Gorm}
 	seats := seatRepository.GetSeatsByAreaIdAndScheduleUUID(4, "18a08d6d-5d71-4d5b-aff3-d7f421312ee4")
 	fmt.Println(seats)
 	for i, seat := range seats {
