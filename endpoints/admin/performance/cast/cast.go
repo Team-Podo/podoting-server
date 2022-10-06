@@ -69,9 +69,10 @@ func CreateMany(c *gin.Context) {
 
 	for _, cast := range casts {
 		newCast := repository.Cast{
-			ID:          cast.ID,
-			PersonID:    cast.PersonID,
-			CharacterID: cast.CharacterID,
+			ID:            cast.ID,
+			PerformanceID: performanceID,
+			PersonID:      cast.PersonID,
+			CharacterID:   cast.CharacterID,
 		}
 		newCasts = append(newCasts, newCast)
 	}
@@ -83,18 +84,6 @@ func CreateMany(c *gin.Context) {
 		log.Fatal(err)
 		return
 	}
-
-	var newPerformanceCasts []repository.PerformanceCast
-
-	for _, newCast := range newCasts {
-		newPerformanceCast := repository.PerformanceCast{
-			PerformanceID: performanceID,
-			CastID:        newCast.ID,
-		}
-		newPerformanceCasts = append(newPerformanceCasts, newPerformanceCast)
-	}
-
-	err = repositories.cast.LinkPerformances(newPerformanceCasts)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, "database error: performance cast create failed")

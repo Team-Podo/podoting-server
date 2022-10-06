@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"fmt"
 	"gorm.io/gorm"
 	"os"
 	"time"
@@ -47,24 +46,20 @@ func (c *CastRepository) Get() ([]Cast, error) {
 }
 
 func (c *CastRepository) GetByPerformanceID(performanceID uint) ([]Cast, error) {
-	var performance Performance
-	performance.ID = performanceID
+	var casts []Cast
 
 	err := c.DB.
-		Model(&performance).
-		Joins("Character").
-		Joins("Person").
+		Preload("Character").
+		Preload("Person").
 		Joins("ProfileImage").
-		Association("Casts").
-		Find(&performance.Casts)
-
-	fmt.Println("character", performance.Casts[0].Person)
+		Where("performance_id = ?", performanceID).
+		Find(&casts).Error
 
 	if err != nil {
 		return nil, err
 	}
 
-	return performance.Casts, nil
+	return casts, nil
 }
 
 func (c *CastRepository) FindByID(id uint) (*Cast, error) {
@@ -100,7 +95,7 @@ func (c *CastRepository) Create(cast *Cast) error {
 }
 
 func (c *CastRepository) CreateMany(casts []Cast) error {
-	err := c.DB.Save(casts).Error
+	err := c.DB.Debug().Save(casts).Error
 
 	if err != nil {
 		return err

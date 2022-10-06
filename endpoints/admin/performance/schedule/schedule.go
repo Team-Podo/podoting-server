@@ -20,6 +20,7 @@ type request struct {
 
 type Repository struct {
 	schedule models.ScheduleRepository
+	cast     models.CastRepository
 }
 
 var repositories Repository
@@ -27,6 +28,7 @@ var repositories Repository
 func init() {
 	repositories = Repository{
 		schedule: &repository.ScheduleRepository{DB: database.Gorm},
+		cast:     &repository.CastRepository{DB: database.Gorm},
 	}
 }
 
@@ -43,7 +45,18 @@ func Get(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, schedule_get.ParseResponseFrom(schedules))
+	casts, err := repositories.cast.GetByPerformanceID(performanceID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, "cast not found")
+		return
+	}
+
+	scheduleRes, castRes := schedule_get.ParseResponseFrom(schedules, casts)
+
+	c.JSON(http.StatusOK, gin.H{
+		"schedules": scheduleRes,
+		"casts":     castRes,
+	})
 }
 
 func Create(c *gin.Context) {

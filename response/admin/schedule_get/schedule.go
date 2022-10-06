@@ -11,7 +11,7 @@ type Schedule struct {
 	Open      bool    `json:"open"`
 	Date      string  `json:"date"`
 	Time      *string `json:"time"`
-	Casts     []Cast  `json:"casts"`
+	Casts     []uint  `json:"casts"`
 	CreatedAt string  `json:"createdAt"`
 	UpdatedAt string  `json:"updatedAt"`
 }
@@ -23,11 +23,11 @@ type Cast struct {
 	ProfileImage  *string `json:"profileImage"`
 }
 
-func ParseResponseFrom(schedules []repository.Schedule) []Schedule {
-	var response []Schedule
+func ParseResponseFrom(schedules []repository.Schedule, casts []repository.Cast) ([]Schedule, []Cast) {
+	var scheduleResponse []Schedule
 
 	for _, schedule := range schedules {
-		response = append(response, Schedule{
+		scheduleResponse = append(scheduleResponse, Schedule{
 			UUID:      schedule.UUID,
 			Memo:      schedule.Memo,
 			Open:      schedule.Open,
@@ -39,7 +39,18 @@ func ParseResponseFrom(schedules []repository.Schedule) []Schedule {
 		})
 	}
 
-	return response
+	var castResponse []Cast
+
+	for _, cast := range casts {
+		castResponse = append(castResponse, Cast{
+			ID:            cast.ID,
+			CharacterName: getCharacterName(cast.Character),
+			PersonName:    getPersonName(cast.Person),
+			ProfileImage:  getProfileImage(cast.ProfileImage),
+		})
+	}
+
+	return scheduleResponse, castResponse
 }
 
 func getTime(time sql.NullString) *string {
@@ -50,16 +61,11 @@ func getTime(time sql.NullString) *string {
 	return &time.String
 }
 
-func getCasts(casts []repository.Cast) []Cast {
-	var response []Cast
+func getCasts(casts []repository.Cast) []uint {
+	var response []uint
 
 	for _, cast := range casts {
-		response = append(response, Cast{
-			ID:            cast.ID,
-			CharacterName: getCharacterName(cast.Character),
-			PersonName:    getPersonName(cast.Person),
-			ProfileImage:  getProfileImage(cast.ProfileImage),
-		})
+		response = append(response, cast.ID)
 	}
 
 	return response
