@@ -30,7 +30,7 @@ func (s *SeatRepository) GetByAreaAndPerformanceID(areaID uint, performanceID ui
 		Joins("Grade").
 		Preload("AreaBoilerplate", "area_id = ?", areaID).
 		Preload("AreaBoilerplate.Point").
-		Where("performance_id = ?", performanceID).
+		Where(&Seat{PerformanceID: performanceID}).
 		Order("area_boilerplate_id").
 		Find(&seats).
 		Error
