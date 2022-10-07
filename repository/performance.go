@@ -23,6 +23,7 @@ type Performance struct {
 	MainAreaID  *uint                 `json:"main_area_id"`
 	Casts       []Cast                `gorm:"foreignkey:PerformanceID;"`
 	Schedules   []Schedule            `gorm:"foreignkey:PerformanceID"`
+	SeatGrades  []SeatGrade           `gorm:"foreignkey:PerformanceID"`
 	Contents    []*PerformanceContent `gorm:"foreignkey:PerformanceID"`
 	Title       string                `json:"title"`
 	RunningTime string                `json:"runningTime"`

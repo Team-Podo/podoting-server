@@ -6,6 +6,7 @@ import (
 	"github.com/Team-Podo/podoting-server/endpoints/admin/performance"
 	performanceCast "github.com/Team-Podo/podoting-server/endpoints/admin/performance/cast"
 	performanceCharacter "github.com/Team-Podo/podoting-server/endpoints/admin/performance/character"
+	"github.com/Team-Podo/podoting-server/endpoints/admin/performance/grades"
 	performanceSchedule "github.com/Team-Podo/podoting-server/endpoints/admin/performance/schedule"
 	adminSeats "github.com/Team-Podo/podoting-server/endpoints/admin/performance/seat"
 	"github.com/Team-Podo/podoting-server/endpoints/admin/person"
@@ -125,6 +126,14 @@ func Routes(r *gin.Engine) {
 					seats.GET("/", adminSeats.Get)
 					seats.POST("/", adminSeats.Save)
 				}
+			}
+
+			performanceSeatGrades := performances.Group("/:id/seat-grades")
+			{
+				performanceSeatGrades.GET("/", grades.GetByPerformanceID)
+				performanceSeatGrades.POST("/", grades.Create)
+				performanceSeatGrades.PUT("/:seat_grade_id", grades.Update)
+				performanceSeatGrades.DELETE("/:seat_grade_id", grades.Delete)
 			}
 		}
 
