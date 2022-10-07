@@ -46,9 +46,14 @@ func Get(c *gin.Context) {
 }
 
 func Save(c *gin.Context) {
+	performanceID, err := getPerformanceID(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, "(performance) id should be Integer")
+		return
+	}
 
 	var requests []Request
-	if err := c.ShouldBindJSON(&requests); err != nil {
+	if err = c.ShouldBindJSON(&requests); err != nil {
 		c.JSON(http.StatusBadRequest, "Invalid request body")
 		return
 	}
@@ -56,14 +61,13 @@ func Save(c *gin.Context) {
 	var seats []repository.Seat
 	for _, request := range requests {
 		seats = append(seats, repository.Seat{
-			UUID:        request.UUID,
-			SeatGradeID: request.GradeID,
+			PerformanceID: *performanceID,
+			UUID:          request.UUID,
+			SeatGradeID:   request.GradeID,
 		})
 	}
 
-	err := repositories.seat.SaveSeats(seats)
-
-	if err != nil {
+	if err = repositories.seat.SaveSeats(seats); err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}

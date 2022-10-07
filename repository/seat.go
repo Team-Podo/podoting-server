@@ -84,7 +84,7 @@ func (s *SeatRepository) GetSeatsByAreaIdAndScheduleUUID(areaId uint, scheduleUU
 
 func (s *SeatRepository) SaveSeats(seats []Seat) error {
 	return s.DB.
-		Omit("area_id", "point_id").
+		Omit("area_boilerplate_id").
 		Save(&seats).Error
 }
 
