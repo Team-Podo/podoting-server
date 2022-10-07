@@ -15,6 +15,8 @@ func init() {
 }
 
 func main() {
+	_ = os.Setenv("TZ", "KST")
+
 	go migration.Init()
 
 	r := gin.Default()
