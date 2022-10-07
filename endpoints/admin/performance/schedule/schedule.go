@@ -112,7 +112,7 @@ func Create(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, schedule.UUID)
+	c.JSON(http.StatusCreated, schedule.UUID)
 }
 
 func Update(c *gin.Context) {
