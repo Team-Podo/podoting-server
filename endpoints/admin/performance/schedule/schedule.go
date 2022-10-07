@@ -97,6 +97,7 @@ func Create(c *gin.Context) {
 			return
 		}
 		schedule.Time.String = req.Time
+		schedule.Time.Valid = true
 	} else {
 		schedule.Time.Valid = false
 	}
@@ -125,7 +126,12 @@ func Update(c *gin.Context) {
 		return
 	}
 
-	var schedule = repositories.schedule.Find(scheduleUUID)
+	schedule, err := repositories.schedule.FindByUUID(scheduleUUID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, "schedule not found")
+		return
+	}
+
 	schedule.Memo = req.Memo
 	schedule.Open = req.Open
 
@@ -140,6 +146,7 @@ func Update(c *gin.Context) {
 			return
 		}
 		schedule.Time.String = req.Time
+		schedule.Time.Valid = true
 	} else {
 		schedule.Time.Valid = false
 	}

@@ -64,6 +64,18 @@ func (s *ScheduleRepository) Find(uuid string) *Schedule {
 	return &schedule
 }
 
+func (s *ScheduleRepository) FindByUUID(uuids string) (*Schedule, error) {
+	var schedule Schedule
+
+	err := s.DB.Where("uuid = ?", uuids).First(&schedule).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &schedule, nil
+}
+
 func (s *ScheduleRepository) Save(schedule *Schedule) error {
 	scheduleUUID, _ := uuid.NewUUID()
 
