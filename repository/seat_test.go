@@ -23,28 +23,16 @@ func (suite *SaveSeatTestSuite) SetupTest() {
 	suite.seatRepository = &SeatRepository{DB: database.Gorm}
 	newUUID, _ := uuid.NewUUID()
 	suite.seat = Seat{
-		UUID:   newUUID.String(),
-		AreaID: 1,
-		Grade:  &SeatGrade{ID: 1},
-		Point: &Point{
-			X: float64(1),
-			Y: float64(1),
-		},
+		UUID:  newUUID.String(),
+		Grade: &SeatGrade{ID: 1},
 	}
-}
-
-func (suite *SaveSeatTestSuite) TestSaveSeats() {
-	fmt.Println(suite.seat)
-	err := suite.seatRepository.CreateSeats([]Seat{suite.seat})
-	suite.Nil(err)
 }
 
 func (suite *GetSeatTestSuite) TestGetSeatsByAreaIdAndScheduleUUID() {
 	seatRepository := &SeatRepository{DB: database.Gorm}
-	seats := seatRepository.GetSeatsByAreaIdAndScheduleUUID(4, "18a08d6d-5d71-4d5b-aff3-d7f421312ee4")
-	fmt.Println(seats)
-	for i, seat := range seats {
-		fmt.Println(i, seat, seat.Grade, seat.Point, seat.Bookings)
+	seats := seatRepository.GetSeatsByAreaIdAndScheduleUUID(26, "4c4acf6d-460a-11ed-ab11-0a58a9feac02")
+	for _, seat := range seats {
+		fmt.Println(seat)
 	}
 }
 

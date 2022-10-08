@@ -1,7 +1,9 @@
 package repository
 
 import (
+	"github.com/Team-Podo/podoting-server/query/user_seats"
 	"gorm.io/gorm"
+	"log"
 	"time"
 )
 
@@ -66,17 +68,44 @@ func (s *SeatRepository) GetByUUID(uuid string) *Seat {
 }
 
 func (s *SeatRepository) GetSeatsByAreaIdAndScheduleUUID(areaId uint, scheduleUUID string) []Seat {
-	var seats []Seat
+	var seatEntities []user_seats.Seat
 
 	err := s.DB.
-		Joins("Grade").
-		Preload("Bookings", "schedule_uuid = ?", scheduleUUID).
-		Where("area_id = ?", areaId).
-		Find(&seats).
-		Error
+		Debug().
+		Raw("select seats.uuid, ab.name `seat_name`, sg.name `grade_name`, sg.price, sg.color, p.x `point_x`, p.y `point_y`, count(sb.booked) `booked_count` from seats join area_boilerplates ab on seats.area_boilerplate_id = ab.id join seat_grades sg on seats.seat_grade_id = sg.id join points p on ab.point_id = p.id join performances perf on seats.performance_id = perf.id join schedules s on seats.performance_id = s.performance_id left join seat_bookings sb on seats.uuid = sb.seat_uuid where ab.area_id = ? and s.uuid = ? group by seats.uuid", areaId, scheduleUUID).
+		Scan(&seatEntities).Error
 
 	if err != nil {
+		log.Fatal(err.Error())
 		return nil
+	}
+
+	seats := make([]Seat, len(seatEntities))
+	for i := range seatEntities {
+		point := Point{
+			X: seatEntities[i].PointX,
+			Y: seatEntities[i].PointY,
+		}
+
+		areaBoilerplate := AreaBoilerplate{
+			Name:  seatEntities[i].SeatName,
+			Point: &point,
+		}
+
+		grade := SeatGrade{
+			Name:  seatEntities[i].GradeName,
+			Price: seatEntities[i].Price,
+			Color: seatEntities[i].Color,
+		}
+
+		bookings := make([]SeatBooking, seatEntities[i].BookedCount)
+
+		seats[i] = Seat{
+			UUID:            seatEntities[i].UUID,
+			AreaBoilerplate: &areaBoilerplate,
+			Grade:           &grade,
+			Bookings:        bookings,
+		}
 	}
 
 	return seats

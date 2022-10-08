@@ -5,6 +5,7 @@ import (
 	"github.com/Team-Podo/podoting-server/models"
 	"github.com/Team-Podo/podoting-server/repository"
 	"github.com/Team-Podo/podoting-server/response/musical/seat"
+	"github.com/Team-Podo/podoting-server/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -16,6 +17,7 @@ type Repository struct {
 	seat        models.SeatRepository
 	performance models.PerformanceRepository
 	area        models.AreaRepository
+	schedule    models.ScheduleRepository
 }
 
 func init() {
@@ -23,10 +25,17 @@ func init() {
 		seat:        &repository.SeatRepository{DB: database.Gorm},
 		performance: &repository.PerformanceRepository{DB: database.Gorm},
 		area:        &repository.AreaRepository{DB: database.Gorm},
+		schedule:    &repository.ScheduleRepository{DB: database.Gorm},
 	}
 }
 
 func Get(c *gin.Context) {
+	performanceID, err := utils.ParseUint(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, "id should be Integer")
+		return
+	}
+
 	areaID := getAreaIDByUint(c)
 
 	if areaID == 0 {
@@ -41,31 +50,18 @@ func Get(c *gin.Context) {
 
 	scheduleUUID := c.Param("schedule_uuid")
 
-	seats := repositories.seat.GetSeatsByAreaIdAndScheduleUUID(areaID, scheduleUUID)
 	backgroundImage := repositories.area.GetBackgroundImageByAreaId(areaID)
-
-	response := make([]seat.Seat, len(seats))
-
-	for i := range seats {
-		Booked := false
-		s := seats[i]
-
-		if len(seats[i].Bookings) > 0 {
-			Booked = true
-		}
-
-		response[i] = seat.Seat{
-			UUID:   s.UUID,
-			Grade:  seat.Grade{ID: s.Grade.ID, Name: s.Grade.Name},
-			Price:  s.Grade.Price,
-			Color:  s.Grade.Color,
-			Booked: Booked,
-		}
+	seats := repositories.seat.GetSeatsByAreaIdAndScheduleUUID(areaID, scheduleUUID)
+	schedules, err := repositories.schedule.FindByPerformanceID(performanceID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, "Schedule Not Found")
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"backgroundImage": backgroundImage,
-		"seats":           response,
+		"seats":           seat.ParseSeats(seats),
+		"schedules":       seat.ParseSchedules(schedules),
 	})
 }
 
