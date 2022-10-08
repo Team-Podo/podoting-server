@@ -49,8 +49,11 @@ func Find(c *gin.Context) {
 	contentCH := make(chan []musical.Content)
 	go getContents(performance.ID, contentCH)
 
+	seatGradeCH := make(chan []musical.SeatGrade)
+	go getSeatGrades(performance.ID, seatGradeCH)
+
 	c.JSON(200, musical.Musical{
-		Id:          performance.ID,
+		ID:          performance.ID,
 		Title:       performance.Title,
 		ThumbUrl:    performance.GetFileURL(),
 		RunningTime: performance.RunningTime,
@@ -61,6 +64,7 @@ func Find(c *gin.Context) {
 		Schedules:   <-scheduleCH,
 		Cast:        <-castCH,
 		Contents:    <-contentCH,
+		SeatGrades:  <-seatGradeCH,
 	})
 }
 
@@ -70,7 +74,7 @@ func getCasts(id uint, ch chan []musical.Cast) {
 
 	for _, cast := range casts {
 		result = append(result, musical.Cast{
-			Id: cast.ID,
+			ID: cast.ID,
 			Profile: musical.Profile{
 				Url: cast.ProfileImageURL(),
 			},
@@ -136,9 +140,29 @@ func getContents(id uint, ch chan []musical.Content) {
 
 	for _, content := range contents {
 		result = append(result, musical.Content{
-			Uuid:    content.UUID,
+			UUID:    content.UUID,
 			Title:   content.Title,
 			Content: content.Content,
+		})
+	}
+
+	ch <- result
+}
+
+func getSeatGrades(id uint, ch chan []musical.SeatGrade) {
+	seatGrades := repositories.performance.GetSeatGradesByID(id)
+	if seatGrades == nil {
+		ch <- nil
+		return
+	}
+
+	var result []musical.SeatGrade
+
+	for _, seatGrade := range seatGrades {
+		result = append(result, musical.SeatGrade{
+			ID:    seatGrade.ID,
+			Name:  seatGrade.Name,
+			Price: seatGrade.Price,
 		})
 	}
 

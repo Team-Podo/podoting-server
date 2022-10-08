@@ -13,4 +13,5 @@ type PerformanceRepository interface {
 	GetCastsByID(id uint) []repository.Cast
 	GetSchedulesByID(id uint) []repository.Schedule
 	GetContentsByID(id uint) []*repository.PerformanceContent
+	GetSeatGradesByID(id uint) []repository.SeatGrade
 }

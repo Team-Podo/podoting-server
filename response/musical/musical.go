@@ -1,17 +1,18 @@
 package musical
 
 type Musical struct {
-	Id          uint       `json:"id"`
-	Title       string     `json:"title"`
-	ThumbUrl    string     `json:"thumbUrl"`
-	RunningTime string     `json:"runningTime"`
-	StartDate   string     `json:"startDate"`
-	EndDate     string     `json:"endDate"`
-	Rating      string     `json:"rating"`
-	Place       *Place     `json:"place"`
-	Schedules   []Schedule `json:"schedules"`
-	Cast        []Cast     `json:"cast"`
-	Contents    []Content  `json:"contents"`
+	ID          uint        `json:"id"`
+	Title       string      `json:"title"`
+	ThumbUrl    string      `json:"thumbUrl"`
+	RunningTime string      `json:"runningTime"`
+	StartDate   string      `json:"startDate"`
+	EndDate     string      `json:"endDate"`
+	Rating      string      `json:"rating"`
+	Place       *Place      `json:"place"`
+	Schedules   []Schedule  `json:"schedules"`
+	Cast        []Cast      `json:"cast"`
+	Contents    []Content   `json:"contents"`
+	SeatGrades  []SeatGrade `json:"seatGrades"`
 }
 
 type Place struct {
@@ -33,7 +34,7 @@ type ScheduleCast struct {
 }
 
 type Cast struct {
-	Id      uint    `json:"id"`
+	ID      uint    `json:"id"`
 	Profile Profile `json:"profile"`
 	Name    string  `json:"name"`
 	Role    string  `json:"role"`
@@ -44,7 +45,13 @@ type Profile struct {
 }
 
 type Content struct {
-	Uuid    string `json:"uuid"`
+	UUID    string `json:"uuid"`
 	Title   string `json:"title"`
 	Content string `json:"content"`
+}
+
+type SeatGrade struct {
+	ID    uint   `json:"id"`
+	Name  string `json:"name"`
+	Price int    `json:"price"`
 }

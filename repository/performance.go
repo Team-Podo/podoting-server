@@ -244,3 +244,20 @@ func (p *PerformanceRepository) GetContentsByID(id uint) []*PerformanceContent {
 
 	return performance.Contents
 }
+
+func (p *PerformanceRepository) GetSeatGradesByID(id uint) []SeatGrade {
+	var performance Performance
+	performance.ID = id
+
+	err := p.DB.
+		Model(&performance).
+		Order("price desc").
+		Association("SeatGrades").
+		Find(&performance.SeatGrades)
+
+	if err != nil {
+		return nil
+	}
+
+	return performance.SeatGrades
+}
