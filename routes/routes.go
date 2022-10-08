@@ -14,6 +14,7 @@ import (
 	"github.com/Team-Podo/podoting-server/endpoints/admin/place/area"
 	"github.com/Team-Podo/podoting-server/endpoints/admin/product"
 	"github.com/Team-Podo/podoting-server/endpoints/musical"
+	"github.com/Team-Podo/podoting-server/endpoints/musical/book"
 	"github.com/Team-Podo/podoting-server/endpoints/musical/seat"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -163,5 +164,10 @@ func Routes(r *gin.Engine) {
 	{
 		musicalGroup.GET("/:id", musical.Find)
 		musicalGroup.GET("/:id/schedules/:schedule_uuid/seats", seat.Get)
+	}
+
+	bookGroup := r.Group("/book")
+	{
+		bookGroup.POST("/:schedule_uuid", book.Book)
 	}
 }

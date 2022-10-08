@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"gorm.io/gorm"
 	"time"
 )
@@ -14,8 +15,41 @@ type SeatBooking struct {
 	Booked       bool           `json:"booked"`
 	Canceled     bool           `json:"canceled"`
 	BookedAt     time.Time      `json:"bookedAt"`
-	CanceledAt   time.Time      `json:"canceledAt"`
+	CanceledAt   *time.Time     `json:"canceledAt"`
 	CreatedAt    time.Time      `json:"createdAt"`
 	UpdatedAt    time.Time      `json:"updatedAt"`
 	DeletedAt    gorm.DeletedAt `json:"-" gorm:"index"`
+}
+
+type SeatBookingRepository struct {
+	DB *gorm.DB
+}
+
+func (s *SeatBookingRepository) Book(scheduleUUID string, seatUUIDs []string) error {
+	var seatBookings []SeatBooking
+	err := s.DB.
+		Where("schedule_uuid = ? AND seat_uuid IN ? AND canceled = false", scheduleUUID, seatUUIDs).
+		Find(&seatBookings).Error
+	if err != nil {
+		return err
+	}
+
+	if len(seatBookings) > 0 {
+		return errors.New("already booked")
+	}
+
+	for _, seatUUID := range seatUUIDs {
+		seatBooking := SeatBooking{
+			ScheduleUUID: scheduleUUID,
+			SeatUUID:     seatUUID,
+			Booked:       true,
+			BookedAt:     time.Now(),
+		}
+		err = s.DB.Create(&seatBooking).Error
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
