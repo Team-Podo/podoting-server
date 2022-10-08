@@ -17,11 +17,13 @@ type Request struct {
 
 type Repository struct {
 	seat models.SeatRepository
+	area models.AreaRepository
 }
 
 func init() {
 	repositories = Repository{
 		seat: &repository.SeatRepository{DB: database.Gorm},
+		area: &repository.AreaRepository{DB: database.Gorm},
 	}
 }
 
@@ -42,7 +44,12 @@ func Get(c *gin.Context) {
 
 	seats := repositories.seat.GetByAreaAndPerformanceID(*areaID, *performanceID)
 
-	c.JSON(http.StatusOK, seat_get.ParseResponseForm(seats))
+	backgroundImage := repositories.area.GetBackgroundImageByAreaId(*areaID)
+
+	c.JSON(http.StatusOK, gin.H{
+		"backgroundImage": backgroundImage,
+		"seats":           seat_get.ParseResponseForm(seats),
+	})
 }
 
 func Save(c *gin.Context) {
