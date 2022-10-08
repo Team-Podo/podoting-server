@@ -53,9 +53,15 @@ func Find(c *gin.Context) {
 	go getSeatGrades(performance.ID, seatGradeCH)
 
 	c.JSON(200, musical.Musical{
-		ID:          performance.ID,
-		Title:       performance.Title,
-		ThumbUrl:    performance.GetFileURL(),
+		ID:    performance.ID,
+		Title: performance.Title,
+		ThumbUrl: func() *string {
+			if performance.Thumbnail != nil {
+				fullPath := performance.Thumbnail.FullPath()
+				return &fullPath
+			}
+			return nil
+		}(),
 		RunningTime: performance.RunningTime,
 		StartDate:   performance.StartDate,
 		EndDate:     performance.EndDate,

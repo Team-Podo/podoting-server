@@ -3,7 +3,7 @@ package musical
 type Musical struct {
 	ID          uint        `json:"id"`
 	Title       string      `json:"title"`
-	ThumbUrl    string      `json:"thumbUrl"`
+	ThumbUrl    *string     `json:"thumbUrl"`
 	RunningTime string      `json:"runningTime"`
 	StartDate   string      `json:"startDate"`
 	EndDate     string      `json:"endDate"`
