@@ -72,7 +72,7 @@ func (s *SeatRepository) GetSeatsByAreaIdAndScheduleUUID(areaId uint, scheduleUU
 
 	err := s.DB.
 		Debug().
-		Raw("select seats.uuid, ab.name `seat_name`, sg.name `grade_name`, sg.price, sg.color, p.x `point_x`, p.y `point_y`, count(sb.booked) `booked_count` from seats join area_boilerplates ab on seats.area_boilerplate_id = ab.id join seat_grades sg on seats.seat_grade_id = sg.id join points p on ab.point_id = p.id join performances perf on seats.performance_id = perf.id join schedules s on seats.performance_id = s.performance_id left join seat_bookings sb on seats.uuid = sb.seat_uuid where ab.area_id = ? and s.uuid = ? group by seats.uuid", areaId, scheduleUUID).
+		Raw("select seats.uuid, ab.name `seat_name`, sg.name `grade_name`, sg.price, sg.color, p.x `point_x`, p.y `point_y`, count(sb.booked) `booked_count` from seats join area_boilerplates ab on seats.area_boilerplate_id = ab.id join seat_grades sg on seats.seat_grade_id = sg.id join points p on ab.point_id = p.id join performances perf on seats.performance_id = perf.id join schedules s on seats.performance_id = s.performance_id left join seat_bookings sb on seats.uuid = sb.seat_uuid and s.uuid = sb.schedule_uuid where ab.area_id = ? and s.uuid = ? group by seats.uuid", areaId, scheduleUUID).
 		Scan(&seatEntities).Error
 
 	if err != nil {
@@ -80,8 +80,14 @@ func (s *SeatRepository) GetSeatsByAreaIdAndScheduleUUID(areaId uint, scheduleUU
 		return nil
 	}
 
-	seats := make([]Seat, len(seatEntities))
+	var seats []Seat
 	for i := range seatEntities {
+		if seatEntities[i].BookedCount > 0 {
+			continue
+		}
+
+		bookings := make([]SeatBooking, seatEntities[i].BookedCount)
+
 		point := Point{
 			X: seatEntities[i].PointX,
 			Y: seatEntities[i].PointY,
@@ -98,14 +104,12 @@ func (s *SeatRepository) GetSeatsByAreaIdAndScheduleUUID(areaId uint, scheduleUU
 			Color: seatEntities[i].Color,
 		}
 
-		bookings := make([]SeatBooking, seatEntities[i].BookedCount)
-
-		seats[i] = Seat{
+		seats = append(seats, Seat{
 			UUID:            seatEntities[i].UUID,
 			AreaBoilerplate: &areaBoilerplate,
 			Grade:           &grade,
 			Bookings:        bookings,
-		}
+		})
 	}
 
 	return seats
