@@ -29,22 +29,10 @@ func Create(c *gin.Context) {
 		Rating:      json.Rating,
 	}
 
-	ab, err := repositories.areaBoilerplate.GetAreaBoilerplateByAreaID(*performance.MainAreaID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, "mainAreaID is not valid")
-		return
-	}
-
-	err = repositories.performance.Save(&performance)
+	err := repositories.performance.Save(&performance)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, "database_error: performance save failed")
-		return
-	}
-
-	err = repositories.areaBoilerplate.SaveSeats(ab, performance.ID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, "database_error: seats save failed")
 		return
 	}
 

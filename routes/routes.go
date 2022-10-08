@@ -121,6 +121,8 @@ func Routes(r *gin.Engine) {
 
 			performanceAreas := performances.Group("/:id/areas")
 			{
+				performanceAreas.POST("/:area_id/match", performance.MatchArea)
+
 				seats := performanceAreas.Group("/:area_id/seats")
 				{
 					seats.GET("/", adminSeats.Get)
