@@ -1,23 +1,17 @@
 package performance
 
 import (
+	"github.com/Team-Podo/podoting-server/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"strconv"
 )
 
 func Delete(c *gin.Context) {
-	id := c.Param("id")
+	id, err := utils.ParseUint(c.Param("id"))
 
-	intId, err := strconv.Atoi(id)
+	err = repositories.performance.Delete(id)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, "id should be Integer")
-		return
-	}
-
-	err = repositories.performance.Delete(uint(intId))
-	if err != nil {
-		c.JSON(http.StatusNotFound, "Not Found")
+		c.JSON(http.StatusNotFound, err.Error())
 		return
 	}
 

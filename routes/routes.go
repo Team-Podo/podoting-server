@@ -93,7 +93,7 @@ func Routes(r *gin.Engine) {
 			performances.POST("/", performance.Create)
 			performances.POST("/:id/thumbnail", performance.UploadThumbnailImage)
 			performances.PUT("/:id", performance.Update)
-			performances.DELETE("/", performance.Delete)
+			performances.DELETE("/:id", performance.Delete)
 
 			places := performances.Group("/:id/places")
 			{

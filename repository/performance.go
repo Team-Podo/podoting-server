@@ -181,10 +181,8 @@ func (p *PerformanceRepository) Update(performance *Performance) error {
 }
 
 func (p *PerformanceRepository) Delete(id uint) error {
-	performance := Performance{}
-	performance.ID = id
+	err := p.DB.Delete(&Performance{}, id).Error
 
-	err := p.DB.Delete(&performance).Error
 	if err != nil {
 		return err
 	}
