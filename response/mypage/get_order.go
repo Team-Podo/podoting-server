@@ -22,12 +22,14 @@ type Performance struct {
 }
 
 type OrderDetail struct {
-	ID            uint   `json:"id"`
-	Key           string `json:"key"`
-	OriginalPrice int    `json:"originalPrice"`
-	DiscountPrice int    `json:"discountPrice"`
-	PayPrice      int    `json:"payPrice"`
-	Seat          Seat   `json:"seat"`
+	ID            uint    `json:"id"`
+	Key           string  `json:"key"`
+	Canceled      bool    `json:"canceled"`
+	CanceledAt    *string `json:"canceledAt"`
+	OriginalPrice int     `json:"originalPrice"`
+	DiscountPrice int     `json:"discountPrice"`
+	PayPrice      int     `json:"payPrice"`
+	Seat          Seat    `json:"seat"`
 }
 
 type Seat struct {
@@ -41,6 +43,7 @@ func ParseOrder(orders []repository.Order) []Order {
 	for i := range response {
 		response[i] = Order{
 			ID:          orders[i].ID,
+			Canceled:    orders[i].Canceled,
 			Key:         orders[i].OrderKey,
 			Performance: ParsePerformance(orders[i].Performance),
 			Details:     ParseOrderDetail(orders[i].Details),
@@ -70,8 +73,16 @@ func ParseOrderDetail(details []repository.OrderDetail) []OrderDetail {
 	var response = make([]OrderDetail, len(details))
 	for i := range response {
 		response[i] = OrderDetail{
-			ID:            details[i].ID,
-			Key:           details[i].OrderDetailKey,
+			ID:       details[i].ID,
+			Key:      details[i].OrderDetailKey,
+			Canceled: details[i].Canceled,
+			CanceledAt: func() *string {
+				if details[i].CanceledAt != nil {
+					canceledAt := details[i].CanceledAt.Format("2006-01-02 15:04:05")
+					return &canceledAt
+				}
+				return nil
+			}(),
 			OriginalPrice: int(details[i].OriginalPrice),
 			DiscountPrice: int(details[i].Discount),
 			PayPrice:      int(details[i].OriginalPrice - details[i].Discount),

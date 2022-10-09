@@ -17,6 +17,7 @@ import (
 	"github.com/Team-Podo/podoting-server/endpoints/musical"
 	"github.com/Team-Podo/podoting-server/endpoints/musical/seat"
 	"github.com/Team-Podo/podoting-server/endpoints/mypage"
+	"github.com/Team-Podo/podoting-server/endpoints/order"
 	"github.com/Team-Podo/podoting-server/middleware"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -176,5 +177,11 @@ func Routes(r *gin.Engine) {
 	mypageGroup := r.Group("/mypage", middleware.AuthMiddleware)
 	{
 		mypageGroup.GET("/order-history", mypage.GetOrderHistory)
+	}
+
+	orderGroup := r.Group("/order", middleware.AuthMiddleware)
+	{
+		orderGroup.PATCH("/cancel/:id", order.CancelOrder)
+		orderGroup.PATCH("/cancel/:id/details/:order_detail_id", order.CancelOrderDetail)
 	}
 }

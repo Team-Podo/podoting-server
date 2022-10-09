@@ -2,6 +2,7 @@ package repository
 
 import (
 	"gorm.io/gorm"
+	"log"
 	"time"
 )
 
@@ -25,7 +26,7 @@ type OrderRepository struct {
 }
 
 func (r *OrderRepository) Save(order *Order) error {
-	err := r.DB.Save(order).Error
+	err := r.DB.Debug().Save(order).Error
 	if err != nil {
 		return err
 	}
@@ -43,4 +44,51 @@ func (r *OrderRepository) GetByUserUID(userUID string) []Order {
 		Find(&orders)
 
 	return orders
+}
+
+func (r *OrderRepository) FindByID(ID uint) *Order {
+	var order *Order
+	err := r.DB.
+		Preload("Details.SeatBooking").
+		First(&order, ID).
+		Error
+
+	if err != nil {
+		log.Fatal(err.Error())
+		return nil
+	}
+
+	return order
+}
+
+func (r *OrderRepository) CancelOrder(order *Order) error {
+	err := r.DB.Model(order).
+		Update("canceled", true).
+		Update("canceled_at", time.Now()).
+		Error
+
+	details := order.Details
+
+	err = r.DB.Model(&details).
+		Update("canceled", true).
+		Update("canceled_at", time.Now()).
+		Error
+
+	seatBookings := make([]SeatBooking, len(details))
+	for i, detail := range details {
+		seatBookings[i] = *detail.SeatBooking
+	}
+
+	err = r.DB.Model(&seatBookings).
+		Update("booked", false).
+		Update("canceled", true).
+		Update("canceled_at", time.Now()).
+		Error
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+
 }
