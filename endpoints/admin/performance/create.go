@@ -21,7 +21,6 @@ func Create(c *gin.Context) {
 
 	performance := repository.Performance{
 		PlaceID:     &json.PlaceID,
-		MainAreaID:  &json.MainAreaID,
 		Title:       json.Title,
 		RunningTime: json.RunningTime,
 		StartDate:   json.StartDate,
