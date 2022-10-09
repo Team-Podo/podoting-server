@@ -175,6 +175,8 @@ func (p *PerformanceRepository) Update(performance *Performance) error {
 		return err
 	}
 
+	fmt.Println(performance)
+
 	p.DB.Model(&Performance{ID: performance.ID}).Updates(performance)
 
 	return nil

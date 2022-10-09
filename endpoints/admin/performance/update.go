@@ -1,10 +1,10 @@
 package performance
 
 import (
-	"github.com/Team-Podo/podoting-server/repository"
+	"fmt"
+	"github.com/Team-Podo/podoting-server/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"strconv"
 )
 
 func Update(c *gin.Context) {
@@ -17,26 +17,38 @@ func Update(c *gin.Context) {
 		return
 	}
 
-	id := c.Param("id")
-
-	intId, err := strconv.Atoi(id)
+	id, err := utils.ParseUint(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, "id should be Integer")
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
 		return
 	}
 
-	performance := repository.Performance{
-		ID:          uint(intId),
-		PlaceID:     &json.PlaceID,
-		MainAreaID:  &json.MainAreaID,
-		Title:       json.Title,
-		RunningTime: json.RunningTime,
-		StartDate:   json.StartDate,
-		EndDate:     json.EndDate,
-		Rating:      json.Rating,
+	performance := repositories.performance.FindByID(id)
+	if performance == nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+			"message": "performance not found",
+		})
+		return
 	}
 
-	err = repositories.performance.Update(&performance)
+	fmt.Println(&json.MainAreaID)
+
+	performance.PlaceID = &json.PlaceID
+	performance.MainAreaID = func() *uint {
+		if json.MainAreaID != 0 {
+			return &json.MainAreaID
+		}
+		return nil
+	}()
+	performance.Title = json.Title
+	performance.RunningTime = json.RunningTime
+	performance.StartDate = json.StartDate
+	performance.EndDate = json.EndDate
+	performance.Rating = json.Rating
+
+	err = repositories.performance.Update(performance)
 
 	if err != nil {
 		c.JSON(http.StatusNotFound, "Performance Not Found Please Check ID")
