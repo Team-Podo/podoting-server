@@ -75,7 +75,7 @@ jobs:
         run: |
           mkdir key
           touch key/firebase-sdk.json
-          echo ${{ secrets.FIREBASE_KEY }} > key/firebase-sdk.json
+          echo ${{ secrets.FIREBASE_KEY }} >> key/firebase-sdk.json
           cat key/firebase-sdk.json
 
       - name: Configure AWS credentials
