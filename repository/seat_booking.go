@@ -26,6 +26,20 @@ type SeatBookingRepository struct {
 	DB *gorm.DB
 }
 
+func (s *SeatBookingRepository) Get(userUID string, scheduleUUID string, seatUUIDs []string) ([]SeatBooking, error) {
+	var seatBookings []SeatBooking
+	err := s.DB.
+		Preload("Seat.Grade").
+		Where("schedule_uuid = ? AND seat_uuid IN ? AND booker_uid = ? AND canceled = false", scheduleUUID, seatUUIDs, userUID).
+		Find(&seatBookings).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return seatBookings, nil
+}
+
 func (s *SeatBookingRepository) Book(uid string, scheduleUUID string, seatUUIDs []string) error {
 	var seatBookings []SeatBooking
 	err := s.DB.

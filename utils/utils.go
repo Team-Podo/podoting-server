@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/joho/godotenv"
 	"log"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -78,4 +79,22 @@ func CheckDateFormatInvalid(d string) bool {
 func CheckTimeFormatInvalid(t string) bool {
 	_, err := time.Parse("15:04", t)
 	return err != nil
+}
+
+func GenerateOrderKey() string {
+	var chars = []rune("ABCDEFGHJKMNPQRSTUVWXYZ23456789")
+	var key = make([]rune, 8)
+	for i := range key {
+		key[i] = chars[rand.Intn(len(chars))]
+	}
+	return string(key)
+}
+
+func GenerateOrderDetailKey() string {
+	var chars = []rune("ABCDEFGHJKMNPQRSTUVWXYZ23456789")
+	var key = make([]rune, 12)
+	for i := range key {
+		key[i] = chars[rand.Intn(len(chars))]
+	}
+	return string(key)
 }

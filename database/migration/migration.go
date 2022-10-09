@@ -26,6 +26,8 @@ func Init() {
 		&repository.Character{},
 		&repository.Cast{},
 		&repository.PerformanceCast{},
+		&repository.Order{},
+		&repository.OrderDetail{},
 	)
 	if err != nil {
 		panic(err)

@@ -1,5 +1,8 @@
 package models
 
+import "github.com/Team-Podo/podoting-server/repository"
+
 type SeatBookingRepository interface {
-	Book(uis string, scheduleUUID string, seatUUIDs []string) error
+	Get(userUID string, scheduleUUID string, seatUUIDs []string) ([]repository.SeatBooking, error)
+	Book(userUID string, scheduleUUID string, seatUUIDs []string) error
 }
