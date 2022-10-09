@@ -12,6 +12,7 @@ type SeatBooking struct {
 	SeatUUID     string         `json:"seatUUID" gorm:"size:36"`
 	Schedule     *Schedule      `json:"schedule" gorm:"foreignKey:ScheduleUUID"`
 	ScheduleUUID string         `json:"scheduleUUID" gorm:"size:36"`
+	BookerUID    string         `json:"bookerUID" gorm:"size:36"`
 	Booked       bool           `json:"booked"`
 	Canceled     bool           `json:"canceled"`
 	BookedAt     time.Time      `json:"bookedAt"`
@@ -25,7 +26,7 @@ type SeatBookingRepository struct {
 	DB *gorm.DB
 }
 
-func (s *SeatBookingRepository) Book(scheduleUUID string, seatUUIDs []string) error {
+func (s *SeatBookingRepository) Book(uid string, scheduleUUID string, seatUUIDs []string) error {
 	var seatBookings []SeatBooking
 	err := s.DB.
 		Where("schedule_uuid = ? AND seat_uuid IN ? AND canceled = false", scheduleUUID, seatUUIDs).
@@ -41,6 +42,7 @@ func (s *SeatBookingRepository) Book(scheduleUUID string, seatUUIDs []string) er
 	for _, seatUUID := range seatUUIDs {
 		seatBooking := SeatBooking{
 			ScheduleUUID: scheduleUUID,
+			BookerUID:    uid,
 			SeatUUID:     seatUUID,
 			Booked:       true,
 			BookedAt:     time.Now(),

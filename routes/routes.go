@@ -15,7 +15,9 @@ import (
 	"github.com/Team-Podo/podoting-server/endpoints/admin/product"
 	"github.com/Team-Podo/podoting-server/endpoints/musical"
 	"github.com/Team-Podo/podoting-server/endpoints/musical/book"
+	"github.com/Team-Podo/podoting-server/endpoints/musical/mypage"
 	"github.com/Team-Podo/podoting-server/endpoints/musical/seat"
+	"github.com/Team-Podo/podoting-server/middleware"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -166,8 +168,13 @@ func Routes(r *gin.Engine) {
 		musicalGroup.GET("/:id/schedules/:schedule_uuid/seats", seat.Get)
 	}
 
-	bookGroup := r.Group("/book")
+	bookGroup := r.Group("/book", middleware.AuthMiddleware)
 	{
 		bookGroup.POST("/:schedule_uuid", book.Book)
+	}
+
+	mypageGroup := r.Group("/mypage", middleware.AuthMiddleware)
+	{
+		mypageGroup.GET("/order-history", mypage.GetOrderHistory)
 	}
 }

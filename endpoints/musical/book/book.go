@@ -33,7 +33,12 @@ func Book(c *gin.Context) {
 		return
 	}
 
-	err := repositories.seatBooking.Book(scheduleUUID, requests.SeatUUIDs)
+	userUID, exists := c.Get("UUID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, "Unauthorized")
+	}
+
+	err := repositories.seatBooking.Book(userUID.(string), scheduleUUID, requests.SeatUUIDs)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
