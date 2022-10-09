@@ -68,15 +68,14 @@ jobs:
           echo S3_SECRET=${{ secrets.S3_SECRET }} >> .env
           echo AWS_REGION=ap-northeast-2 >> .env
           echo CDN_URL=https://d2axme1u6u8vy1.cloudfront.net >> .env
-          echo FIREBASE_APPLICATION_CREDENTIALS=key/firebase-sdk.json >> .env
+          echo FIREBASE_APPLICATION_CREDENTIALS=firebase-sdk.json >> .env
           cat .env
 
       - name: ADD Firebase key file
         run: |
-          mkdir key
-          touch key/firebase-sdk.json
-          echo ${{ secrets.FIREBASE_KEY }} >> key/firebase-sdk.json
-          cat key/firebase-sdk.json
+          touch firebase-sdk.json
+          echo ${{ secrets.FIREBASE_KEY }} >> firebase-sdk.json
+          cat firebase-sdk.json
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1

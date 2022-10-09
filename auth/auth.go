@@ -19,8 +19,9 @@ type fb struct {
 
 func init() {
 	path := os.Getenv("FIREBASE_APPLICATION_CREDENTIALS")
+	fmt.Println("firebase application path:", path)
 	if path == "" {
-		path = "key/firebase-sdk.json"
+		path = "firebase-sdk.json"
 	}
 
 	opt := option.WithCredentialsFile(utils.RootPath() + path)
