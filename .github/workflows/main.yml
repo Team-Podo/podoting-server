@@ -71,12 +71,6 @@ jobs:
           echo FIREBASE_APPLICATION_CREDENTIALS=firebase-sdk.json >> .env
           cat .env
 
-      - name: ADD Firebase key file
-        run: |
-          touch firebase-sdk.json
-          echo ${{ secrets.FIREBASE_KEY }} >> firebase-sdk.json
-          cat firebase-sdk.json
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:

@@ -19,7 +19,6 @@ WORKDIR /app
 
 COPY --from=build /app/main .
 COPY --from=build /app/.env .
-COPY --from=build /app/firebase-sdk.json .
 
 EXPOSE 80
 
