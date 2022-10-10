@@ -1,0 +1,27 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: create-json
+        id: create-json
+        uses: jsdaniell/create-json@1.1.2
+        with:
+          name: "firebase-sdk.json"
+          json: ${{ secrets.FIREBASE_KEY }}
+          run: |
+            cat firebase-sdk.json
+      
+      
