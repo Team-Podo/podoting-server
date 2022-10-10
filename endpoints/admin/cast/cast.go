@@ -33,14 +33,14 @@ func init() {
 	}
 }
 
-func Find(c *gin.Context) {
+func FindOne(c *gin.Context) {
 	id, err := utils.ParseUint(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, "(cast) id should be Integer")
 		return
 	}
 
-	cast, err := repositories.cast.FindByID(id)
+	cast, err := repositories.cast.FindOneByID(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, "cast not found")
 		return
@@ -84,7 +84,7 @@ func Update(c *gin.Context) {
 		return
 	}
 
-	castToUpdate, err := repositories.cast.FindByID(id)
+	castToUpdate, err := repositories.cast.FindOneByID(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, "cast not found")
 		return
@@ -114,7 +114,7 @@ func UploadProfileImage(c *gin.Context) {
 		return
 	}
 
-	cast, err := repositories.cast.FindByID(castID)
+	cast, err := repositories.cast.FindOneByID(castID)
 
 	if err != nil {
 		c.JSON(http.StatusNotFound, "Not Found")

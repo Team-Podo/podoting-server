@@ -46,7 +46,7 @@ func (c *CastRepository) Get() ([]Cast, error) {
 	return casts, nil
 }
 
-func (c *CastRepository) GetByPerformanceID(performanceID uint) ([]Cast, error) {
+func (c *CastRepository) FindByPerformanceID(performanceID uint) ([]Cast, error) {
 	var casts []Cast
 
 	err := c.DB.
@@ -63,15 +63,14 @@ func (c *CastRepository) GetByPerformanceID(performanceID uint) ([]Cast, error) 
 	return casts, nil
 }
 
-func (c *CastRepository) FindByID(id uint) (*Cast, error) {
+func (c *CastRepository) FindOneByID(id uint) (*Cast, error) {
 	var cast Cast
-	cast.ID = id
 
 	err := c.DB.
 		Joins("Character").
 		Joins("Person").
 		Joins("ProfileImage").
-		First(&cast).
+		First(&cast, id).
 		Error
 
 	if err != nil {
@@ -79,20 +78,6 @@ func (c *CastRepository) FindByID(id uint) (*Cast, error) {
 	}
 
 	return &cast, nil
-}
-
-func (c *CastRepository) Create(cast *Cast) error {
-	if cast.ProfileImage != nil {
-		cast.ProfileImageID = &cast.ProfileImage.ID
-	}
-
-	err := c.DB.Create(cast).Error
-
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (c *CastRepository) CreateMany(casts []Cast) error {
@@ -105,7 +90,7 @@ func (c *CastRepository) CreateMany(casts []Cast) error {
 	return nil
 }
 
-func (c *CastRepository) LinkPerformances(performanceCasts []PerformanceCast) error {
+func (c *CastRepository) SavePerformanceCasts(performanceCasts []PerformanceCast) error {
 	err := c.DB.Save(performanceCasts).Error
 
 	if err != nil {
@@ -116,25 +101,23 @@ func (c *CastRepository) LinkPerformances(performanceCasts []PerformanceCast) er
 }
 
 func (c *CastRepository) Delete(id uint) error {
-	model := c.DB.Model(&Cast{ID: id})
-	err := model.Association("Schedules").Clear()
+	c.DB.Begin()
+
+	err := c.DB.Model(&Cast{ID: id}).Association("Schedules").Clear()
 	if err != nil {
+		c.DB.Rollback()
 		return err
 	}
 
 	err = c.DB.Delete(&Cast{ID: id}).Error
-
 	if err != nil {
+		c.DB.Rollback()
 		return err
 	}
 
+	c.DB.Commit()
+
 	return nil
-}
-
-func (c *CastRepository) GetCastsByPerformanceID(id uint) ([]*Cast, error) {
-	var casts []*Cast
-
-	return casts, nil
 }
 
 func (c *CastRepository) Update(cast *Cast) error {

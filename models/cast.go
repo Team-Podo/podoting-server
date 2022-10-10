@@ -4,11 +4,10 @@ import "github.com/Team-Podo/podoting-server/repository"
 
 type CastRepository interface {
 	Get() ([]repository.Cast, error)
-	GetByPerformanceID(performanceID uint) ([]repository.Cast, error)
-	FindByID(id uint) (*repository.Cast, error)
-	Create(cast *repository.Cast) error
+	FindByPerformanceID(performanceID uint) ([]repository.Cast, error)
+	FindOneByID(id uint) (*repository.Cast, error)
 	CreateMany(casts []repository.Cast) error
-	LinkPerformances(performanceCasts []repository.PerformanceCast) error
+	SavePerformanceCasts(performanceCasts []repository.PerformanceCast) error
 	Update(cast *repository.Cast) error
 	Delete(id uint) error
 }

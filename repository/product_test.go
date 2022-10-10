@@ -98,7 +98,7 @@ var _ = Describe("Product", func() {
 		})
 	})
 
-	Describe("FindByID", func() {
+	Describe("FindOneByID", func() {
 		It("Success", func() {
 			mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `products` WHERE `products`.`deleted_at` IS NULL AND `products`.`id` = ? ORDER BY `products`.`id` LIMIT 1")).
 				WithArgs(1).

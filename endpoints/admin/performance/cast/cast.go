@@ -39,7 +39,7 @@ func Get(c *gin.Context) {
 		return
 	}
 
-	casts, err := repositories.cast.GetByPerformanceID(performanceID)
+	casts, err := repositories.cast.FindByPerformanceID(performanceID)
 	if err != nil {
 		c.JSON(http.StatusNotFound, "casts not found")
 		return

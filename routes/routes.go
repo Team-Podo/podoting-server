@@ -63,7 +63,7 @@ func Routes(r *gin.Engine) {
 
 		casts := admin.Group("/casts")
 		{
-			casts.GET("/:id", cast.Find)
+			casts.GET("/:id", cast.FindOne)
 			casts.DELETE("/:id", cast.Delete)
 			casts.PUT("/:id", cast.Update)
 			casts.POST("/:id/profile-image", cast.UploadProfileImage)
