@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"github.com/Team-Podo/podoting-server/query/user_seats"
 	"gorm.io/gorm"
 	"log"
@@ -82,6 +83,8 @@ func (s *SeatRepository) GetSeatsByAreaIdAndScheduleUUID(areaId uint, scheduleUU
 
 	var seats []Seat
 	for i := range seatEntities {
+		fmt.Println(seatEntities[i])
+
 		if seatEntities[i].BookedCount > 0 {
 			continue
 		}
