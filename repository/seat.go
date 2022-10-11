@@ -71,10 +71,34 @@ func (s *SeatRepository) GetByUUID(uuid string) *Seat {
 func (s *SeatRepository) GetSeatsByAreaIdAndScheduleUUID(areaId uint, scheduleUUID string) []Seat {
 	var seatEntities []user_seats.Seat
 
+	query := fmt.Sprintf(`
+			select seats.uuid,
+			       ab.name          'seat_name',
+			       sg.name          'grade_name',
+			       sg.price,
+			       sg.color,
+			       p.x              'point_x',
+			       p.y              'point_y',
+			       count(sb.booked) 'booked_count'
+			from seats
+			         join area_boilerplates ab on seats.area_boilerplate_id = ab.id
+			         join seat_grades sg on seats.seat_grade_id = sg.id
+			         join points p on ab.point_id = p.id
+			         join performances perf on seats.performance_id = perf.id
+			         join schedules s on seats.performance_id = s.performance_id
+			         left join (select * from seat_bookings where canceled = 0) sb
+			                   on seats.uuid = sb.seat_uuid and s.uuid = sb.schedule_uuid
+			where ab.area_id = ?
+			  and s.uuid = ?
+			group by seats.uuid
+		`)
+
 	err := s.DB.
 		Debug().
-		Raw("select seats.uuid, ab.name `seat_name`, sg.name `grade_name`, sg.price, sg.color, p.x `point_x`, p.y `point_y`, count(sb.booked) `booked_count` from seats join area_boilerplates ab on seats.area_boilerplate_id = ab.id join seat_grades sg on seats.seat_grade_id = sg.id join points p on ab.point_id = p.id join performances perf on seats.performance_id = perf.id join schedules s on seats.performance_id = s.performance_id left join seat_bookings sb on seats.uuid = sb.seat_uuid and s.uuid = sb.schedule_uuid where ab.area_id = ? and s.uuid = ? and sb.booked = 0 group by seats.uuid", areaId, scheduleUUID).
+		Raw(query, areaId, scheduleUUID).
 		Scan(&seatEntities).Error
+
+	fmt.Println(seatEntities)
 
 	if err != nil {
 		log.Fatal(err.Error())
