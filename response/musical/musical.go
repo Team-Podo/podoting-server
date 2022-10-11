@@ -45,8 +45,6 @@ type Profile struct {
 }
 
 type Content struct {
-	UUID    string `json:"uuid"`
-	Title   string `json:"title"`
 	Content string `json:"content"`
 }
 

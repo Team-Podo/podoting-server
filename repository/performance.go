@@ -11,28 +11,28 @@ import (
 )
 
 type Performance struct {
-	ID          uint                  `json:"id" gorm:"primarykey"`
-	Product     *Product              `json:"product" gorm:"foreignkey:ProductID"`
-	ProductID   *uint                 `json:"-"`
-	Thumbnail   *File                 `json:"thumbnail" gorm:"foreignkey:ThumbnailID"`
-	ThumbnailID *uint                 `json:"-"`
-	Place       *Place                `json:"place" gorm:"foreignkey:PlaceID"`
-	PlaceID     *uint                 `json:"-"`
-	Areas       []*Area               `json:"areas" gorm:"many2many:performance_areas;"`
-	MainArea    *Area                 `json:"main_area" gorm:"foreignkey:MainAreaID"`
-	MainAreaID  *uint                 `json:"main_area_id"`
-	Casts       []Cast                `gorm:"foreignkey:PerformanceID;"`
-	Schedules   []Schedule            `gorm:"foreignkey:PerformanceID"`
-	SeatGrades  []SeatGrade           `gorm:"foreignkey:PerformanceID"`
-	Contents    []*PerformanceContent `gorm:"foreignkey:PerformanceID"`
-	Title       string                `json:"title"`
-	RunningTime string                `json:"runningTime"`
-	StartDate   string                `json:"startDate"`
-	EndDate     string                `json:"endDate"`
-	Rating      string                `json:"rating"`
-	CreatedAt   time.Time             `json:"createdAt"`
-	UpdatedAt   time.Time             `json:"updatedAt"`
-	DeletedAt   *gorm.DeletedAt       `json:"-" gorm:"index"`
+	ID          uint                 `json:"id" gorm:"primarykey"`
+	Product     *Product             `json:"product" gorm:"foreignkey:ProductID"`
+	ProductID   *uint                `json:"-"`
+	Thumbnail   *File                `json:"thumbnail" gorm:"foreignkey:ThumbnailID"`
+	ThumbnailID *uint                `json:"-"`
+	Place       *Place               `json:"place" gorm:"foreignkey:PlaceID"`
+	PlaceID     *uint                `json:"-"`
+	Areas       []*Area              `json:"areas" gorm:"many2many:performance_areas;"`
+	MainArea    *Area                `json:"main_area" gorm:"foreignkey:MainAreaID"`
+	MainAreaID  *uint                `json:"main_area_id"`
+	Casts       []Cast               `gorm:"foreignkey:PerformanceID;"`
+	Schedules   []Schedule           `gorm:"foreignkey:PerformanceID"`
+	SeatGrades  []SeatGrade          `gorm:"foreignkey:PerformanceID"`
+	Contents    []PerformanceContent `gorm:"foreignkey:PerformanceID"`
+	Title       string               `json:"title"`
+	RunningTime string               `json:"runningTime"`
+	StartDate   string               `json:"startDate"`
+	EndDate     string               `json:"endDate"`
+	Rating      string               `json:"rating"`
+	CreatedAt   time.Time            `json:"createdAt"`
+	UpdatedAt   time.Time            `json:"updatedAt"`
+	DeletedAt   *gorm.DeletedAt      `json:"-" gorm:"index"`
 }
 
 func (p *Performance) GetFileURL() string {
@@ -132,6 +132,7 @@ func (p *PerformanceRepository) FindByID(id uint) *Performance {
 		Preload("Product.File").
 		Joins("MainArea").
 		Joins("Thumbnail").
+		Preload("Contents").
 		Preload("Place.Location").
 		First(&performance).Error
 
@@ -230,13 +231,13 @@ func (p *PerformanceRepository) GetSchedulesByID(id uint) []Schedule {
 	return performance.Schedules
 }
 
-func (p *PerformanceRepository) GetContentsByID(id uint) []*PerformanceContent {
+func (p *PerformanceRepository) GetContentsByID(id uint) []PerformanceContent {
 	var performance Performance
 	performance.ID = id
 
 	err := p.DB.
 		Model(&performance).
-		Order("priority asc").
+		Where("visible = ?", true).
 		Association("Contents").
 		Find(&performance.Contents)
 

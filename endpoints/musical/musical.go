@@ -146,8 +146,6 @@ func getContents(id uint, ch chan []musical.Content) {
 
 	for _, content := range contents {
 		result = append(result, musical.Content{
-			UUID:    content.UUID,
-			Title:   content.Title,
 			Content: content.Content,
 		})
 	}

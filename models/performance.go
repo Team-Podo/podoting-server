@@ -12,6 +12,6 @@ type PerformanceRepository interface {
 	Delete(id uint) error
 	GetCastsByID(id uint) []repository.Cast
 	GetSchedulesByID(id uint) []repository.Schedule
-	GetContentsByID(id uint) []*repository.PerformanceContent
+	GetContentsByID(id uint) []repository.PerformanceContent
 	GetSeatGradesByID(id uint) []repository.SeatGrade
 }

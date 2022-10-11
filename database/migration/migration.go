@@ -21,7 +21,6 @@ func Init() {
 		&repository.Performance{},
 		&repository.Product{},
 		&repository.File{},
-		&repository.ProductContent{},
 		&repository.Person{},
 		&repository.Character{},
 		&repository.Cast{},

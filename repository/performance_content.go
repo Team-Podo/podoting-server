@@ -6,13 +6,12 @@ import (
 )
 
 type PerformanceContent struct {
-	UUID          string       `json:"uuid" gorm:"primarykey"`
-	Performance   *Performance `json:"performance"`
+	ID            uint         `json:"id" gorm:"primaryKey"`
+	ManagingTitle string       `json:"managingTitle"`
+	Content       string       `json:"content" gorm:"type:text"`
+	Visible       bool         `json:"visible"`
+	Performance   *Performance `json:"performance" gorm:"foreignKey:PerformanceID"`
 	PerformanceID uint         `json:"-"`
-	Title         string       `json:"title"`
-	Description   string       `json:"description"`
-	Content       string       `json:"content"`
-	Priority      uint         `json:"priority"`
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 	DeletedAt     *gorm.DeletedAt `json:"-" gorm:"index"`
@@ -23,10 +22,20 @@ type PerformanceContentRepository struct {
 }
 
 func (p *PerformanceContentRepository) Save(content *PerformanceContent) error {
-	err := p.DB.Create(content).Error
+	err := p.DB.Save(&content).Error
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (p *PerformanceContentRepository) FindOneByID(id uint) *PerformanceContent {
+	var content PerformanceContent
+	err := p.DB.First(&content, id).Error
+	if err != nil {
+		return nil
+	}
+
+	return &content
 }

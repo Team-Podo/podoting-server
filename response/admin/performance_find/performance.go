@@ -10,6 +10,7 @@ type Performance struct {
 	ThumbUrl    *string    `json:"thumbUrl"`
 	Place       *Place     `json:"place"`
 	MainArea    *MainArea  `json:"mainArea"`
+	Contents    []Content  `json:"contents"`
 	RunningTime string     `json:"runningTime"`
 	StartDate   string     `json:"startDate"`
 	EndDate     string     `json:"endDate"`
@@ -42,6 +43,14 @@ type MainArea struct {
 	UpdatedAt       string  `json:"updatedAt"`
 }
 
+type Content struct {
+	ID            uint   `json:"id"`
+	ManagingTitle string `json:"managingTitle"`
+	Content       string `json:"content"`
+	CreatedAt     string `json:"createdAt"`
+	UpdatedAt     string `json:"updatedAt"`
+}
+
 func ParseResponseForm(p *repository.Performance) Performance {
 	return Performance{
 		ID:          p.ID,
@@ -49,6 +58,7 @@ func ParseResponseForm(p *repository.Performance) Performance {
 		MainArea:    getMainArea(p.MainArea),
 		Title:       p.Title,
 		ThumbUrl:    getThumbUrl(p.Thumbnail),
+		Contents:    getContents(p.Contents),
 		RunningTime: p.RunningTime,
 		StartDate:   p.StartDate,
 		EndDate:     p.EndDate,
@@ -106,6 +116,22 @@ func getThumbUrl(f *repository.File) *string {
 
 	thumbUrl := f.FullPath()
 	return &thumbUrl
+}
+
+func getContents(c []repository.PerformanceContent) []Content {
+	var contents []Content
+
+	for _, v := range c {
+		contents = append(contents, Content{
+			ID:            v.ID,
+			ManagingTitle: v.ManagingTitle,
+			Content:       v.Content,
+			CreatedAt:     v.CreatedAt.String(),
+			UpdatedAt:     v.UpdatedAt.String(),
+		})
+	}
+
+	return contents
 }
 
 func getSchedules(s []repository.Schedule) []Schedule {

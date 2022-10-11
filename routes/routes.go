@@ -6,6 +6,7 @@ import (
 	"github.com/Team-Podo/podoting-server/endpoints/admin/performance"
 	performanceCast "github.com/Team-Podo/podoting-server/endpoints/admin/performance/cast"
 	performanceCharacter "github.com/Team-Podo/podoting-server/endpoints/admin/performance/character"
+	"github.com/Team-Podo/podoting-server/endpoints/admin/performance/content"
 	"github.com/Team-Podo/podoting-server/endpoints/admin/performance/grades"
 	performanceSchedule "github.com/Team-Podo/podoting-server/endpoints/admin/performance/schedule"
 	adminSeats "github.com/Team-Podo/podoting-server/endpoints/admin/performance/seat"
@@ -115,6 +116,12 @@ func Routes(r *gin.Engine) {
 			{
 				performanceCharacters.GET("/", performanceCharacter.Get)
 				performanceCharacters.POST("/", performanceCharacter.Create)
+			}
+
+			performanceContents := performances.Group("/:id/contents")
+			{
+				performanceContents.POST("/", content.Create)
+				performanceContents.PUT("/:content_id", content.Update)
 			}
 
 			performanceSchedules := performances.Group("/:id/schedules")
