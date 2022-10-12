@@ -42,7 +42,7 @@ func Routes(r *gin.Engine) {
 			"Content-Type",
 			"Authorization",
 		},
-		AllowMethods: []string{"GET", "POST", "PUT", "DELETE"},
+		AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "PATCH"},
 		MaxAge:       12 * time.Hour,
 	}))
 
