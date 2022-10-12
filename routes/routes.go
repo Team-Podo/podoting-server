@@ -120,8 +120,12 @@ func Routes(r *gin.Engine) {
 
 			performanceContents := performances.Group("/:id/contents")
 			{
+				performanceContents.GET("/", content.Find)
+				performanceContents.GET("/:content_id", content.FindOne)
 				performanceContents.POST("/", content.Create)
+				performanceContents.POST("/image", content.UploadContentImage)
 				performanceContents.PUT("/:content_id", content.Update)
+				performanceContents.DELETE("/:content_id", content.Delete)
 			}
 
 			performanceSchedules := performances.Group("/:id/schedules")

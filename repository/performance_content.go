@@ -39,3 +39,22 @@ func (p *PerformanceContentRepository) FindOneByID(id uint) *PerformanceContent 
 
 	return &content
 }
+
+func (p *PerformanceContentRepository) FindByPerformanceID(performanceID uint) []PerformanceContent {
+	var contents []PerformanceContent
+	err := p.DB.Where("performance_id = ?", performanceID).Find(&contents).Error
+	if err != nil {
+		return nil
+	}
+
+	return contents
+}
+
+func (p *PerformanceContentRepository) Delete(id uint) error {
+	err := p.DB.Delete(&PerformanceContent{}, id).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
