@@ -221,6 +221,7 @@ func (p *PerformanceRepository) GetSchedulesByID(id uint) []Schedule {
 		Order("date asc").
 		Order("time asc").
 		Preload("Casts.Person").
+		Where("date >= ?", time.Now().Format("2006-01-02")).
 		Association("Schedules").
 		Find(&performance.Schedules)
 
