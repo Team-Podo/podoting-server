@@ -117,6 +117,17 @@ func (s *ScheduleRepository) Update(schedule *Schedule) error {
 }
 
 func (s *ScheduleRepository) Delete(uuid string) error {
+	var exists bool
+
+	s.DB.Model(&Order{}).
+		Select("count(*) > 0").
+		Where("schedule_uuid = ?", uuid).
+		Find(&exists)
+
+	if exists {
+		return errors.New("schedule is used in order")
+	}
+
 	schedule := Schedule{UUID: uuid}
 
 	err := s.DB.Delete(&schedule).Error
