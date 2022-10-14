@@ -11,6 +11,8 @@ type Order struct {
 	OrderKey      string          `json:"order_key" gorm:"unique_index;not null;size:8"`
 	Performance   *Performance    `json:"performance" gorm:"foreignKey:PerformanceID"`
 	PerformanceID uint            `json:"-"`
+	Schedule      *Schedule       `json:"schedule" gorm:"foreignKey:ScheduleUUID"`
+	ScheduleUUID  string          `json:"-" gorm:"size:36"`
 	BuyerUID      string          `json:"buyerUID"`
 	Details       []OrderDetail   `json:"details" gorm:"foreignKey:OrderID"`
 	Paid          bool            `json:"paid" gorm:"default:false"`
@@ -40,6 +42,7 @@ func (r *OrderRepository) GetByUserUID(userUID string) []Order {
 		Preload("Details.SeatBooking.Seat.Grade").
 		Preload("Details.SeatBooking.Seat.AreaBoilerplate").
 		Preload("Performance.Thumbnail").
+		Joins("Schedule").
 		Where("buyer_uid = ?", userUID).
 		Find(&orders)
 
@@ -50,6 +53,7 @@ func (r *OrderRepository) FindByID(ID uint) *Order {
 	var order *Order
 	err := r.DB.
 		Preload("Details.SeatBooking").
+		Joins("Schedule").
 		First(&order, ID).
 		Error
 
@@ -63,6 +67,7 @@ func (r *OrderRepository) FindByID(ID uint) *Order {
 
 func (r *OrderRepository) CancelOrder(order *Order) error {
 	err := r.DB.Model(order).
+		Debug().
 		Update("canceled", true).
 		Update("canceled_at", time.Now()).
 		Error
@@ -70,6 +75,7 @@ func (r *OrderRepository) CancelOrder(order *Order) error {
 	details := order.Details
 
 	err = r.DB.Model(&details).
+		Debug().
 		Update("canceled", true).
 		Update("canceled_at", time.Now()).
 		Error
@@ -80,6 +86,7 @@ func (r *OrderRepository) CancelOrder(order *Order) error {
 	}
 
 	err = r.DB.Model(&seatBookings).
+		Debug().
 		Update("booked", false).
 		Update("canceled", true).
 		Update("canceled_at", time.Now()).

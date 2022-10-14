@@ -72,6 +72,7 @@ func Book(c *gin.Context) {
 
 	var order repository.Order
 	order.PerformanceID = schedule.PerformanceID
+	order.ScheduleUUID = scheduleUUID
 	order.OrderKey = utils.GenerateOrderKey()
 	order.BuyerUID = userUID.(string)
 	order.Paid = true

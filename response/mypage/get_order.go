@@ -8,6 +8,7 @@ type Order struct {
 	ID            uint          `json:"id"`
 	Key           string        `json:"key"`
 	Performance   Performance   `json:"performance"`
+	Schedule      Schedule      `json:"schedule"`
 	PaymentMethod string        `json:"paymentMethod"`
 	Canceled      bool          `json:"canceled"`
 	Details       []OrderDetail `json:"details"`
@@ -32,6 +33,12 @@ type OrderDetail struct {
 	Seat          Seat    `json:"seat"`
 }
 
+type Schedule struct {
+	UUID string  `json:"uuid"`
+	Date string  `json:"date"`
+	Time *string `json:"time"`
+}
+
 type Seat struct {
 	UUID  string `json:"uuid"`
 	Name  string `json:"name"`
@@ -46,6 +53,7 @@ func ParseOrder(orders []repository.Order) []Order {
 			Canceled:    orders[i].Canceled,
 			Key:         orders[i].OrderKey,
 			Performance: ParsePerformance(orders[i].Performance),
+			Schedule:    ParseSchedule(orders[i].Schedule),
 			Details:     ParseOrderDetail(orders[i].Details),
 			CreatedAt:   orders[i].CreatedAt.Format("2006-01-02 15:04:05"),
 			UpdatedAt:   orders[i].UpdatedAt.Format("2006-01-02 15:04:05"),
@@ -63,6 +71,19 @@ func ParsePerformance(performance *repository.Performance) Performance {
 			if performance.Thumbnail != nil {
 				fullPath := performance.Thumbnail.FullPath()
 				return &fullPath
+			}
+			return nil
+		}(),
+	}
+}
+
+func ParseSchedule(schedule *repository.Schedule) Schedule {
+	return Schedule{
+		UUID: schedule.UUID,
+		Date: schedule.Date,
+		Time: func() *string {
+			if schedule.Time.Valid {
+				return &schedule.Time.String
 			}
 			return nil
 		}(),
