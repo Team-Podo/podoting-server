@@ -2,7 +2,10 @@ package repository
 
 import (
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+	"gorm.io/gorm/utils"
 	"log"
+	"strconv"
 	"time"
 )
 
@@ -47,6 +50,33 @@ func (r *OrderRepository) GetByUserUID(userUID string) []Order {
 		Find(&orders)
 
 	return orders
+}
+
+func (r *OrderRepository) GetByUserUIDWithQuery(userUID string, query map[string]any) ([]Order, int64) {
+	var orders []Order
+
+	limit, _ := strconv.Atoi(utils.ToString(query["limit"]))
+	offset, _ := strconv.Atoi(utils.ToString(query["offset"]))
+	reversed, _ := query["reversed"].(bool)
+
+	r.DB.
+		Limit(limit).
+		Offset(offset).
+		Order(clause.OrderByColumn{Column: clause.Column{Name: "id"}, Desc: reversed}).
+		Preload("Details.SeatBooking.Seat.Grade").
+		Preload("Details.SeatBooking.Seat.AreaBoilerplate").
+		Preload("Performance.Thumbnail").
+		Joins("Schedule").
+		Where("buyer_uid = ?", userUID).
+		Find(&orders)
+
+	var count int64
+	r.DB.
+		Model(&Order{}).
+		Where("buyer_uid = ?", userUID).
+		Count(&count)
+
+	return orders, count
 }
 
 func (r *OrderRepository) FindByID(ID uint) *Order {
