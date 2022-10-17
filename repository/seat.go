@@ -94,7 +94,6 @@ func (s *SeatRepository) GetSeatsByAreaIdAndScheduleUUID(areaId uint, scheduleUU
 		`)
 
 	err := s.DB.
-		Debug().
 		Raw(query, areaId, scheduleUUID).
 		Scan(&seatEntities).Error
 
@@ -149,5 +148,5 @@ func (s *SeatRepository) SaveSeats(seats []Seat) error {
 }
 
 func (s *SeatRepository) CreateSeats(seats []Seat) error {
-	return s.DB.Debug().Create(&seats).Error
+	return s.DB.Create(&seats).Error
 }

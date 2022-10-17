@@ -21,7 +21,7 @@ type CharacterRepository struct {
 }
 
 func (r *CharacterRepository) Create(character *Character) error {
-	if err := r.DB.Debug().Create(character).Error; err != nil {
+	if err := r.DB.Create(character).Error; err != nil {
 		return err
 	}
 

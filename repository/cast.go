@@ -81,7 +81,7 @@ func (c *CastRepository) FindOneByID(id uint) (*Cast, error) {
 }
 
 func (c *CastRepository) CreateMany(casts []Cast) error {
-	err := c.DB.Debug().Save(casts).Error
+	err := c.DB.Save(casts).Error
 
 	if err != nil {
 		return err

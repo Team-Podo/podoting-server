@@ -17,13 +17,18 @@ func seatSeeder() {
 
 func getSeats() []repository.Seat {
 	var seats []repository.Seat
-	for i := 5; i < 100; i++ {
-		ui := uint(i)
+	for i := 0; i < 112; i++ {
 		seat := repository.Seat{
-			UUID:              uuid.New().String(),
-			AreaBoilerplateID: &ui,
-			SeatGradeID:       1,
-			PerformanceID:     1,
+			UUID: uuid.New().String(),
+			AreaBoilerplate: &repository.AreaBoilerplate{
+				AreaID: 26,
+				Point: &repository.Point{
+					X: 0,
+					Y: 0,
+				},
+			},
+			SeatGradeID:   1,
+			PerformanceID: 1,
 		}
 		seats = append(seats, seat)
 	}

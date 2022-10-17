@@ -45,5 +45,5 @@ func (r *AreaBoilerplateRepository) SaveSeats(boilerplates []AreaBoilerplate, pe
 		})
 	}
 
-	return r.DB.Debug().Save(&seats).Error
+	return r.DB.Save(&seats).Error
 }

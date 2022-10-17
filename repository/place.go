@@ -31,7 +31,7 @@ type PlaceRepository struct {
 }
 
 func (r *PlaceRepository) Create(place *Place) error {
-	if err := r.DB.Debug().Create(place).Error; err != nil {
+	if err := r.DB.Create(place).Error; err != nil {
 		return err
 	}
 

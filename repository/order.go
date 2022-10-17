@@ -31,7 +31,7 @@ type OrderRepository struct {
 }
 
 func (r *OrderRepository) Save(order *Order) error {
-	err := r.DB.Debug().Save(order).Error
+	err := r.DB.Save(order).Error
 	if err != nil {
 		return err
 	}
@@ -97,7 +97,6 @@ func (r *OrderRepository) FindByID(ID uint) *Order {
 
 func (r *OrderRepository) CancelOrder(order *Order) error {
 	err := r.DB.Model(order).
-		Debug().
 		Update("canceled", true).
 		Update("canceled_at", time.Now()).
 		Error
@@ -105,7 +104,6 @@ func (r *OrderRepository) CancelOrder(order *Order) error {
 	details := order.Details
 
 	err = r.DB.Model(&details).
-		Debug().
 		Update("canceled", true).
 		Update("canceled_at", time.Now()).
 		Error
@@ -116,7 +114,6 @@ func (r *OrderRepository) CancelOrder(order *Order) error {
 	}
 
 	err = r.DB.Model(&seatBookings).
-		Debug().
 		Update("booked", false).
 		Update("canceled", true).
 		Update("canceled_at", time.Now()).
