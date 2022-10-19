@@ -71,9 +71,10 @@ func CreateMany(c *gin.Context) {
 		var newCast repository.Cast
 
 		if cast.ID != 0 {
-			nc, err := repositories.cast.FindOneByID(cast.ID)
-			if err != nil {
+			nc, castErr := repositories.cast.FindOneByID(cast.ID)
+			if castErr != nil {
 				c.JSON(http.StatusNotFound, "cast not found")
+				log.Println("cast not found:", castErr)
 				return
 			}
 
