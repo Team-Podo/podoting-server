@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"gorm.io/gorm"
 	"os"
 	"time"
@@ -31,7 +32,13 @@ func (c *Cast) ProfileImageURL() string {
 }
 
 type CastRepository struct {
-	DB *gorm.DB
+	DB    *gorm.DB
+	Joins []string
+}
+
+func (c *CastRepository) JoinsWith(joins ...string) *CastRepository {
+	c.Joins = joins
+	return c
 }
 
 func (c *CastRepository) Get() ([]Cast, error) {
@@ -66,10 +73,13 @@ func (c *CastRepository) FindByPerformanceID(performanceID uint) ([]Cast, error)
 func (c *CastRepository) FindOneByID(id uint) (*Cast, error) {
 	var cast Cast
 
-	err := c.DB.
-		Joins("Character").
-		Joins("Person").
-		Joins("ProfileImage").
+	db := c.DB
+
+	for _, join := range c.Joins {
+		db = db.Joins(join)
+	}
+
+	err := db.
 		First(&cast, id).
 		Error
 
@@ -81,7 +91,11 @@ func (c *CastRepository) FindOneByID(id uint) (*Cast, error) {
 }
 
 func (c *CastRepository) CreateMany(casts []Cast) error {
-	err := c.DB.Save(casts).Error
+	for i := range casts {
+		fmt.Println("personID:", casts[i].PersonID)
+	}
+
+	err := c.DB.Debug().Save(casts).Error
 
 	if err != nil {
 		return err

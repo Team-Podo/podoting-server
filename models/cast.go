@@ -10,4 +10,5 @@ type CastRepository interface {
 	SavePerformanceCasts(performanceCasts []repository.PerformanceCast) error
 	Update(cast *repository.Cast) error
 	Delete(id uint) error
+	JoinsWith(joins ...string) *repository.CastRepository
 }

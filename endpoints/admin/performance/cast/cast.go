@@ -68,24 +68,28 @@ func CreateMany(c *gin.Context) {
 	var newCasts []repository.Cast
 
 	for _, cast := range casts {
-		var newCast repository.Cast
-
 		if cast.ID != 0 {
 			nc, castErr := repositories.cast.FindOneByID(cast.ID)
 			if castErr != nil {
 				c.JSON(http.StatusNotFound, "cast not found")
-				log.Println("cast not found:", castErr)
 				return
 			}
 
-			newCast = *nc
+			nc.PerformanceID = performanceID
+			nc.PersonID = cast.PersonID
+			nc.CharacterID = cast.CharacterID
+
+			newCasts = append(newCasts, *nc)
 		} else {
+			var newCast *repository.Cast
+
 			newCast.PerformanceID = performanceID
 			newCast.PersonID = cast.PersonID
 			newCast.CharacterID = cast.CharacterID
+
+			newCasts = append(newCasts, *newCast)
 		}
 
-		newCasts = append(newCasts, newCast)
 	}
 
 	err = repositories.cast.CreateMany(newCasts)

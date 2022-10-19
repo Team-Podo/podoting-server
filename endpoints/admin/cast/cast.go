@@ -40,7 +40,7 @@ func FindOne(c *gin.Context) {
 		return
 	}
 
-	cast, err := repositories.cast.FindOneByID(id)
+	cast, err := repositories.cast.JoinsWith("Character", "Person", "ProfileImage").FindOneByID(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, "cast not found")
 		return

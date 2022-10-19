@@ -1,7 +1,6 @@
 package cast_get
 
 import (
-	"fmt"
 	"github.com/Team-Podo/podoting-server/repository"
 )
 
@@ -17,8 +16,6 @@ type Cast struct {
 func ParseResponseForm(casts []repository.Cast) []Cast {
 	var response []Cast
 	for _, cast := range casts {
-		fmt.Println(cast.ID, cast.Character, cast.Person)
-
 		response = append(response, Cast{
 			ID:           cast.ID,
 			ProfileImage: getProfile(cast.ProfileImage),
