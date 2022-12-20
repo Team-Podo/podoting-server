@@ -108,9 +108,11 @@ func (r *OrderRepository) CancelOrder(order *Order) error {
 		Update("canceled_at", time.Now()).
 		Error
 
-	seatBookings := make([]SeatBooking, len(details))
-	for i, detail := range details {
-		seatBookings[i] = *detail.SeatBooking
+	var seatBookings []SeatBooking
+	for _, detail := range details {
+		seatBookings = append(seatBookings, SeatBooking{
+			ID: detail.SeatBookingID,
+		})
 	}
 
 	err = r.DB.Model(&seatBookings).
