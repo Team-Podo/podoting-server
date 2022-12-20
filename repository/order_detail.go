@@ -57,7 +57,7 @@ func (r *OrderDetailRepository) CancelOrderDetail(detail *OrderDetail) error {
 	}
 
 	seatBooking := detail.SeatBooking
-	err = r.DB.Model(seatBooking).
+	err = r.DB.Model(&seatBooking).
 		Update("booked", false).
 		Update("canceled", true).
 		Update("canceled_at", time.Now()).
