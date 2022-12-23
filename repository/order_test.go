@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/Team-Podo/podoting-server/utils"
 	"github.com/google/uuid"
@@ -31,6 +32,28 @@ func (suite *OrderTestSuite) SetupTest() {
 	suite.orderRepository = OrderRepository{DB: db.Debug().Begin()}
 }
 
+func (suite *OrderTestSuite) MakePerformance() Performance {
+	return Performance{
+		ID: 0,
+		Product: &Product{
+			Title: "Test Product",
+		},
+		Place: &Place{
+			Name: "Test Place",
+			Location: &Location{
+				Name:      "Test Location",
+				Longitude: 0,
+				Latitude:  0,
+			},
+		},
+		Title:       "Test Performance",
+		RunningTime: "240분",
+		StartDate:   "2022-10-20",
+		EndDate:     "2022-12-31",
+		Rating:      "전체관람가",
+	}
+}
+
 func (suite *OrderTestSuite) MakeOrder() Order {
 	var details []OrderDetail
 	details = append(details, OrderDetail{
@@ -39,8 +62,10 @@ func (suite *OrderTestSuite) MakeOrder() Order {
 		OrderDetailKey: utils.GenerateOrderDetailKey(),
 	})
 
+	performance := suite.MakePerformance()
+
 	var order Order
-	order.PerformanceID = uint(1)
+	order.Performance = &performance
 	order.ScheduleUUID = uuid.New().String()
 	order.OrderKey = utils.GenerateOrderKey()
 	order.BuyerUID = suite.BuyerUID
@@ -51,6 +76,17 @@ func (suite *OrderTestSuite) MakeOrder() Order {
 	suite.NoError(err)
 
 	return order
+}
+
+func (suite *OrderTestSuite) TestGetByUserUIDWithQuery() {
+	suite.MakeOrder()
+	suite.MakeOrder()
+
+	orders, _ := suite.orderRepository.GetByUserUIDWithQuery(suite.BuyerUID, nil)
+	for _, order := range orders {
+		fmt.Println(order.Performance.Place)
+	}
+
 }
 
 func (suite *OrderTestSuite) TestCancelOrder() {

@@ -66,6 +66,7 @@ func (r *OrderRepository) GetByUserUIDWithQuery(userUID string, query map[string
 		Preload("Details.SeatBooking.Seat.Grade").
 		Preload("Details.SeatBooking.Seat.AreaBoilerplate").
 		Preload("Performance.Thumbnail").
+		Preload("Performance.Place").
 		Joins("Schedule").
 		Where("buyer_uid = ?", userUID).
 		Find(&orders)

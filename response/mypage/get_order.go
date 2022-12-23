@@ -19,6 +19,7 @@ type Order struct {
 type Performance struct {
 	ID        uint    `json:"id"`
 	Title     string  `json:"title"`
+	Place     string  `json:"place"`
 	Thumbnail *string `json:"thumbnail"`
 }
 
@@ -43,6 +44,8 @@ type Seat struct {
 	UUID  string `json:"uuid"`
 	Name  string `json:"name"`
 	Grade string `json:"grade"`
+	Color string `json:"color"`
+	Price int    `json:"price"`
 }
 
 func ParseOrder(orders []repository.Order) []Order {
@@ -67,6 +70,7 @@ func ParsePerformance(performance *repository.Performance) Performance {
 	return Performance{
 		ID:    performance.ID,
 		Title: performance.Title,
+		Place: performance.Place.Name,
 		Thumbnail: func() *string {
 			if performance.Thumbnail != nil {
 				fullPath := performance.Thumbnail.FullPath()
@@ -111,6 +115,8 @@ func ParseOrderDetail(details []repository.OrderDetail) []OrderDetail {
 				UUID:  details[i].SeatBooking.Seat.UUID,
 				Name:  details[i].SeatBooking.Seat.AreaBoilerplate.Name,
 				Grade: details[i].SeatBooking.Seat.Grade.Name,
+				Color: details[i].SeatBooking.Seat.Grade.Color,
+				Price: details[i].SeatBooking.Seat.Grade.Price,
 			},
 		}
 	}
