@@ -43,6 +43,18 @@ func (p *Performance) GetFileURL() string {
 	return p.Product.GetFileURL()
 }
 
+func (p *Performance) GetThumbnailURL() *string {
+	var filepath string
+
+	if p.Thumbnail.IsNil() {
+		return nil
+	}
+
+	filepath = p.Thumbnail.FullPath()
+
+	return &filepath
+}
+
 type PerformanceRepository struct {
 	DB *gorm.DB
 }

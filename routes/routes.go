@@ -15,6 +15,7 @@ import (
 	"github.com/Team-Podo/podoting-server/endpoints/admin/place/area"
 	"github.com/Team-Podo/podoting-server/endpoints/admin/product"
 	"github.com/Team-Podo/podoting-server/endpoints/book"
+	"github.com/Team-Podo/podoting-server/endpoints/mainpage"
 	"github.com/Team-Podo/podoting-server/endpoints/musical"
 	"github.com/Team-Podo/podoting-server/endpoints/musical/seat"
 	"github.com/Team-Podo/podoting-server/endpoints/mypage"
@@ -194,5 +195,10 @@ func Routes(r *gin.Engine) {
 	{
 		orderGroup.PATCH("/cancel/:id", order.CancelOrder)
 		orderGroup.PATCH("/cancel/:id/details/:order_detail_id", order.CancelOrderDetail)
+	}
+
+	mainpageGroup := r.Group("/mainpage")
+	{
+		mainpageGroup.GET("/", mainpage.Index)
 	}
 }
