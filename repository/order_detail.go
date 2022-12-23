@@ -47,24 +47,31 @@ func (r *OrderDetailRepository) FindByID(id uint) *OrderDetail {
 }
 
 func (r *OrderDetailRepository) CancelOrderDetail(detail *OrderDetail) error {
-	err :=
-		r.DB.
-			Model(&OrderDetail{}).
-			Where("id = ?", detail.ID).
-			Update("canceled", true).
-			Update("canceled_at", time.Now()).
-			Error
+	now := time.Now()
+
+	err := r.DB.
+		Model(OrderDetail{}).
+		Where("id = ?", detail.ID).
+		Updates(OrderDetail{
+			Canceled:   true,
+			CanceledAt: &now,
+		}).Error
 
 	if err != nil {
 		return err
 	}
 
-	err = r.DB.Model(&SeatBooking{}).
-		Where("id = ?", detail.SeatBooking.ID).
-		Update("booked", false).
-		Update("canceled", true).
-		Update("canceled_at", time.Now()).
-		Error
+	err = r.DB.Model(SeatBooking{}).
+		Where("id = ?", detail.SeatBookingID).
+		Updates(SeatBooking{
+			Booked:     false,
+			Canceled:   true,
+			CanceledAt: &now,
+		}).Error
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

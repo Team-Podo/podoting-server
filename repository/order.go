@@ -96,35 +96,48 @@ func (r *OrderRepository) FindByID(ID uint) *Order {
 }
 
 func (r *OrderRepository) CancelOrder(order *Order) error {
-	err := r.DB.Model(order).
-		Update("canceled", true).
-		Update("canceled_at", time.Now()).
-		Error
 
-	details := order.Details
+	var seatBookingIds []uint
 
-	err = r.DB.Model(&details).
-		Update("canceled", true).
-		Update("canceled_at", time.Now()).
-		Error
-
-	var seatBookings []SeatBooking
-	for _, detail := range details {
-		seatBookings = append(seatBookings, SeatBooking{
-			ID: detail.SeatBookingID,
-		})
+	for _, detail := range order.Details {
+		seatBookingIds = append(seatBookingIds, detail.SeatBookingID)
 	}
 
-	err = r.DB.Model(&seatBookings).
-		Update("booked", false).
-		Update("canceled", true).
-		Update("canceled_at", time.Now()).
-		Error
+	now := time.Now()
+
+	err := r.DB.Model(Order{}).
+		Where("id = ?", order.ID).
+		Updates(Order{
+			Canceled:   true,
+			CanceledAt: &now,
+		}).Error
+
+	if err != nil {
+		return err
+	}
+
+	err = r.DB.Model(OrderDetail{}).
+		Where("order_id = ?", order.ID).
+		Updates(OrderDetail{
+			Canceled:   true,
+			CanceledAt: &now,
+		}).Error
+
+	if err != nil {
+		return err
+	}
+
+	err = r.DB.Model(SeatBooking{}).
+		Where("id IN ?", seatBookingIds).
+		Updates(SeatBooking{
+			Booked:     false,
+			Canceled:   true,
+			CanceledAt: &now,
+		}).Error
 
 	if err != nil {
 		return err
 	}
 
 	return nil
-
 }
