@@ -1,6 +1,7 @@
 package mainpage
 
 import (
+	"fmt"
 	"github.com/Team-Podo/podoting-server/database"
 	"github.com/Team-Podo/podoting-server/endpoints/mainpage/res"
 	"github.com/Team-Podo/podoting-server/models"
@@ -21,7 +22,15 @@ func init() {
 }
 
 func Index(c *gin.Context) {
-	performances := repositories.performance.GetWithQueryMap(nil)
+	keyword := c.Query("keyword")
+
+	fmt.Println("keyword:", keyword)
+
+	performances := repositories.performance.
+		SetKeyword(keyword).
+		GetWith(
+			"Thumbnail", "Place.Location",
+		)
 
 	c.JSON(200, res.MainPageResponse{}.Of(performances))
 }

@@ -56,7 +56,8 @@ func (p *Performance) GetThumbnailURL() *string {
 }
 
 type PerformanceRepository struct {
-	DB *gorm.DB
+	keyword string
+	DB      *gorm.DB
 }
 
 func (p *PerformanceRepository) GetWithQueryMap(query map[string]any) []Performance {
@@ -73,6 +74,39 @@ func (p *PerformanceRepository) GetWithQueryMap(query map[string]any) []Performa
 		Joins("Thumbnail").
 		Joins("MainArea").
 		Find(&performances)
+
+	if result.Error != nil {
+		return nil
+	}
+
+	if len(performances) == 0 {
+		return nil
+	}
+
+	return performances
+}
+
+func (p *PerformanceRepository) SetKeyword(keyword string) *PerformanceRepository {
+	p.keyword = keyword
+
+	return p
+}
+
+func (p *PerformanceRepository) GetWith(with ...string) []Performance {
+	var performances []Performance
+
+	query := p.DB.Debug()
+
+	for i := 0; i < len(with); i++ {
+		query = query.Preload(with[i])
+	}
+
+	if p.keyword != "" {
+		query = query.
+			Where("title LIKE ?", fmt.Sprintf("%%%s%%", p.keyword))
+	}
+
+	result := query.Find(&performances)
 
 	if result.Error != nil {
 		return nil

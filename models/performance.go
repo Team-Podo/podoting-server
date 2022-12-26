@@ -4,6 +4,8 @@ import "github.com/Team-Podo/podoting-server/repository"
 
 type PerformanceRepository interface {
 	GetWithQueryMap(query map[string]any) []repository.Performance
+	SetKeyword(keyword string) *repository.PerformanceRepository
+	GetWith(with ...string) []repository.Performance
 	GetTotalWithQueryMap(query map[string]any) int64
 	FindByID(id uint) *repository.Performance
 	CheckMainAreaExistsByID(id uint) (uint, error)

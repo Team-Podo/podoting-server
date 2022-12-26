@@ -1,10 +1,11 @@
 package repository
 
 import (
-	"fmt"
-	"github.com/Team-Podo/podoting-server/database"
-	"github.com/stretchr/testify/assert"
+	"database/sql"
+	"github.com/Team-Podo/podoting-server/utils"
 	"github.com/stretchr/testify/suite"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 	"testing"
 )
 
@@ -15,66 +16,201 @@ type PerformanceTestSuite struct {
 }
 
 func (suite *PerformanceTestSuite) SetupTest() {
-	suite.performance = Performance{Title: "2022 서울투어", StartDate: "2022-07-19", EndDate: "2022-08-20", Product: &Product{ID: 1}}
-	suite.performanceRepository = PerformanceRepository{DB: database.Gorm}
+	db, err := gorm.Open(
+		sqlite.Open(
+			utils.RootPath()+"sqlite/test.db",
+		),
+		&gorm.Config{},
+	)
+	suite.NoError(err)
+
+	suite.performanceRepository = PerformanceRepository{DB: db.Debug().Begin()}
 }
 
-func (suite *PerformanceTestSuite) TestGet() {
-	products := suite.performanceRepository.GetWithQueryMap(map[string]any{})
-	for _, product := range products {
-		fmt.Println("id:", product.ID, "title:", product.Title)
+func (suite *PerformanceTestSuite) makePerformance() Performance {
+	performance := Performance{
+		Product: &Product{
+			Title: "Test Product",
+		},
+		Thumbnail: &File{
+			Size: 0,
+			Path: "test thumbnail",
+		},
+		Place: &Place{
+			Name: "Test Place",
+			Location: &Location{
+				Name:      "Test Location",
+				Longitude: 0,
+				Latitude:  0,
+			},
+			PlaceImage: &File{
+				Size: 0,
+				Path: "",
+			},
+		},
+		Schedules: []Schedule{
+			{
+				Memo: "",
+				Date: "",
+				Open: false,
+				Casts: []Cast{
+					{
+						Character: &Character{
+							Name: "test character",
+						},
+						Person: &Person{
+							Name: "test person",
+						},
+						Schedules: nil,
+					},
+				},
+				Time: sql.NullString{
+					String: "test time",
+					Valid:  false,
+				},
+			},
+		},
+		Title:       "Test Performance",
+		RunningTime: "240분",
+		StartDate:   "2022-10-20",
+		EndDate:     "2022-12-31",
+		Rating:      "전체관람가",
+	}
+
+	err := suite.performanceRepository.Save(&performance)
+	suite.NoError(err)
+
+	return performance
+}
+
+func (suite *PerformanceTestSuite) makePerformanceByTitle(title string) Performance {
+	performance := Performance{
+		Product: &Product{
+			Title: "Test Product",
+		},
+		Thumbnail: &File{
+			Size: 0,
+			Path: "test thumbnail",
+		},
+		Place: &Place{
+			Name: "Test Place",
+			Location: &Location{
+				Name:      "Test Location",
+				Longitude: 0,
+				Latitude:  0,
+			},
+			PlaceImage: &File{
+				Size: 0,
+				Path: "",
+			},
+		},
+		Schedules: []Schedule{
+			{
+				Memo: "",
+				Date: "",
+				Open: false,
+				Casts: []Cast{
+					{
+						Character: &Character{
+							Name: "test character",
+						},
+						Person: &Person{
+							Name: "test person",
+						},
+						Schedules: nil,
+					},
+				},
+				Time: sql.NullString{
+					String: "test time",
+					Valid:  false,
+				},
+			},
+		},
+		Title:       title,
+		RunningTime: "240분",
+		StartDate:   "2022-10-20",
+		EndDate:     "2022-12-31",
+		Rating:      "전체관람가",
+	}
+
+	err := suite.performanceRepository.Save(&performance)
+	suite.NoError(err)
+
+	return performance
+}
+
+func (suite *PerformanceTestSuite) TestGetWith() {
+	suite.makePerformance()
+	suite.makePerformance()
+
+	performances := suite.performanceRepository.GetWith()
+
+	suite.Equal(2, len(performances))
+}
+
+func (suite *PerformanceTestSuite) TestGetWithPlace() {
+	suite.makePerformance()
+	suite.makePerformance()
+
+	performancesPlaceNotExists := suite.performanceRepository.GetWith()
+
+	for _, performance := range performancesPlaceNotExists {
+		suite.Nil(performance.Place)
+	}
+
+	performancesPlaceExists := suite.performanceRepository.GetWith("Place")
+
+	for _, performance := range performancesPlaceExists {
+		suite.NotNil(performance.Place)
 	}
 }
 
-func (suite *PerformanceTestSuite) TestFind() {
-	performance := suite.performanceRepository.FindByID(11)
-	fmt.Println("id:", performance.ID, "title:", performance.Title, "place:", performance.Place, "file:", performance.Place.PlaceImage)
+func (suite *PerformanceTestSuite) TestGetWithForMainPage() {
+	suite.makePerformance()
+	suite.makePerformance()
 
-	assert.Equal(suite.T(), uint(11), performance.ID)
-}
+	performances := suite.performanceRepository.GetWith(
+		"Place",
+		"Thumbnail",
+		"Place.Location",
+	)
 
-func (suite *PerformanceTestSuite) TestFindNotFound() {
-	product := suite.performanceRepository.FindByID(10)
-	fmt.Println("product", product)
-
-	assert.Equal(suite.T(), nil, product)
-}
-
-func (suite *PerformanceTestSuite) TestSave() {
-	_ = suite.performanceRepository.Save(&suite.performance)
-
-	fmt.Println(suite.performance.ID)
-}
-
-func (suite *PerformanceTestSuite) TestUpdate() {
-	suite.performance.ID = 10
-	suite.performance.Title = "2022 서울투어 고고~"
-	_ = suite.performanceRepository.Update(&suite.performance)
-
-	fmt.Println(suite.performance.ID)
-}
-
-func (suite *PerformanceTestSuite) TestDelete() {
-	_ = suite.performanceRepository.Delete(10)
-}
-
-func (suite *PerformanceTestSuite) TestGetCastsByPerformanceID() {
-	casts := suite.performanceRepository.GetCastsByID(11)
-
-	fmt.Println("casts", casts)
-
-	for _, cast := range casts {
-		fmt.Println("id:", cast.ID, "person:", cast.Person, "character:", cast.Character)
+	for _, performance := range performances {
+		suite.NotNil(performance.Place)
+		suite.NotNil(performance.Place.PlaceImage)
+		suite.NotNil(performance.Thumbnail)
 	}
 }
 
-func (suite *PerformanceTestSuite) TestGetSchedulesByPerformanceID() {
-	schedules := suite.performanceRepository.GetSchedulesByID(11)
+func (suite *PerformanceTestSuite) TestGetWithKeywordForMainPage() {
+	suite.makePerformance()
+	suite.makePerformance()
+	suite.makePerformanceByTitle("안녕하세요")
 
-	fmt.Println("schedules", schedules)
+	performances := suite.performanceRepository.SetKeyword("Test").GetWith(
+		"Thumbnail",
+		"Place.Location",
+	)
 
-	for _, schedule := range schedules {
-		fmt.Println("id:", schedule.UUID, "date:", schedule.Date, "time:", schedule.Time, "casts:", schedule.Casts)
+	suite.Equal(2, len(performances))
+
+	for _, performance := range performances {
+		suite.NotNil(performance.Place)
+		suite.NotNil(performance.Thumbnail)
+		suite.NotNil(performance.Place.Location)
+	}
+
+	performances = suite.performanceRepository.SetKeyword("안녕").GetWith(
+		"Thumbnail",
+		"Place.Location",
+	)
+
+	suite.Equal(1, len(performances))
+
+	for _, performance := range performances {
+		suite.NotNil(performance.Place)
+		suite.NotNil(performance.Thumbnail)
+		suite.NotNil(performance.Place.Location)
 	}
 }
 
