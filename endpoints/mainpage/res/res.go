@@ -18,9 +18,8 @@ type Performance struct {
 }
 
 type Place struct {
-	ID    uint   `json:"id"`
-	Name  string `json:"name"`
-	Image string `json:"image"`
+	ID   uint   `json:"id"`
+	Name string `json:"name"`
 }
 
 func (m MainPageResponse) Of(performances []repository.Performance) MainPageResponse {
@@ -49,8 +48,7 @@ func getPlace(place *repository.Place) *Place {
 	}
 
 	return &Place{
-		ID:    place.ID,
-		Name:  place.Name,
-		Image: place.Name,
+		ID:   place.ID,
+		Name: place.Name,
 	}
 }
