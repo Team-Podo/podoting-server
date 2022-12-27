@@ -31,6 +31,36 @@ func (c *Cast) ProfileImageURL() string {
 	return os.Getenv("CDN_URL") + "/" + c.ProfileImage.Path
 }
 
+func (c *Cast) GetProfileImageUrl() *string {
+	var profileImageUrl *string
+
+	if c.ProfileImage != nil {
+		*profileImageUrl = os.Getenv("CDN_URL") + "/" + c.ProfileImage.Path
+	}
+
+	return profileImageUrl
+}
+
+func (c *Cast) GetPersonName() *string {
+	var personName *string
+
+	if c.Person != nil {
+		*personName = c.Person.Name
+	}
+
+	return personName
+}
+
+func (c *Cast) GetCharacterName() *string {
+	var characterName *string
+
+	if c.Character != nil {
+		*characterName = c.Character.Name
+	}
+
+	return characterName
+}
+
 type CastRepository struct {
 	DB    *gorm.DB
 	Joins []string

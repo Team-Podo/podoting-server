@@ -26,7 +26,7 @@ func main() {
 
 	fmt.Printf("Podoting running on %s mode \n", os.Getenv("APP_ENV"))
 
-	err := r.Run(":80")
+	err := r.Run(":8080")
 	if err != nil {
 		return
 	} // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")

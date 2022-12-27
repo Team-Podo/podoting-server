@@ -1,10 +1,10 @@
 package routes
 
 import (
+	AdminPerformances "github.com/Team-Podo/podoting-server/admin/performance"
 	"github.com/Team-Podo/podoting-server/endpoints/admin/cast"
 	"github.com/Team-Podo/podoting-server/endpoints/admin/character"
 	"github.com/Team-Podo/podoting-server/endpoints/admin/performance"
-	performanceCast "github.com/Team-Podo/podoting-server/endpoints/admin/performance/cast"
 	performanceCharacter "github.com/Team-Podo/podoting-server/endpoints/admin/performance/character"
 	"github.com/Team-Podo/podoting-server/endpoints/admin/performance/content"
 	"github.com/Team-Podo/podoting-server/endpoints/admin/performance/grades"
@@ -92,6 +92,8 @@ func Routes(r *gin.Engine) {
 			schedule.DELETE("/:uuid", performanceSchedule.Delete)
 		}
 
+		AdminPerformances.SetRoute(admin)
+
 		performances := admin.Group("/performances")
 		{
 			performances.GET("/", performance.Get)
@@ -105,12 +107,6 @@ func Routes(r *gin.Engine) {
 			{
 				places.GET("/", place.Find)
 				places.POST("/:place_id/place-image", place.UploadPlaceImage)
-			}
-
-			performanceCasts := performances.Group("/:id/casts")
-			{
-				performanceCasts.GET("/", performanceCast.Get)
-				performanceCasts.POST("/many", performanceCast.CreateMany)
 			}
 
 			performanceCharacters := performances.Group("/:id/characters")

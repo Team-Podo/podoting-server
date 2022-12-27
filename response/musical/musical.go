@@ -36,8 +36,8 @@ type ScheduleCast struct {
 type Cast struct {
 	ID      uint    `json:"id"`
 	Profile Profile `json:"profile"`
-	Name    string  `json:"name"`
-	Role    string  `json:"role"`
+	Name    *string `json:"name"`
+	Role    *string `json:"role"`
 }
 
 type Profile struct {

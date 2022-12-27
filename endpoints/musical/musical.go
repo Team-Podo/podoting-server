@@ -84,8 +84,8 @@ func getCasts(id uint, ch chan []musical.Cast) {
 			Profile: musical.Profile{
 				Url: cast.ProfileImageURL(),
 			},
-			Name: cast.Person.Name,
-			Role: cast.Character.Name,
+			Name: cast.GetPersonName(),
+			Role: cast.GetCharacterName(),
 		})
 	}
 

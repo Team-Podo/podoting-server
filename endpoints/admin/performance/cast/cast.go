@@ -4,7 +4,6 @@ import (
 	"github.com/Team-Podo/podoting-server/database"
 	"github.com/Team-Podo/podoting-server/models"
 	"github.com/Team-Podo/podoting-server/repository"
-	"github.com/Team-Podo/podoting-server/response/admin/cast_get"
 	"github.com/Team-Podo/podoting-server/response/admin/cast_save"
 	"github.com/Team-Podo/podoting-server/utils"
 	"github.com/gin-gonic/gin"
@@ -30,24 +29,6 @@ func init() {
 		cast: &repository.CastRepository{DB: database.Gorm},
 		file: &repository.FileRepository{DB: database.Gorm},
 	}
-}
-
-func Get(c *gin.Context) {
-	performanceID, err := utils.ParseUint(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, "(performance) id should be Integer")
-		return
-	}
-
-	casts, err := repositories.cast.FindByPerformanceID(performanceID)
-	if err != nil {
-		c.JSON(http.StatusNotFound, "casts not found")
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"casts": cast_get.ParseResponseForm(casts),
-	})
 }
 
 func CreateMany(c *gin.Context) {
