@@ -35,7 +35,8 @@ func (c *Cast) GetProfileImageUrl() *string {
 	var profileImageUrl *string
 
 	if c.ProfileImage != nil {
-		*profileImageUrl = os.Getenv("CDN_URL") + "/" + c.ProfileImage.Path
+		fullPath := c.ProfileImage.FullPath()
+		profileImageUrl = &fullPath
 	}
 
 	return profileImageUrl
