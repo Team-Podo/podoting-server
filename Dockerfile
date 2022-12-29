@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FROM amd64/golang:1.19 as build
+FROM golang:1.19 as build
 
 WORKDIR /app
 
