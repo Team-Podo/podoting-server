@@ -43,23 +43,23 @@ func (c *Cast) GetProfileImageUrl() *string {
 }
 
 func (c *Cast) GetPersonName() *string {
-	var personName *string
+	var personName string
 
 	if c.Person != nil {
-		*personName = c.Person.Name
+		personName = c.Person.Name
 	}
 
-	return personName
+	return &personName
 }
 
 func (c *Cast) GetCharacterName() *string {
-	var characterName *string
+	var characterName string
 
 	if c.Character != nil {
-		*characterName = c.Character.Name
+		characterName = c.Character.Name
 	}
 
-	return characterName
+	return &characterName
 }
 
 type CastRepository struct {
