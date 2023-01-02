@@ -1,6 +1,8 @@
 package response
 
-import "github.com/Team-Podo/podoting-server/repository"
+import (
+	"github.com/Team-Podo/podoting-server/repository"
+)
 
 type IndexPerformanceResponse struct {
 	Title string `json:"title"`
@@ -22,8 +24,8 @@ type IndexResponse struct {
 
 func GetIndexResponse(casts []repository.Cast, performance *repository.Performance) IndexResponse {
 	return IndexResponse{
-		Casts:       getIndexCasts(casts),
 		Performance: getIndexPerformance(performance),
+		Casts:       getIndexCasts(casts),
 	}
 }
 
@@ -36,11 +38,14 @@ func getIndexPerformance(performance *repository.Performance) IndexPerformanceRe
 func getIndexCasts(casts []repository.Cast) []IndexCastResponse {
 	castResponses := make([]IndexCastResponse, len(casts))
 	for i, cast := range casts {
+		characterID := cast.CharacterID
+		personID := cast.PersonID
+
 		castResponses[i] = IndexCastResponse{
 			ID:           cast.ID,
 			ProfileImage: cast.GetProfileImageUrl(),
-			CharacterID:  &cast.CharacterID,
-			PersonID:     &cast.PersonID,
+			CharacterID:  &characterID,
+			PersonID:     &personID,
 			CreatedAt:    cast.CreatedAt.String(),
 			UpdatedAt:    cast.UpdatedAt.String(),
 		}

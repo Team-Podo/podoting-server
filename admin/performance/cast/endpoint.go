@@ -3,28 +3,12 @@ package cast
 import (
 	"github.com/Team-Podo/podoting-server/admin/performance/cast/request"
 	"github.com/Team-Podo/podoting-server/admin/performance/cast/response"
-	"github.com/Team-Podo/podoting-server/database"
-	"github.com/Team-Podo/podoting-server/models"
 	"github.com/Team-Podo/podoting-server/repository"
 	"github.com/Team-Podo/podoting-server/utils"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 )
-
-var repositories Repository
-
-type Repository struct {
-	cast        models.CastRepository
-	performance models.PerformanceRepository
-}
-
-func init() {
-	repositories = Repository{
-		cast:        &repository.CastRepository{DB: database.Gorm},
-		performance: &repository.PerformanceRepository{DB: database.Gorm},
-	}
-}
 
 func Index(c *gin.Context) {
 	performanceID, err := utils.ParseUint(c.Param("id"))
